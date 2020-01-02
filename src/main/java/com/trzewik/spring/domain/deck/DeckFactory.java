@@ -11,9 +11,9 @@ public class DeckFactory {
 
     private static Stack<Deck.Card> createSackWithCards() {
         Stack<Deck.Card> stack = new Stack<>();
-        Arrays.stream(DeckImpl.CardImpl.RankImpl.values())
+        Arrays.stream(Deck.Card.Rank.values())
             .forEach(rank -> {
-                    Arrays.stream(DeckImpl.CardImpl.SuitImpl.values())
+                    Arrays.stream(Deck.Card.Suit.values())
                         .forEach(suit -> {
                                 stack.push(createCard(suit, rank));
                             }

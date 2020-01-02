@@ -54,9 +54,9 @@ class PlayerImplUT extends Specification implements DeckCreation {
         STARTING_HAND << [
             [],
             [createCard()],
-            [createCard(), createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.ACE))],
-            [createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.ACE))],
-            [createCard(), createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.ACE)), createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.TWO))]
+            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
+            [createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
+            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE)), createCard(new CardBuilder(rank: Deck.Card.Rank.TWO))]
         ]
         EXPECTED_VALUE << [
             0,
@@ -79,10 +79,10 @@ class PlayerImplUT extends Specification implements DeckCreation {
 
         where:
         STARTING_HAND << [
-            [createCard(), createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.ACE))],
+            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
             [createCard(),
-             createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.TWO)),
-             createCard(new CardBuilder(rank: DeckImpl.CardImpl.RankImpl.TEN))]
+             createCard(new CardBuilder(rank: Deck.Card.Rank.TWO)),
+             createCard(new CardBuilder(rank: Deck.Card.Rank.TEN))]
         ]
         EXPECTED_VALUE << [
             false,
