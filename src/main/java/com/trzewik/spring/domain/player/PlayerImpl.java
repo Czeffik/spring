@@ -1,15 +1,26 @@
 package com.trzewik.spring.domain.player;
 
 import com.trzewik.spring.domain.deck.Deck;
+import com.trzewik.spring.domain.game.Move;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @AllArgsConstructor
 class PlayerImpl implements Player {
     private final Set<Deck.Card> hand = new HashSet<>();
-    private final String name;
+    private final @NonNull UUID id;
+    private final @NonNull String name;
+    private Move move;
+
+    @Override
+    public String getId() {
+        return id.toString();
+    }
 
     @Override
     public String getName() {
@@ -30,7 +41,7 @@ class PlayerImpl implements Player {
     public int handValue() {
         int sum = calculateHandValueWithoutAce();
 
-        if (sum <= 11 && hasAceInHand()){
+        if (sum <= 11 && hasAceInHand()) {
             return sum + 10;
         }
 
@@ -42,14 +53,42 @@ class PlayerImpl implements Player {
         return handValue() > 21;
     }
 
+    @Override
+    public Move getMove() {
+        return move;
+    }
+
+    @Override
+    public void setMove(@NonNull Move move) {
+        this.move = move;
+    }
+
     private int calculateHandValueWithoutAce() {
         return hand.stream()
             .map(card -> card.getRank().getRankValue())
             .reduce(0, Integer::sum);
     }
 
-    private boolean hasAceInHand(){
+    private boolean hasAceInHand() {
         return hand.stream()
             .anyMatch(Deck.Card::isAce);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlayerImpl player = (PlayerImpl) o;
+        return id.equals(player.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{id=%s, name=%s, hand=%s}", id.toString(), name, hand.toString());
     }
 }

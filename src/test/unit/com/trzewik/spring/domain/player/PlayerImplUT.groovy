@@ -3,11 +3,12 @@ package com.trzewik.spring.domain.player
 import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.deck.DeckCreation
 import com.trzewik.spring.domain.deck.DeckImpl
+import com.trzewik.spring.domain.game.Move
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class PlayerImplUT extends Specification implements DeckCreation{
+class PlayerImplUT extends Specification implements DeckCreation {
     static final String playerName = 'Adam'
     @Subject
     Player player = PlayerFactory.createPlayer(playerName)
@@ -87,6 +88,45 @@ class PlayerImplUT extends Specification implements DeckCreation{
             false,
             true
         ]
+    }
 
+    def 'should get player id as string'() {
+        expect:
+        player.getId() != null
+        player.getId() instanceof String
+    }
+
+    def 'should get player default move = null'() {
+        expect:
+        player.getMove() == null
+    }
+
+    @Unroll
+    def 'should set player move = #MOVE and be possible to get it'() {
+        when:
+        player.setMove(MOVE)
+
+        then:
+        player.@move == MOVE
+
+        and:
+        player.getMove() == MOVE
+
+        where:
+        MOVE << Move.values()
+    }
+
+    def 'should compare players by his id only'() {
+        given:
+        Player otherPlayer = new PlayerImpl(UUID.fromString(player.getId()), 'other name', null)
+
+        expect:
+        otherPlayer == player
+
+        when:
+        otherPlayer = PlayerFactory.createPlayer(playerName)
+
+        then:
+        otherPlayer != player
     }
 }
