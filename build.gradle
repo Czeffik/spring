@@ -10,6 +10,7 @@ buildscript {
         slf4jVersion = '1.7.30'
         jettyVersion = '9.4.25.v20191220'
         javaxServletVersion = '4.0.1'
+        jacksonVersion = '2.10.1'
         repositories (repos)
     }
 }
@@ -38,6 +39,8 @@ dependencies {
     compile "org.springframework:spring-webmvc:${springVersion}"
     compile "javax.servlet:javax.servlet-api:${javaxServletVersion}"
     compile "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
+
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
     compile "org.slf4j:slf4j-simple:${slf4jVersion}"
