@@ -39,10 +39,10 @@ public interface Deck {
         @AllArgsConstructor
         @Getter
         enum Suit {
-            SPADE("\u2660"),
-            HEART("\u2764"),
-            DIAMOND("\u2666"),
-            CLUB("\u2663");
+            SPADE("♠"),
+            HEART("❤"),
+            DIAMOND("♦"),
+            CLUB("♣");
 
             private final String image;
         }

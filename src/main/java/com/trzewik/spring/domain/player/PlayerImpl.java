@@ -75,10 +75,14 @@ class PlayerImpl implements Player {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PlayerImpl player = (PlayerImpl) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        PlayerImpl player = (PlayerImpl) obj;
         return id.equals(player.id);
     }
 
