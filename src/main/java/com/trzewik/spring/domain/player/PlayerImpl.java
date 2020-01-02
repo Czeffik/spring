@@ -1,7 +1,7 @@
 package com.trzewik.spring.domain.player;
 
 import com.trzewik.spring.domain.deck.Deck;
-import com.trzewik.spring.domain.game.Move;
+import com.trzewik.spring.domain.game.Game;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -15,7 +15,7 @@ class PlayerImpl implements Player {
     private final Set<Deck.Card> hand = new HashSet<>();
     private final @NonNull UUID id;
     private final @NonNull String name;
-    private Move move;
+    private Game.Move move;
 
     @Override
     public String getId() {
@@ -54,12 +54,12 @@ class PlayerImpl implements Player {
     }
 
     @Override
-    public Move getMove() {
+    public Game.Move getMove() {
         return move;
     }
 
     @Override
-    public void setMove(@NonNull Move move) {
+    public void setMove(@NonNull Game.Move move) {
         this.move = move;
     }
 

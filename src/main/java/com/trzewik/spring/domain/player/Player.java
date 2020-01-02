@@ -1,7 +1,7 @@
 package com.trzewik.spring.domain.player;
 
 import com.trzewik.spring.domain.deck.Deck;
-import com.trzewik.spring.domain.game.Move;
+import com.trzewik.spring.domain.game.Game;
 
 import java.util.Set;
 
@@ -18,7 +18,7 @@ public interface Player {
 
     boolean isLooser();
 
-    Move getMove();
+    Game.Move getMove();
 
-    void setMove(Move move);
+    void setMove(Game.Move move);
 }

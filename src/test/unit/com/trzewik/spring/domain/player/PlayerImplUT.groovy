@@ -2,8 +2,7 @@ package com.trzewik.spring.domain.player
 
 import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.deck.DeckCreation
-import com.trzewik.spring.domain.deck.DeckImpl
-import com.trzewik.spring.domain.game.Move
+import com.trzewik.spring.domain.game.Game
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -98,7 +97,7 @@ class PlayerImplUT extends Specification implements DeckCreation {
 
     def 'should get player default move = NONE'() {
         expect:
-        player.getMove() == Move.NONE
+        player.getMove() == Game.Move.NONE
     }
 
     @Unroll
@@ -113,7 +112,7 @@ class PlayerImplUT extends Specification implements DeckCreation {
         player.getMove() == MOVE
 
         where:
-        MOVE << Move.values()
+        MOVE << Game.Move.values()
     }
 
     def 'should compare players by his id only'() {
