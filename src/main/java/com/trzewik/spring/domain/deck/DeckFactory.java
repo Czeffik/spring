@@ -1,8 +1,12 @@
 package com.trzewik.spring.domain.deck;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.Arrays;
 import java.util.Stack;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeckFactory {
 
     public static Deck createDeck() {

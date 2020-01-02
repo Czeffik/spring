@@ -1,6 +1,8 @@
 package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.player.Player;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class PlayersResultsHelper {
 
     //TODO what if players have exactly same hand value?
