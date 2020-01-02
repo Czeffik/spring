@@ -20,6 +20,7 @@ dependencies {
     testImplementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
     testImplementation "junit:junit:${junitVersion}"
     testImplementation "org.spockframework:spock-core:${spockVersion}"
+    testImplementation "org.spockframework:spock-spring:${spockVersion}"
 }
 
 idea {

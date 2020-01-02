@@ -31,6 +31,13 @@ repositories (repos)
 
 dependencies {
     compile "org.springframework:spring-context:${springVersion}"
+//    compile "org.springframework:spring-web:${springVersion}"
+    compile "org.springframework:spring-webmvc:${springVersion}"
+    compile "org.springframework:spring-test:${springVersion}"
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    compile 'javax.servlet:jstl:1.2'
+
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
