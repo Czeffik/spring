@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest;
 
-import com.trzewik.spring.domain.board.Board;
+import com.trzewik.spring.domain.board.GameService;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
@@ -14,56 +14,50 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class BoardController {
-    private Board board;
+public class GameController {
+    private GameService board;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public String index() {
         return "{\"dupa\": \"greeting\"}";
     }
 
-    @PostMapping(value = "/createGame", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Game createGame() {
+    @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Game createGame() {
         return board.createGame();
     }
 
-    @PostMapping(value = "/{gameId}/addPlayer/{playerName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Game addPlayer(
+    @PostMapping(value = "/games/{gameId}/players", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Game addPlayer(
         @PathVariable(value = "gameId") String gameId,
-        @PathVariable(value = "playerName") String playerName
+        @NonNull @RequestBody AddPlayerForm addPlayerForm
     ) throws GameException, GameRepository.GameNotFoundException {
-        return board.addPlayer(gameId, playerName);
+        return board.addPlayer(gameId, addPlayerForm.getName());
     }
 
-    @PostMapping(value = "/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Game startGame(
+    @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Game startGame(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
         return board.startGame(gameId);
     }
 
-    @PostMapping(value = "/{gameId}/move", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Game makeMove(
+    @PostMapping(value = "/games/{gameId}/move", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Game makeMove(
         @PathVariable(value = "gameId") String gameId,
-        @NonNull @RequestBody MoveDao moveDao
+        @NonNull @RequestBody MoveForm moveForm
     ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
-        return board.makeMove(gameId, moveDao.getPlayerId(), moveDao.getMove());
+        return board.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove());
     }
 
-    @GetMapping(value = "/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    List<Result> getResults(
+    @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Result> getResults(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
         return board.getGameResults(gameId);
@@ -71,8 +65,14 @@ public class BoardController {
 
     @AllArgsConstructor
     @Getter
-    static class MoveDao {
+    static class MoveForm {
         private Game.Move move;
         private String playerId;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    static class AddPlayerForm {
+        private String name;
     }
 }

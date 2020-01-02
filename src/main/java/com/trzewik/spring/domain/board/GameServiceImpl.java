@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 
 @AllArgsConstructor
-class BoardImpl implements Board {
+class GameServiceImpl implements GameService {
     private GameRepository gameRepo;
     private PlayerRepository playerRepo;
 

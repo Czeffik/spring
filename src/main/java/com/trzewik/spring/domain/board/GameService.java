@@ -8,7 +8,7 @@ import com.trzewik.spring.domain.player.PlayerRepository;
 
 import java.util.List;
 
-public interface Board {
+public interface GameService {
     Game createGame();
 
     Game addPlayer(String gameId, String playerName) throws GameException, GameRepository.GameNotFoundException;
