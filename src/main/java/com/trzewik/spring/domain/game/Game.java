@@ -5,6 +5,8 @@ import com.trzewik.spring.domain.player.Player;
 import java.util.List;
 
 public interface Game {
+    String getId();
+
     void addPlayer(Player player) throws GameException;
 
     Game startGame() throws GameException;

@@ -8,7 +8,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @Getter
-class Result {
+public class Result {
     private int place;
     private Player player;
 }

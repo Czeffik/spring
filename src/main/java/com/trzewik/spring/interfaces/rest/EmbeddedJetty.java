@@ -47,7 +47,7 @@ public class EmbeddedJetty implements AutoCloseable {
 
     private WebApplicationContext webApplicationContext() {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation("com.trzewik.spring.interfaces.rest");
+        context.setConfigLocation("com.trzewik.spring");
         return context;
     }
 

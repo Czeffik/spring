@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 class GameImpl implements Game {
     private final List<Player> players = new ArrayList<>();
+    private final @NonNull String id;
     private final @NonNull Player croupier;
     private final @NonNull Deck deck;
     private @NonNull Status status;
@@ -30,6 +31,11 @@ class GameImpl implements Game {
         status = Status.STARTED;
         setCurrentPlayer();
         return this;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override
