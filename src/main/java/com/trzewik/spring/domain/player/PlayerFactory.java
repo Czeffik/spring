@@ -6,6 +6,6 @@ public class PlayerFactory {
     }
 
     public static Player createCroupier() {
-        return new Croupier();
+        return new PlayerImpl("Croupier");
     }
 }

@@ -12,4 +12,6 @@ public interface Player {
     void addCard(Deck.Card card);
 
     int handValue();
+
+    boolean isLooser();
 }
