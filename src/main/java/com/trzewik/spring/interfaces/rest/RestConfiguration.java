@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 public class RestConfiguration {
     @Bean
-    GameController controller(GameService board) {
-        return new GameController(board);
+    GameController gameController(GameService service) {
+        return new GameController(service);
     }
 }

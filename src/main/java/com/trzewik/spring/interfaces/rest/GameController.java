@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 public class GameController {
-    private GameService board;
+    private GameService service;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public String index() {
@@ -30,7 +30,7 @@ public class GameController {
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public Game createGame() {
-        return board.createGame();
+        return service.createGame();
     }
 
     @PostMapping(value = "/games/{gameId}/players", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,14 +38,14 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody AddPlayerForm addPlayerForm
     ) throws GameException, GameRepository.GameNotFoundException {
-        return board.addPlayer(gameId, addPlayerForm.getName());
+        return service.addPlayer(gameId, addPlayerForm.getName());
     }
 
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public Game startGame(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
-        return board.startGame(gameId);
+        return service.startGame(gameId);
     }
 
     @PostMapping(value = "/games/{gameId}/move", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,14 +53,14 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody MoveForm moveForm
     ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
-        return board.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove());
+        return service.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove());
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Result> getResults(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
-        return board.getGameResults(gameId);
+        return service.getGameResults(gameId);
     }
 
     @AllArgsConstructor

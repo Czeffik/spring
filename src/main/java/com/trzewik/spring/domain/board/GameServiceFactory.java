@@ -6,8 +6,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BoardFactory {
-    public static GameService createBoard(GameRepository gameRepository, PlayerRepository playerRepository) {
+public class GameServiceFactory {
+    public static GameService createService(GameRepository gameRepository, PlayerRepository playerRepository) {
         return new GameServiceImpl(gameRepository, playerRepository);
     }
 }
