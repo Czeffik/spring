@@ -57,7 +57,7 @@ class GameImpl implements Game {
             throw new GameException("Game NOT started, please start game before auction");
         }
         if (gameEnded()) {
-            throw new GameException(String.format("Game finished. Check results: %s", getResults()));
+            throw new GameException("Game finished. Now you can check results!");
         }
         if (notPlayerTurn(player)) {
             throw new GameException(String.format("Waiting for move from player: [%s] instead of: [%s]",
@@ -80,6 +80,16 @@ class GameImpl implements Game {
         }
 
         return this;
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    @Override
+    public Player getCroupier() {
+        return croupier;
     }
 
     @Override

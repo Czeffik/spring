@@ -17,8 +17,12 @@ public interface Game {
 
     Game auction(Player player, Move move) throws GameException;
 
+    Player getCurrentPlayer();
+
+    Player getCroupier();
+
     enum Move {
-        NONE, HIT, STAND
+        HIT, STAND
     }
 
     enum Status {

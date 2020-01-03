@@ -95,9 +95,9 @@ class PlayerImplUT extends Specification implements DeckCreation {
         player.getId() instanceof String
     }
 
-    def 'should get player default move = NONE'() {
+    def 'should get player default move = HIT'() {
         expect:
-        player.getMove() == Game.Move.NONE
+        player.getMove() == Game.Move.HIT
     }
 
     @Unroll

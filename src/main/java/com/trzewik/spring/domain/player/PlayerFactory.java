@@ -9,11 +9,11 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerFactory {
     public static Player createPlayer(String name) {
-        return new PlayerImpl(generateId(), name, Game.Move.NONE);
+        return new PlayerImpl(generateId(), name, Game.Move.HIT);
     }
 
     public static Player createCroupier() {
-        return new PlayerImpl(generateId(), "Croupier", Game.Move.NONE);
+        return new PlayerImpl(generateId(), "Croupier", Game.Move.HIT);
     }
 
     private static UUID generateId() {

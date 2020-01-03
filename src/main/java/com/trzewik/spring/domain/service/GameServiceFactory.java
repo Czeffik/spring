@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.board;
+package com.trzewik.spring.domain.service;
 
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;

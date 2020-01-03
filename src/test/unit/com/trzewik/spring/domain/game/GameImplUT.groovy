@@ -30,6 +30,31 @@ class GameImplUT extends Specification implements PlayerCreation {
         game.@players.size() == 1
     }
 
+    def 'should be possible get game id'() {
+        expect:
+        game.getId() == game.@id
+    }
+
+    def 'should be possible get croupier'() {
+        expect:
+        game.getCroupier() == game.@croupier
+    }
+
+    def 'should be possible get current player - when is null'() {
+        expect:
+        game.getCurrentPlayer() == game.@currentPlayer
+    }
+
+    def 'should be possible get current player - when is not null'() {
+        given:
+        Player player = createPlayer()
+        game.addPlayer(player)
+        game.startGame()
+
+        expect:
+        game.getCurrentPlayer() == player
+    }
+
     @Unroll
     def 'should throw exception when trying add player when game was #STATUS'() {
         given:
@@ -126,7 +151,7 @@ class GameImplUT extends Specification implements PlayerCreation {
 
         then:
         GameException ex = thrown()
-        ex.message.contains('Game finished. Check results:')
+        ex.message == 'Game finished. Now you can check results!'
     }
 
     def 'should throw exception when wrong player (not this player turn) trying auction'() {

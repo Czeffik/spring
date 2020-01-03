@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.board;
+package com.trzewik.spring.domain.service;
 
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
@@ -25,14 +25,15 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game addPlayer(String gameId, String playerName) throws GameException, GameRepository.GameNotFoundException {
+    public Player addPlayer(String gameId, String playerName)
+        throws GameException, GameRepository.GameNotFoundException {
         Game game = gameRepo.findGame(gameId);
 
         Player player = PlayerFactory.createPlayer(playerName);
-        playerRepo.save(player);
         game.addPlayer(player);
+        playerRepo.save(player);
 
-        return game;
+        return player;
     }
 
     @Override
@@ -42,7 +43,8 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game makeMove(String gameId, String playerId, Game.Move move) throws GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException, GameException {
+    public Game makeMove(String gameId, String playerId, Game.Move move)
+        throws GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException, GameException {
         Game game = gameRepo.findGame(gameId);
         Player player = playerRepo.findPlayer(playerId);
         return game.auction(player, move);

@@ -15,6 +15,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:application.properties")
 public class App {
     public static void main(String[] args) throws Exception {
-        new EmbeddedJetty(9092);
+        new EmbeddedJetty(9094);
     }
 }
