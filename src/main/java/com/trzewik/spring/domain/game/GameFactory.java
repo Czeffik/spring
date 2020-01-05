@@ -1,20 +1,30 @@
 package com.trzewik.spring.domain.game;
 
+import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.deck.DeckFactory;
+import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameFactory {
     public static Game createGame() {
-        return new GameImpl(
+        return createGame(
             UUID.randomUUID().toString(),
+            new ArrayList<>(),
             PlayerFactory.createCroupier(),
             DeckFactory.createDeck(),
             Game.Status.NOT_STARTED,
             null);
+    }
+
+    public static Game createGame(String id, List<Player> players, Player croupier,
+                                  Deck deck, Game.Status status, Player currentPlayer) {
+        return new GameImpl(id, players, croupier, deck, status, currentPlayer);
     }
 }

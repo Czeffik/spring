@@ -1,5 +1,6 @@
 package com.trzewik.spring.domain.player
 
+import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.game.Game
 
 
@@ -9,6 +10,7 @@ trait PlayerCreation {
         return new PlayerImpl(
             builder.id,
             builder.name,
+            builder.hand,
             builder.move
         )
     }
@@ -20,9 +22,19 @@ trait PlayerCreation {
     }
 
     static class PlayerBuilder {
-        UUID id = UUID.randomUUID()
+        String id = UUID.randomUUID().toString()
         String name = 'example name'
+        Set<Deck.Card> hand = [] as Set
         Game.Move move = null
+
+        PlayerBuilder() {}
+
+        PlayerBuilder(Player player) {
+            id = player.id
+            name = player.name
+            hand = player.hand
+            move = player.move
+        }
     }
 
 }

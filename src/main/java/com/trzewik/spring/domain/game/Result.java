@@ -9,6 +9,6 @@ import lombok.ToString;
 @ToString
 @Getter
 public class Result {
-    private int place;
-    private Player player;
+    private final int place;
+    private final Player player;
 }

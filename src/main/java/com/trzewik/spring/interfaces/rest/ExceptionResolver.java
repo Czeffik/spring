@@ -2,7 +2,6 @@ package com.trzewik.spring.interfaces.rest;
 
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
-import com.trzewik.spring.domain.player.PlayerRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,9 @@ public class ExceptionResolver extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(value = {GameRepository.GameNotFoundException.class, PlayerRepository.PlayerNotFoundException.class})
+    @ExceptionHandler(value = {
+        GameRepository.GameNotFoundException.class
+    })
     protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
         String bodyOfResponse = ex.getMessage();
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);

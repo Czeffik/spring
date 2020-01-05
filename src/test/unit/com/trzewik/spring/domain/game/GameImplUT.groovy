@@ -1,12 +1,15 @@
 package com.trzewik.spring.domain.game
 
+import com.trzewik.spring.domain.deck.Deck
+import com.trzewik.spring.domain.deck.DeckCreation
+import com.trzewik.spring.domain.deck.DeckFactory
 import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class GameImplUT extends Specification implements PlayerCreation {
+class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
 
     @Subject
     Game game = GameFactory.createGame()
@@ -135,7 +138,7 @@ class GameImplUT extends Specification implements PlayerCreation {
 
     def 'should throw exception when doing auction without starting game'() {
         when:
-        game.auction(createPlayer(), Game.Move.HIT)
+        game.auction(createPlayer().id, Game.Move.HIT)
 
         then:
         GameException ex = thrown()
@@ -147,7 +150,7 @@ class GameImplUT extends Specification implements PlayerCreation {
         game.@status = Game.Status.ENDED
 
         when:
-        game.auction(createPlayer(), Game.Move.HIT)
+        game.auction(createPlayer().id, Game.Move.HIT)
 
         then:
         GameException ex = thrown()
@@ -162,29 +165,11 @@ class GameImplUT extends Specification implements PlayerCreation {
         setupGame(players)
 
         when:
-        game.auction(players[1], Game.Move.HIT)
+        game.auction(players[1].id, Game.Move.HIT)
 
         then:
         GameException ex = thrown()
         ex.message == "Waiting for move from player: [${players.first().id}] instead of: [${players.get(1).id}]"
-    }
-
-    def 'should throw exception when player which stand trying make move'() {
-        given:
-        def players = createPlayers()
-
-        and:
-        setupGame(players)
-
-        and:
-        players.first().@move = Game.Move.STAND
-
-        when:
-        game.auction(players.first(), Game.Move.HIT)
-
-        then:
-        GameException ex = thrown()
-        ex.message == "Player [${players.first().getId()}] can not make move. He stands."
     }
 
     def 'should make HIT move - setPlayer move to HIT, get extra card from deck'() {
@@ -195,7 +180,7 @@ class GameImplUT extends Specification implements PlayerCreation {
         setupGame(players)
 
         when:
-        Game gameAfterAuction = game.auction(players.first(), Game.Move.HIT)
+        Game gameAfterAuction = game.auction(players.first().id, Game.Move.HIT)
 
         then:
         players.first().hand.size() == 3
@@ -219,7 +204,7 @@ class GameImplUT extends Specification implements PlayerCreation {
         setupGame(players)
 
         when:
-        Game gameAfterAuction = game.auction(players.first(), Game.Move.STAND)
+        Game gameAfterAuction = game.auction(players.first().id, Game.Move.STAND)
 
         then:
         players.first().hand.size() == 2
@@ -246,16 +231,19 @@ class GameImplUT extends Specification implements PlayerCreation {
         setupGame(players)
 
         when:
-        game.auction(players.first(), Game.Move.STAND)
-
-        and:
-        game.auction(players[1], Game.Move.STAND)
+        game.auction(players.first().id, Game.Move.STAND)
 
         then:
         players.first().hand.size() == 2
         players.first().move == Game.Move.STAND
 
         and:
+        game.@currentPlayer == players[1]
+
+        when:
+        game.auction(players[1].id, Game.Move.STAND)
+
+        then:
         players.get(1).hand.size() == 2
         players.get(1).move == Game.Move.STAND
 
@@ -278,7 +266,7 @@ class GameImplUT extends Specification implements PlayerCreation {
 
         when:
         while (player.handValue() <= 21) {
-            game.auction(player, Game.Move.HIT)
+            game.auction(player.id, Game.Move.HIT)
         }
 
         then:
@@ -311,7 +299,7 @@ class GameImplUT extends Specification implements PlayerCreation {
         setupGame(players)
 
         and:
-        players.each { game.auction(it, Game.Move.STAND) }
+        players.each { game.auction(it.id, Game.Move.STAND) }
 
         when:
         def results = game.getResults()
@@ -319,6 +307,122 @@ class GameImplUT extends Specification implements PlayerCreation {
         then:
         results.size() == 3
         results.collect { it.@player }.containsAll(players)
+    }
+
+    def 'should return empty list with players when no players added'() {
+        expect:
+        game.getPlayers().size() == 0
+    }
+
+    def 'should return list with players'() {
+        given:
+        Player player = createPlayer()
+
+        and:
+        game.addPlayer(player)
+
+        when:
+        def players = game.getPlayers()
+
+        then:
+        players.size() == 1
+        players.first().is(player)
+    }
+
+    def 'should return deck with all cards'() {
+        expect:
+        game.getDeck().@cards.size() == 52
+    }
+
+    def 'should return deck without cards which was picked'() {
+        given:
+        3.times {
+            game.@deck.take()
+        }
+
+        expect:
+        game.getDeck().@cards.size() == 49
+    }
+
+    def 'should throw exception when id is null'() {
+        when:
+        new GameImpl(null, [], createPlayer(), DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when players are null'() {
+        when:
+        new GameImpl('', null, createPlayer(), DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when croupier is null'() {
+        when:
+        new GameImpl('', [], null, DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when deck is null'() {
+        when:
+        new GameImpl('', [], createPlayer(), null, Game.Status.NOT_STARTED, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when status is null'() {
+        when:
+        new GameImpl('', [], createPlayer(), DeckFactory.createDeck(), null, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should shuffle deck on game start'() {
+        given:
+        Deck deck = Mock()
+        def game = new GameImpl('12312', createPlayers(), createPlayer(), deck, Game.Status.NOT_STARTED, createPlayer())
+
+        when:
+        game.startGame()
+
+        then:
+        1 * deck.shuffle()
+    }
+
+    def 'croupier should pick cards only if his hand value is lesser than 17'() {
+        given:
+        Player croupier = Mock()
+        def players = createPlayers(1)
+        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, players.first())
+
+        when:
+        game.auction(players.first().id, Game.Move.STAND)
+
+        then:
+        1 * croupier.handValue() >> 17
+        0 * croupier.addCard(_)
+    }
+
+    def 'croupier should pick cards till his hand has value higher than 16'() {
+        given:
+        Player croupier = Mock()
+        def players = createPlayers(1)
+        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, players.first())
+
+        when:
+        game.auction(players.first().id, Game.Move.STAND)
+
+        then:
+        1 * croupier.handValue() >> 16
+        1 * croupier.addCard(_)
+        1 * croupier.handValue() >> 25
     }
 
     Game setupGame(List<Player> players) {

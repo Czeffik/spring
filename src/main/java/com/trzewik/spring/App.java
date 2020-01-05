@@ -16,5 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 public class App {
     public static void main(String[] args) throws Exception {
         new EmbeddedJetty(9094);
+        //AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(App.class);
+        //Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
     }
 }

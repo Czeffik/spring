@@ -5,7 +5,6 @@ import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.Result;
 import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerRepository;
 
 import java.util.List;
 
@@ -16,8 +15,8 @@ public interface GameService {
 
     Game startGame(String gameId) throws GameRepository.GameNotFoundException, GameException;
 
-    Game makeMove(String gameId, String playerId, Game.Move move) throws GameRepository.GameNotFoundException,
-        PlayerRepository.PlayerNotFoundException, GameException;
+    Game makeMove(String gameId, String playerId, Game.Move move)
+        throws GameRepository.GameNotFoundException, GameException;
 
     List<Result> getGameResults(String gameId) throws GameRepository.GameNotFoundException, GameException;
 }

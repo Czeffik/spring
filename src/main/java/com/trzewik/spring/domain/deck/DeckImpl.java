@@ -3,13 +3,15 @@ package com.trzewik.spring.domain.deck;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.Collections;
 import java.util.Stack;
 
 @AllArgsConstructor
+@EqualsAndHashCode
 class DeckImpl implements Deck {
-    private final Stack<Deck.Card> cards;
+    private final @NonNull Stack<Deck.Card> cards;
 
     @Override
     public void shuffle() {
@@ -25,8 +27,8 @@ class DeckImpl implements Deck {
     @Getter
     @EqualsAndHashCode
     static class CardImpl implements Deck.Card {
-        private final Suit suit;
-        private final Rank rank;
+        private final @NonNull Suit suit;
+        private final @NonNull Rank rank;
 
         @Override
         public String toString() {

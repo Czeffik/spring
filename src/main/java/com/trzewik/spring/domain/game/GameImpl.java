@@ -3,6 +3,7 @@ package com.trzewik.spring.domain.game;
 import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.player.Player;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 import java.util.ArrayList;
@@ -10,9 +11,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @AllArgsConstructor
+@EqualsAndHashCode
 class GameImpl implements Game {
-    private final List<Player> players = new ArrayList<>();
     private final @NonNull String id;
+    private final @NonNull List<Player> players;
     private final @NonNull Player croupier;
     private final @NonNull Deck deck;
     private @NonNull Status status;
@@ -29,7 +31,7 @@ class GameImpl implements Game {
         deck.shuffle();
         dealCards();
         status = Status.STARTED;
-        setCurrentPlayer();
+        setCurrentPlayer(players.get(0));
         return this;
     }
 
@@ -52,25 +54,22 @@ class GameImpl implements Game {
     }
 
     @Override
-    public Game auction(Player player, @NonNull Move move) throws GameException {
+    public Game auction(String playerId, @NonNull Move move) throws GameException {
         if (!gameStarted()) {
             throw new GameException("Game NOT started, please start game before auction");
         }
         if (gameEnded()) {
             throw new GameException("Game finished. Now you can check results!");
         }
-        if (notPlayerTurn(player)) {
+        if (notPlayerTurn(playerId)) {
             throw new GameException(String.format("Waiting for move from player: [%s] instead of: [%s]",
-                currentPlayer.getId(), player.getId()));
-        }
-        if (player.getMove() == Move.STAND) {
-            throw new GameException(String.format("Player [%s] can not make move. He stands.", player.getId()));
+                currentPlayer.getId(), playerId));
         }
 
-        player.setMove(move);
+        currentPlayer.setMove(move);
 
         if (move.equals(Move.HIT)) {
-            player.addCard(deck.take());
+            currentPlayer.addCard(deck.take());
         }
 
         setCurrentPlayer();
@@ -93,6 +92,16 @@ class GameImpl implements Game {
     }
 
     @Override
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    @Override
+    public Deck getDeck() {
+        return deck;
+    }
+
+    @Override
     public List<Result> getResults() throws GameException {
         if (gameEnded()) {
             return PlayersResultsHelper.createResults(getPlayersWithCroupier());
@@ -102,6 +111,7 @@ class GameImpl implements Game {
 
     private void endGame() {
         croupierPicks();
+        croupier.setMove(Move.STAND);
         status = Status.ENDED;
     }
 
@@ -119,8 +129,12 @@ class GameImpl implements Game {
         return status.equals(Status.ENDED);
     }
 
-    private boolean notPlayerTurn(Player player) {
-        return !player.equals(currentPlayer);
+    private boolean notPlayerTurn(String playerId) {
+        return !playerId.equals(currentPlayer.getId());
+    }
+
+    private void setCurrentPlayer(Player player) {
+        currentPlayer = player;
     }
 
     private void setCurrentPlayer() {

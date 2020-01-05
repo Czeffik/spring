@@ -1,10 +1,9 @@
 package com.trzewik.spring.interfaces.rest;
 
-import com.trzewik.spring.domain.service.GameService;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
-import com.trzewik.spring.domain.player.PlayerRepository;
+import com.trzewik.spring.domain.service.GameService;
 import com.trzewik.spring.interfaces.rest.dto.GameDto;
 import com.trzewik.spring.interfaces.rest.dto.PlayerDto;
 import com.trzewik.spring.interfaces.rest.dto.ResultDto;
@@ -57,7 +56,7 @@ public class GameController {
     public GameDto makeMove(
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody MoveForm moveForm
-    ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
+    ) throws GameException, GameRepository.GameNotFoundException {
         return GameDto.from(service.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
     }
 

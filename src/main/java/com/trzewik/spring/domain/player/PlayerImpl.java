@@ -5,21 +5,19 @@ import com.trzewik.spring.domain.game.Game;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @AllArgsConstructor
 class PlayerImpl implements Player {
-    private final Set<Deck.Card> hand = new HashSet<>();
-    private final @NonNull UUID id;
+    private final @NonNull String id;
     private final @NonNull String name;
+    private final @NonNull Set<Deck.Card> hand;
     private Game.Move move;
 
     @Override
     public String getId() {
-        return id.toString();
+        return id;
     }
 
     @Override
@@ -93,6 +91,6 @@ class PlayerImpl implements Player {
 
     @Override
     public String toString() {
-        return String.format("{id=%s, name=%s, hand=%s}", id.toString(), name, hand.toString());
+        return String.format("{id=%s, name=%s, hand=%s}", id, name, hand.toString());
     }
 }

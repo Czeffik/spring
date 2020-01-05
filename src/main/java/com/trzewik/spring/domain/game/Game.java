@@ -1,5 +1,6 @@
 package com.trzewik.spring.domain.game;
 
+import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.player.Player;
 
 import java.util.List;
@@ -15,11 +16,15 @@ public interface Game {
 
     List<Result> getResults() throws GameException;
 
-    Game auction(Player player, Move move) throws GameException;
+    Game auction(String playerId, Move move) throws GameException;
 
     Player getCurrentPlayer();
 
     Player getCroupier();
+
+    List<Player> getPlayers();
+
+    Deck getDeck();
 
     enum Move {
         HIT, STAND

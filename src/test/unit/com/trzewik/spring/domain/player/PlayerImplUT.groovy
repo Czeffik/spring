@@ -115,17 +115,27 @@ class PlayerImplUT extends Specification implements DeckCreation {
         MOVE << Game.Move.values()
     }
 
-    def 'should compare players by his id only'() {
-        given:
-        Player otherPlayer = new PlayerImpl(UUID.fromString(player.getId()), 'other name', null)
-
-        expect:
-        otherPlayer == player
-
+    def 'should throw exception when id is null'() {
         when:
-        otherPlayer = PlayerFactory.createPlayer(playerName)
+        new PlayerImpl(null, '', [] as Set, null)
 
         then:
-        otherPlayer != player
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when name is null'() {
+        when:
+        new PlayerImpl('', null, [] as Set, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when hand is null'() {
+        when:
+        new PlayerImpl('', '', null, null)
+
+        then:
+        thrown(NullPointerException)
     }
 }
