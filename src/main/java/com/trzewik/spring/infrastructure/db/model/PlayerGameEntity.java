@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -29,7 +28,6 @@ import java.util.stream.Collectors;
 @Table(name = "player_game")
 @Setter
 @EqualsAndHashCode
-@RequiredArgsConstructor
 @NoArgsConstructor
 public class PlayerGameEntity {
 
@@ -47,7 +45,6 @@ public class PlayerGameEntity {
     private GameEntity game;
 
     @Getter
-    @NonNull
     @Column(name = "move")
     @Enumerated(EnumType.STRING)
     private Game.Move move;
@@ -55,6 +52,12 @@ public class PlayerGameEntity {
     @NonNull
     @Column(name = "hand")
     private String hand;
+
+    PlayerGameEntity(PlayerGameId id, Game.Move move, String hand) {
+        this.playerGameId = id;
+        this.move = move;
+        this.hand = hand;
+    }
 
     static List<PlayerGameEntity> from(Game game) {
         return game.getPlayers().stream()
@@ -81,10 +84,6 @@ public class PlayerGameEntity {
 
     String getPlayerId() {
         return player.getId();
-    }
-
-    String getGameId() {
-        return game.getId();
     }
 
     String getName() {

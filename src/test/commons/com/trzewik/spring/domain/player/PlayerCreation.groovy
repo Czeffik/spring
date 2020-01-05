@@ -25,7 +25,7 @@ trait PlayerCreation {
         String id = UUID.randomUUID().toString()
         String name = 'example name'
         Set<Deck.Card> hand = [] as Set
-        Game.Move move = null
+        Game.Move move = Game.Move.HIT
 
         PlayerBuilder() {}
 

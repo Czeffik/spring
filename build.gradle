@@ -14,7 +14,7 @@ buildscript {
         postgresVersion = '42.2.9'
         hibernateVersion = '5.4.10.Final'
         hibernateTypesVersion = '2.8.0'
-        repositories (repos)
+        repositories(repos)
     }
 }
 
@@ -35,7 +35,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
-repositories (repos)
+repositories(repos)
 
 dependencies {
     compile "org.springframework:spring-context:${springVersion}"

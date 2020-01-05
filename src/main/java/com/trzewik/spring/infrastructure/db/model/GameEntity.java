@@ -42,7 +42,7 @@ public class GameEntity implements Serializable {
         fetch = FetchType.EAGER,
         mappedBy = "game"
     )
-    private List<PlayerGameEntity> players = new ArrayList<>();
+    private List<PlayerGameEntity> players;
 
     @Column(name = "deck")
     private String deck;
@@ -127,7 +127,7 @@ public class GameEntity implements Serializable {
             .orElseThrow(() -> new GameEntityException(playerId, id));
     }
 
-    static class GameEntityException extends RuntimeException {
+    public static class GameEntityException extends RuntimeException {
         GameEntityException(String playerId, String gameId) {
             super(String.format("Player with id: [%s] not found in game with id: [%s]", playerId, gameId));
         }

@@ -1,7 +1,5 @@
 package com.trzewik.spring.infrastructure.db.model;
 
-import com.trzewik.spring.domain.deck.Deck;
-import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerFactory;
 import lombok.AllArgsConstructor;
@@ -21,7 +19,6 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "player")
@@ -45,7 +42,7 @@ public class PlayerEntity implements Serializable {
         fetch = FetchType.EAGER,
         mappedBy = "player"
     )
-    private List<PlayerGameEntity> games = new ArrayList<>();
+    private List<PlayerGameEntity> games;
 
     public static PlayerEntity from(Player player) {
         return new PlayerEntity(
@@ -56,30 +53,5 @@ public class PlayerEntity implements Serializable {
 
     public Player getPlayer() {
         return PlayerFactory.createPlayer(id, name);
-    }
-
-    public Player getPlayer(String gameId) {
-        return PlayerFactory.createPlayer(id, name, getHand(gameId), getMove(gameId));
-    }
-
-    private Game.Move getMove(String gameId) {
-        return getGame(gameId).getMove();
-    }
-
-    private Set<Deck.Card> getHand(String gameId) {
-        return getGame(gameId).getHand();
-    }
-
-    private PlayerGameEntity getGame(String gameId) {
-        return games.stream()
-            .filter(game -> game.getGameId().equals(gameId))
-            .findFirst()
-            .orElseThrow(() -> new PlayerEntityException(gameId, id));
-    }
-
-    static class PlayerEntityException extends RuntimeException {
-        PlayerEntityException(String gameId, String playerId) {
-            super(String.format("Not found game with id: [%s] for player with id: [%s]", gameId, playerId));
-        }
     }
 }
