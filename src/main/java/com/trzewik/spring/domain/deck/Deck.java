@@ -3,7 +3,11 @@ package com.trzewik.spring.domain.deck;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Stack;
+
 public interface Deck {
+    Stack<Card> getCards();
+
     void shuffle();
 
     Card take();
