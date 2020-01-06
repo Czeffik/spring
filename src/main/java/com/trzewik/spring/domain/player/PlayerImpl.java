@@ -3,32 +3,20 @@ package com.trzewik.spring.domain.player;
 import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.game.Game;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 
-import java.util.Objects;
 import java.util.Set;
 
+@Getter
+@EqualsAndHashCode(of = {"id"})
 @AllArgsConstructor
 class PlayerImpl implements Player {
     private final @NonNull String id;
     private final @NonNull String name;
     private final @NonNull Set<Deck.Card> hand;
     private Game.Move move;
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Set<Deck.Card> getHand() {
-        return hand;
-    }
 
     @Override
     public void addCard(Deck.Card card) {
@@ -52,11 +40,6 @@ class PlayerImpl implements Player {
     }
 
     @Override
-    public Game.Move getMove() {
-        return move;
-    }
-
-    @Override
     public void setMove(@NonNull Game.Move move) {
         this.move = move;
     }
@@ -70,23 +53,6 @@ class PlayerImpl implements Player {
     private boolean hasAceInHand() {
         return hand.stream()
             .anyMatch(Deck.Card::isAce);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        PlayerImpl player = (PlayerImpl) obj;
-        return id.equals(player.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     @Override

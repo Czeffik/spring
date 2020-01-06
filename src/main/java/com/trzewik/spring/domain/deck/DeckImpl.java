@@ -8,6 +8,7 @@ import lombok.NonNull;
 import java.util.Collections;
 import java.util.Stack;
 
+@Getter
 @AllArgsConstructor
 @EqualsAndHashCode
 class DeckImpl implements Deck {
