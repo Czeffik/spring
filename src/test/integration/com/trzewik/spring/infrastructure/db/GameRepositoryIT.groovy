@@ -1,10 +1,11 @@
 package com.trzewik.spring.infrastructure.db
 
+import com.trzewik.spring.common.PlayerUtil
+import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.infrastructure.db.model.GameEntity
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -33,11 +34,12 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         and:
         with(games.first()) {
             id == game.id
-            deck == '{}'
             status == game.status.name()
             current_player_id == game.currentPlayer.id
             croupier_id == game.croupier.id
         }
+        def parsedDeck = slurper.parseText(games.first().deck)
+        validateDeck(game.deck, parsedDeck)
 
         and:
         helper.getAllPlayerGames().size() == 0
@@ -118,7 +120,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         and:
         Game updated = createGame(new GameBuilder(
             id: game.id,
-            deck: createDeck(),
+            deck: createDeck(new DeckBuilder(cards: [createCard(), createCard(Deck.Card.Rank.FOUR)] as Stack)),
             status: Game.Status.ENDED,
             croupier: createPlayer(new PlayerBuilder(id: 'croupier-new-id')),
             currentPlayer: createPlayer(new PlayerBuilder(id: 'current-player-new-id')),
@@ -133,11 +135,12 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         games.size() == 1
         with(games.first()) {
             id == updated.id
-//            deck == []    todo
             status == updated.status.name()
             current_player_id == updated.currentPlayer.id
             croupier_id == updated.croupier.id
         }
+        def parsedDeck = slurper.parseText(games.first().deck)
+        validateDeck(updated.deck, parsedDeck)
     }
 
     def 'should throw exception when missing record in player table'() {
@@ -148,7 +151,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         repository.findById(GAME.id)
 
         then:
-        thrown(GameEntity.GameEntityException)
+        thrown(PlayerUtil.PlayerNotFoundException)
 
         where:
         GAME << [createGame(new GameBuilder(
@@ -157,5 +160,12 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
             players: [],
             status: Game.Status.NOT_STARTED
         ))]
+    }
+
+    void validateDeck(Deck deck, parsedDeck) {
+        parsedDeck.cards.each { parsedCard ->
+            assert deck.cards.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+        }
+        assert parsedDeck.cards.size() == deck.cards.size()
     }
 }

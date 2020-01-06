@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db
 
+import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.PlayerGameRepository
@@ -39,9 +40,10 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
         with(playerGames.first()) {
             game_id == game.id
             player_id == croupier.id
-//            hand == croupier.hand todo
             move == croupier.move.name()
         }
+        def parsedCroupierHand = slurper.parseText(playerGames.first().hand) as List
+        validateHand(croupier.hand, parsedCroupierHand)
     }
 
     def 'should not be able add player to game when game does not exist in database'() {
@@ -96,7 +98,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
         with(found.get()) {
             id == croupier.id
             name == croupier.name
-//            hand == croupier.hand todo
+            hand == croupier.hand
             move == croupier.move
         }
     }
@@ -120,7 +122,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             id: croupier.id,
             name: 'new-croupier-name',
             move: Game.Move.STAND,
-            hand: []
+            hand: [createCard()] as Set
         ))
 
         when:
@@ -135,8 +137,9 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             player_id == croupier.id
             game_id == game.id
             move == updated.move.name()
-//            hand == updated.hand  todo
         }
+        def parsedPlayerHand = slurper.parseText(playerGames.first().hand) as List
+        validateHand(updated.hand, parsedPlayerHand)
 
         and:
         def players = helper.getAllPlayers()
@@ -170,7 +173,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             id: croupier.id,
             name: 'new-croupier-name',
             move: Game.Move.STAND,
-            hand: []
+            hand: [createCard(), createCard(Deck.Card.Rank.FIVE)] as Set
         ))
 
         and:
@@ -178,7 +181,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             id: player.id,
             name: 'new-player-name',
             move: Game.Move.STAND,
-            hand: []
+            hand: [createCard(Deck.Card.Rank.FIVE), createCard(Deck.Card.Rank.ACE), createCard(Deck.Card.Rank.SEVEN)] as Set
         ))
         and:
         def updatedPlayers = [updatedCroupier, updatedPlayer]
@@ -191,20 +194,29 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
         playerGames.size() == 2
 
         and:
-        playerGames.find{it.player_id}
-        with(playerGames.find{it.player_id == croupier.id}) {
+        def croupierGame = playerGames.find { it.player_id == croupier.id }
+        with(croupierGame) {
             game_id == game.id
             move == updatedCroupier.move.name()
-//            hand == updatedCroupier.hand  todo
         }
+        def parsedCroupierHand = slurper.parseText(croupierGame.hand) as List
+        validateHand(updatedCroupier.hand, parsedCroupierHand)
 
         and:
-        playerGames.find{it.player_id}
-        with(playerGames.find{it.player_id == player.id}) {
+        def playerGame = playerGames.find { it.player_id == player.id }
+        with(playerGame) {
             game_id == game.id
             move == updatedPlayer.move.name()
-//            hand == updatedCroupier.hand  todo
         }
+        def parsedPlayerHand = slurper.parseText(playerGame.hand) as List
+        validateHand(updatedPlayer.hand, parsedPlayerHand)
 
+    }
+
+    void validateHand(Set<Deck.Card> hand, List parsedHand) {
+        parsedHand.each { parsedCard ->
+            assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+        }
+        assert parsedHand.size() == hand.size()
     }
 }

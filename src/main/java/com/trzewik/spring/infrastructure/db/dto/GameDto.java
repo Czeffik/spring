@@ -4,22 +4,27 @@ import com.trzewik.spring.common.PlayerUtil;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameFactory;
 import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.infrastructure.db.model.GameEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Setter
+@NoArgsConstructor
 public class GameDto {
-    private final String id;
-    private final DeckDto deck;
-    private final Game.Status status;
-    private final List<PlayerGameDto> players;
-    private final String currentPlayerId;
-    private final String croupierId;
+    private String id;
+    private DeckDto deck;
+    private Game.Status status;
+    private List<PlayerGameDto> players;
+    private String currentPlayerId;
+    private String croupierId;
 
     public static GameDto from(Game game) {
         return new GameDto(
@@ -29,6 +34,17 @@ public class GameDto {
             createPlayers(game),
             game.getCurrentPlayer().getId(),
             game.getCroupier().getId()
+        );
+    }
+
+    public static GameDto from(GameEntity game) {
+        return new GameDto(
+            game.getId(),
+            game.getDeck(),
+            game.getStatus(),
+            game.getPlayers().stream().map(PlayerGameDto::from).collect(Collectors.toList()),
+            game.getCurrentPlayerId(),
+            game.getCroupierId()
         );
     }
 
@@ -46,7 +62,7 @@ public class GameDto {
             PlayerUtil.findPlayer(allPlayers, dto.croupierId),
             DeckDto.to(dto.getDeck()),
             dto.getStatus(),
-            PlayerUtil.findPlayer(allPlayers, dto.currentPlayerId)
+            dto.currentPlayerId == null ? null : PlayerUtil.findPlayer(allPlayers, dto.currentPlayerId)
         );
     }
 

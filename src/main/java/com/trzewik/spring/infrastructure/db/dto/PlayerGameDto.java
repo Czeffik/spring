@@ -4,20 +4,25 @@ import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerFactory;
+import com.trzewik.spring.infrastructure.db.model.PlayerGameEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerGameDto {
-    private final String gameId;
-    private final PlayerDto player;
-    private final Set<CardDto> hand;
-    private final Game.Move move;
+    private String gameId;
+    private PlayerDto player;
+    private Set<CardDto> hand;
+    private Game.Move move;
 
     public static PlayerGameDto from(String gameId, Player player) {
         return new PlayerGameDto(
@@ -25,6 +30,15 @@ public class PlayerGameDto {
             PlayerDto.from(player),
             createHand(player.getHand()),
             player.getMove()
+        );
+    }
+
+    public static PlayerGameDto from(PlayerGameEntity entity) {
+        return new PlayerGameDto(
+            entity.getPlayerGameId().getGameId(),
+            PlayerDto.from(entity.getPlayer()),
+            entity.getHand(),
+            entity.getMove()
         );
     }
 

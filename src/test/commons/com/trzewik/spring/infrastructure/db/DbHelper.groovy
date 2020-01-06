@@ -1,7 +1,9 @@
 package com.trzewik.spring.infrastructure.db
 
+import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.player.Player
+import groovy.json.JsonBuilder
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
@@ -36,7 +38,12 @@ class DbHelper {
     List<List<Object>> save(Game game) {
         String query = "INSERT INTO $gameTable (id, deck, status, current_player_id, croupier_id) VALUES (?, ?, ?, ?, ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [game.id, '{}', game.status.name(), game.currentPlayer?.id, game.croupier?.id])
+        sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.currentPlayer?.id, game.croupier?.id])
+    }
+
+    static String convertDeck(Deck deck) {
+        def cards = convertCards(deck.cards)
+        return new JsonBuilder([cards: cards]).toPrettyString()
     }
 
     List<GroovyRowResult> getAllPlayers() {
@@ -72,7 +79,15 @@ class DbHelper {
     List<List<Object>> save(String gameId, Player player) {
         String query = "INSERT INTO $playerGameTable (game_id, player_id, hand, move) VALUES (?, ?, ?, ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [gameId, player.id, '{}', player.move.name()])
+        sql.executeInsert(query.toString(), [gameId, player.id, convertCardsToString(player.hand), player.move.name()])
+    }
+
+    static String convertCardsToString(Collection<Deck.Card> hand) {
+        return new JsonBuilder(convertCards(hand)).toPrettyString()
+    }
+
+    static List<Map> convertCards(Collection<Deck.Card> hand) {
+        return hand.collect { [suit: it.suit, rank: it.rank] }
     }
 
     private static String getGameTable() {

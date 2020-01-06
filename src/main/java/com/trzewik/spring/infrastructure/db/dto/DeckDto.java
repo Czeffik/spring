@@ -5,14 +5,18 @@ import com.trzewik.spring.domain.deck.DeckFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+@Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeckDto {
-    private final Stack<CardDto> cards;
+    private Stack<CardDto> cards;
 
     public static DeckDto from(Deck deck) {
         return new DeckDto(

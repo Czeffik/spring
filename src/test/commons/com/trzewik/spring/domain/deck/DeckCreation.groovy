@@ -44,6 +44,11 @@ trait DeckCreation {
             suit = card.suit
             rank = card.rank
         }
+
+        CardBuilder(String suit, String rank){
+            this.suit = Suit.valueOf(suit)
+            this.rank = Rank.valueOf(rank)
+        }
     }
 
     static class DeckBuilder {

@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db
 
+import groovy.json.JsonSlurper
 import org.flywaydb.core.Flyway
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
@@ -15,6 +16,7 @@ abstract class DbSpec extends Specification {
     private static PostgreSQLContainer container
     private static Flyway flyway
     protected static DbHelper helper
+    protected JsonSlurper slurper = new JsonSlurper()
 
     def setupSpec() {
         startContainer()

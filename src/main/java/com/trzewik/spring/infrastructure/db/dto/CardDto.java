@@ -5,12 +5,16 @@ import com.trzewik.spring.domain.deck.Deck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CardDto {
-    private final Deck.Card.Suit suit;
-    private final Deck.Card.Rank rank;
+    private Deck.Card.Suit suit;
+    private Deck.Card.Rank rank;
 
     public static CardDto from(Deck.Card card) {
         return new CardDto(

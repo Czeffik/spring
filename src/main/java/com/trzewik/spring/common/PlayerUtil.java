@@ -14,12 +14,18 @@ public class PlayerUtil {
         return players.stream()
             .filter(player -> player.getId().equals(playerId))
             .findFirst()
-            .orElseThrow(RuntimeException::new);
+            .orElseThrow(() -> new PlayerNotFoundException(players, playerId));
     }
 
     public static List<Player> filterOutPlayer(List<Player> players, String playerIdToExclude) {
         return players.stream()
             .filter(player -> !player.getId().equals(playerIdToExclude))
             .collect(Collectors.toList());
+    }
+
+    public static class PlayerNotFoundException extends RuntimeException {
+        PlayerNotFoundException(List<Player> players, String playerId) {
+            super(String.format("Can not find player with id: [%s] in players: [%s]", playerId, players));
+        }
     }
 }

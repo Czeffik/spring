@@ -1,14 +1,18 @@
 package com.trzewik.spring.infrastructure.db.model;
 
-import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerFactory;
+import com.trzewik.spring.infrastructure.db.dto.CardDto;
+import com.trzewik.spring.infrastructure.db.dto.PlayerGameDto;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -19,16 +23,18 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@Getter
 @Entity
 @Table(name = "player_game")
 @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
+@TypeDefs({
+    @TypeDef(name = "json", typeClass = JsonStringType.class),
+    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 public class PlayerGameEntity {
 
     @NonNull
@@ -50,48 +56,17 @@ public class PlayerGameEntity {
     private Game.Move move;
 
     @NonNull
+    @Type(type = "jsonb")
     @Column(name = "hand")
-    private String hand;
+    private Set<CardDto> hand;
 
-    PlayerGameEntity(PlayerGameId id, Game.Move move, String hand) {
-        this.playerGameId = id;
-        this.move = move;
-        this.hand = hand;
+    public PlayerGameEntity(PlayerGameDto dto) {
+        this.playerGameId = PlayerGameId.from(dto.getGameId(), dto.getPlayer().getId());
+        this.move = dto.getMove();
+        this.hand = dto.getHand();
     }
 
-    static List<PlayerGameEntity> from(Game game) {
-        return game.getPlayers().stream()
-            .map(player -> PlayerGameEntity.from(game.getId(), player))
-            .collect(Collectors.toList());
-    }
-
-    public static PlayerGameEntity from(String gameId, Player player) {
-        return new PlayerGameEntity(
-            PlayerGameId.from(gameId, player.getId()),
-            player.getMove(),
-            "{}"    // player.getHand().toString()   todo
-        );
-    }
-
-    public Player getPlayer() {
-        return PlayerFactory.createPlayer(
-            getPlayerId(),
-            getName(),
-            getHand(),
-            getMove()
-        );
-    }
-
-    String getPlayerId() {
-        return player.getId();
-    }
-
-    String getName() {
-        return player.getName();
-    }
-
-    Set<Deck.Card> getHand() {
-        //todo replace with mapping to hand from db
-        return new HashSet<>();
+    public PlayerGameDto getPlayerGame() {
+        return PlayerGameDto.from(this);
     }
 }
