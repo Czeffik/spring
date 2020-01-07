@@ -21,7 +21,9 @@ trait GameCreation implements PlayerCreation, DeckCreation {
     static class GameBuilder implements GameCreation {
         String id = '123'
         List<Player> players = createPlayers(2)
-        Player croupier = createPlayer()
+        Player croupier = createPlayer(new PlayerBuilder(
+            hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)] as Set)
+        )
         Deck deck = createDeck()
         Game.Status status = Game.Status.STARTED
         Player currentPlayer = players.first()

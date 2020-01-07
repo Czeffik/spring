@@ -22,9 +22,12 @@ sourceSets {
 dependencies {
     testImplementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
     testImplementation "junit:junit:${junitVersion}"
+
     testImplementation "org.spockframework:spock-core:${spockVersion}"
     testImplementation "org.spockframework:spock-spring:${spockVersion}"
+
     testImplementation "org.springframework:spring-test:${springVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
     testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
     testImplementation "org.testcontainers:postgresql:${testContainersPostgresVersion}"
     testImplementation "org.flywaydb:flyway-core:${flywayVersion}"

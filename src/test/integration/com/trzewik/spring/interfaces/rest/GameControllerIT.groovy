@@ -10,22 +10,25 @@ import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.service.GameService
 import groovy.json.JsonSlurper
 import io.restassured.RestAssured
+import io.restassured.http.ContentType
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore('until rest configuration not working correctly these tests must be ignored :C')
 @ActiveProfiles(['test-rest'])
-@ContextConfiguration(
-    classes = [TestRestConfig]
+@SpringBootTest(
+    classes = [RestConfiguration, TestRestConfig],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class GameControllerIT extends Specification implements ResultCreation {
     @Autowired
     GameService service
+    @LocalServerPort
+    int port
 
     JsonSlurper slurper = new JsonSlurper()
 
@@ -37,7 +40,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         ]))
 
         when:
-        Response response = request('/games')
+        Response response = request('/games').contentType(ContentType.JSON)
             .post()
             .thenReturn()
 
@@ -54,7 +57,7 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(currentPlayer) {
                 id == game.currentPlayer.id
                 name == game.currentPlayer.name
-                move == game.currentPlayer.move
+                move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
                     cards.size() == game.currentPlayer.hand.size()
@@ -64,8 +67,8 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(croupier) {
                 name == game.croupier.name
                 with(card) {
-                    suit == game.croupier.hand.first().suit
-                    rank == game.croupier.hand.first().rank
+                    suit == game.croupier.hand.first().suit.name()
+                    rank == game.croupier.hand.first().rank.name()
                 }
             }
         }
@@ -82,7 +85,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String addPlayerForm = """{"name": "${player.name}"}"""
 
         when:
-        Response response = request("/games/${gameId}/players")
+        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
             .body(addPlayerForm)
             .post()
             .thenReturn()
@@ -114,7 +117,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String addPlayerForm = """{"name": "playerName"}"""
 
         when:
-        Response response = request("/games/${gameId}/players")
+        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
             .body(addPlayerForm)
             .post()
             .thenReturn()
@@ -126,7 +129,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: ${gameId} not found."
+        response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - adding new player to game'() {
@@ -140,7 +143,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String addPlayerForm = """{"name": "playerName"}"""
 
         when:
-        Response response = request("/games/${gameId}/players")
+        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
             .body(addPlayerForm)
             .post()
             .thenReturn()
@@ -149,7 +152,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         1 * service.addPlayer(gameId, 'playerName') >> { throw new GameException(exceptionMessage) }
 
         and:
-        response.statusCode() == 404
+        response.statusCode() == 400
 
         and:
         response.body().asString() == exceptionMessage
@@ -180,7 +183,7 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(currentPlayer) {
                 id == game.currentPlayer.id
                 name == game.currentPlayer.name
-                move == game.currentPlayer.move
+                move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
                     cards.size() == game.currentPlayer.hand.size()
@@ -190,8 +193,8 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(croupier) {
                 name == game.croupier.name
                 with(card) {
-                    suit == game.croupier.hand.first().suit
-                    rank == game.croupier.hand.first().rank
+                    suit == game.croupier.hand.first().suit.name()
+                    rank == game.croupier.hand.first().rank.name()
                 }
             }
         }
@@ -213,7 +216,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: ${gameId} not found."
+        response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - starting game'() {
@@ -232,7 +235,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         1 * service.startGame(gameId) >> { throw new GameException(exceptionMessage) }
 
         and:
-        response.statusCode() == 404
+        response.statusCode() == 400
 
         and:
         response.body().asString() == exceptionMessage
@@ -249,19 +252,19 @@ class GameControllerIT extends Specification implements ResultCreation {
         Player player = game.currentPlayer
 
         and:
-        Game.Move move = Game.Move.STAND
+        Game.Move playerMove = Game.Move.STAND
 
         and:
-        String moveForm = """{"playerId": "${player.id}", "move": "${move.name()}"}"""
+        String moveForm = """{"playerId": "${player.id}", "move": "${playerMove.name()}"}"""
 
         when:
-        Response response = request("/games/${game.id}/move")
+        Response response = request("/games/${game.id}/move").contentType(ContentType.JSON)
             .body(moveForm)
             .post()
             .thenReturn()
 
         then:
-        1 * service.makeMove(game.id, player.id, move) >> game
+        1 * service.makeMove(game.id, player.id, playerMove) >> game
 
         and:
         with(slurper.parseText(response.body().asString())) {
@@ -270,7 +273,7 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(currentPlayer) {
                 id == game.currentPlayer.id
                 name == game.currentPlayer.name
-                move == game.currentPlayer.move
+                move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
                     cards.size() == game.currentPlayer.hand.size()
@@ -280,8 +283,8 @@ class GameControllerIT extends Specification implements ResultCreation {
             with(croupier) {
                 name == game.croupier.name
                 with(card) {
-                    suit == game.croupier.hand.first().suit
-                    rank == game.croupier.hand.first().rank
+                    suit == game.croupier.hand.first().suit.name()
+                    rank == game.croupier.hand.first().rank.name()
                 }
             }
         }
@@ -295,19 +298,19 @@ class GameControllerIT extends Specification implements ResultCreation {
         String moveForm = """{"playerId": "player-id", "move": "STAND"}"""
 
         when:
-        Response response = request("/games/${gameId}/move")
+        Response response = request("/games/${gameId}/move").contentType(ContentType.JSON)
             .body(moveForm)
             .post()
             .thenReturn()
 
         then:
-        1 * service.makeMove(gameId, 'player-id', 'STAND') >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: ${gameId} not found."
+        response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - player move'() {
@@ -321,16 +324,16 @@ class GameControllerIT extends Specification implements ResultCreation {
         String moveForm = """{"playerId": "player-id", "move": "STAND"}"""
 
         when:
-        Response response = request("/games/${gameId}/move")
+        Response response = request("/games/${gameId}/move").contentType(ContentType.JSON)
             .body(moveForm)
             .post()
             .thenReturn()
 
         then:
-        1 * service.makeMove(gameId, 'player-id', 'STAND') >> { throw new GameException(exceptionMessage) }
+        1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameException(exceptionMessage) }
 
         and:
-        response.statusCode() == 404
+        response.statusCode() == 400
 
         and:
         response.body().asString() == exceptionMessage
@@ -377,7 +380,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: ${gameId} not found."
+        response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - get results'() {
@@ -396,7 +399,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         1 * service.getGameResults(gameId) >> { throw new GameException(exceptionMessage) }
 
         and:
-        response.statusCode() == 404
+        response.statusCode() == 400
 
         and:
         response.body().asString() == exceptionMessage
@@ -411,33 +414,28 @@ class GameControllerIT extends Specification implements ResultCreation {
 
     boolean validateResults(List<Result> results, parsedResults) {
         parsedResults.each { parsedResult ->
-            assert results.any {
-                it.equals(createResult(
-                    new ResultBuilder(
-                        place: parsedResult.place,
-                        player: new PlayerBuilder(
-                            id: player.id,
-                            name: player.name,
-                            hand: player.hand.cards.collect { createCard(new CardBuilder(it.suit, it.rank)) } as Set,
-                            move: Game.Move.valueOf(player.move)
-                        )
-                    )
-                ))
-            }
+            assert results.any { result -> result.equals(createResultFrom(parsedResult)) }
         }
         true
     }
 
+    Result createResultFrom(parsedResult) {
+        return createResult(new ResultBuilder(
+            place: parsedResult.place,
+            player: new PlayerBuilder(
+                id: parsedResult.player.id,
+                name: parsedResult.player.name,
+                hand: parsedResult.player.hand.cards.collect { card -> createCard(new CardBuilder(card.suit, card.rank)) } as Set,
+                move: Game.Move.valueOf(parsedResult.player.move)
+            )
+        )
+        )
+    }
+
     RequestSpecification request(String basePath) {
         return RestAssured.given()
-            .baseUri(getUrl())
+            .baseUri("http://localhost:${port}")
             .basePath(basePath)
             .log().all()
     }
-
-    String getUrl() {
-        //todo when rest configuration will be fixed, update url (port)
-        return "http://localhost:9090"
-    }
-
 }

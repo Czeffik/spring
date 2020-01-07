@@ -11,23 +11,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@RestController
+@ResponseBody
+@RequestMapping
 @AllArgsConstructor
 public class GameController {
     private GameService service;
-
-    @GetMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String index() {
-        return "INDEX";
-    }
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
@@ -62,6 +62,20 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
         return ResultsDto.from(service.getGameResults(gameId));
+    }
+
+    @ExceptionHandler(value = {GameException.class})
+    public ResponseEntity<Object> handleBadRequest(GameException ex) {
+        String bodyOfResponse = ex.getMessage();
+        return new ResponseEntity<>(bodyOfResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {
+        GameRepository.GameNotFoundException.class
+    })
+    public ResponseEntity<Object> handleNotFound(Exception ex) {
+        String bodyOfResponse = ex.getMessage();
+        return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
     }
 
     @Getter

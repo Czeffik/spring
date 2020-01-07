@@ -25,8 +25,8 @@ class GameServiceImpl implements GameService {
         Player croupier = game.getCroupier();
 
         playerRepo.save(croupier);
-        playerGameRepo.save(croupier, game.getId());
         gameRepo.save(game);
+        playerGameRepo.save(croupier, game.getId());
 
         return game;
     }

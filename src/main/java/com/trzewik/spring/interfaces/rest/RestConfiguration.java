@@ -1,10 +1,14 @@
 package com.trzewik.spring.interfaces.rest;
 
 import com.trzewik.spring.domain.service.GameService;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Configuration
 @EnableWebMvc
@@ -15,7 +19,17 @@ public class RestConfiguration {
     }
 
     @Bean
-    ResponseEntityExceptionHandler responseEntityExceptionHandler() {
-        return new ExceptionResolver();
+    ServletWebServerFactory servletWebServerFactory() {
+        return new JettyServletWebServerFactory();
+    }
+
+    @Bean
+    DispatcherServletPath dispatcherServletPath(DispatcherServlet dispatcherServlet){
+        return new DispatcherServletRegistrationBean(dispatcherServlet, "/");
+    }
+
+    @Bean
+    DispatcherServlet dispatcherServlet(){
+        return new DispatcherServlet();
     }
 }

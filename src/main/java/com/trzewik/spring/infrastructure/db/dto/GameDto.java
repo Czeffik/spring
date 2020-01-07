@@ -32,7 +32,7 @@ public class GameDto {
             DeckDto.from(game.getDeck()),
             game.getStatus().name(),
             createPlayers(game),
-            game.getCurrentPlayer().getId(),
+            game.getCurrentPlayer() == null ? null : game.getCurrentPlayer().getId(),
             game.getCroupier().getId()
         );
     }

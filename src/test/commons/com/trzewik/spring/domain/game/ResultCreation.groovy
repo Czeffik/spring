@@ -28,6 +28,5 @@ trait ResultCreation implements GameCreation {
     static class ResultBuilder implements PlayerCreation {
         int place = 1
         PlayerBuilder player = new PlayerBuilder()
-
     }
 }

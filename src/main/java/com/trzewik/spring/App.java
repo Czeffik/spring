@@ -2,8 +2,9 @@ package com.trzewik.spring;
 
 import com.trzewik.spring.domain.DomainConfiguration;
 import com.trzewik.spring.infrastructure.db.DbConfiguration;
-import com.trzewik.spring.interfaces.rest.EmbeddedJetty;
 import com.trzewik.spring.interfaces.rest.RestConfiguration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
@@ -13,10 +14,9 @@ import org.springframework.context.annotation.PropertySource;
     DbConfiguration.class
 })
 @PropertySource("classpath:application.properties")
+@SpringBootApplication
 public class App {
     public static void main(String[] args) throws Exception {
-        new EmbeddedJetty(9094);
-        //AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(App.class);
-        //Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+        SpringApplication.run(App.class, args);
     }
 }
