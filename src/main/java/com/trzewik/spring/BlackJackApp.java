@@ -15,8 +15,8 @@ import org.springframework.context.annotation.PropertySource;
 })
 @PropertySource("classpath:application.properties")
 @SpringBootApplication
-public class App {
+public class BlackJackApp {
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(App.class, args);
+        SpringApplication.run(BlackJackApp.class, args);
     }
 }

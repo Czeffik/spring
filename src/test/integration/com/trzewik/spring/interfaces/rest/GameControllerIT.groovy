@@ -10,12 +10,10 @@ import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.service.GameService
 import groovy.json.JsonSlurper
 import io.restassured.RestAssured
-import io.restassured.http.ContentType
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -24,11 +22,9 @@ import spock.lang.Specification
     classes = [RestConfiguration, TestRestConfig],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class GameControllerIT extends Specification implements ResultCreation {
+class GameControllerIT extends Specification implements GameRequestSender, ResultCreation {
     @Autowired
     GameService service
-    @LocalServerPort
-    int port
 
     JsonSlurper slurper = new JsonSlurper()
 
@@ -40,9 +36,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         ]))
 
         when:
-        Response response = request('/games').contentType(ContentType.JSON)
-            .post()
-            .thenReturn()
+        Response response = createGameRequest()
 
         then:
         1 * service.createGame() >> game
@@ -81,14 +75,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         and:
         Player player = createPlayer()
 
-        and:
-        String addPlayerForm = """{"name": "${player.name}"}"""
-
         when:
-        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
-            .body(addPlayerForm)
-            .post()
-            .thenReturn()
+        Response response = addPlayerRequest(player.name, gameId)
 
         then:
         1 * service.addPlayer(gameId, player.getName()) >> player
@@ -113,14 +101,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         given:
         String gameId = 'example-game-id'
 
-        and:
-        String addPlayerForm = """{"name": "playerName"}"""
-
         when:
-        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
-            .body(addPlayerForm)
-            .post()
-            .thenReturn()
+        Response response = addPlayerRequest('playerName', gameId)
 
         then:
         1 * service.addPlayer(gameId, 'playerName') >> { throw new GameRepository.GameNotFoundException(gameId) }
@@ -139,14 +121,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         and:
         String exceptionMessage = 'exception message which should be returned by controller'
 
-        and:
-        String addPlayerForm = """{"name": "playerName"}"""
-
         when:
-        Response response = request("/games/${gameId}/players").contentType(ContentType.JSON)
-            .body(addPlayerForm)
-            .post()
-            .thenReturn()
+        Response response = addPlayerRequest('playerName', gameId)
 
         then:
         1 * service.addPlayer(gameId, 'playerName') >> { throw new GameException(exceptionMessage) }
@@ -166,9 +142,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         ]))
 
         when:
-        Response response = request("/games/${game.id}/startGame")
-            .post()
-            .thenReturn()
+        Response response = startGameRequest(game.id)
 
         then:
         1 * service.startGame(game.id) >> game
@@ -205,9 +179,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String gameId = 'example-game-id'
 
         when:
-        Response response = request("/games/${gameId}/startGame")
-            .post()
-            .thenReturn()
+        Response response = startGameRequest(gameId)
 
         then:
         1 * service.startGame(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
@@ -227,9 +199,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = request("/games/${gameId}/startGame")
-            .post()
-            .thenReturn()
+        Response response = startGameRequest(gameId)
 
         then:
         1 * service.startGame(gameId) >> { throw new GameException(exceptionMessage) }
@@ -254,14 +224,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         and:
         Game.Move playerMove = Game.Move.STAND
 
-        and:
-        String moveForm = """{"playerId": "${player.id}", "move": "${playerMove.name()}"}"""
-
         when:
-        Response response = request("/games/${game.id}/move").contentType(ContentType.JSON)
-            .body(moveForm)
-            .post()
-            .thenReturn()
+        Response response = makeMoveRequest(game.id, player.id, playerMove.name())
 
         then:
         1 * service.makeMove(game.id, player.id, playerMove) >> game
@@ -294,14 +258,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         given:
         String gameId = 'example-game-id'
 
-        and:
-        String moveForm = """{"playerId": "player-id", "move": "STAND"}"""
-
         when:
-        Response response = request("/games/${gameId}/move").contentType(ContentType.JSON)
-            .body(moveForm)
-            .post()
-            .thenReturn()
+        Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
         1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
@@ -320,14 +278,8 @@ class GameControllerIT extends Specification implements ResultCreation {
         and:
         String exceptionMessage = 'exception message which should be returned by controller'
 
-        and:
-        String moveForm = """{"playerId": "player-id", "move": "STAND"}"""
-
         when:
-        Response response = request("/games/${gameId}/move").contentType(ContentType.JSON)
-            .body(moveForm)
-            .post()
-            .thenReturn()
+        Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
         1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameException(exceptionMessage) }
@@ -347,9 +299,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         List<Result> expectedResults = createResults(3)
 
         when:
-        Response response = request("/games/${gameId}/results")
-            .get()
-            .thenReturn()
+        Response response = getResultsRequest(gameId)
 
         then:
         1 * service.getGameResults(gameId) >> expectedResults
@@ -369,9 +319,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String gameId = 'example-game-id'
 
         when:
-        Response response = request("/games/${gameId}/results")
-            .get()
-            .thenReturn()
+        Response response = getResultsRequest(gameId)
 
         then:
         1 * service.getGameResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
@@ -391,9 +339,7 @@ class GameControllerIT extends Specification implements ResultCreation {
         String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = request("/games/${gameId}/results")
-            .get()
-            .thenReturn()
+        Response response = getResultsRequest(gameId)
 
         then:
         1 * service.getGameResults(gameId) >> { throw new GameException(exceptionMessage) }
