@@ -24,7 +24,7 @@ trait GameCreation implements PlayerCreation, DeckCreation {
         Player croupier = createPlayer()
         Deck deck = createDeck()
         Game.Status status = Game.Status.STARTED
-        Player currentPlayer = createPlayer()
+        Player currentPlayer = players.first()
 
         GameBuilder() {}
 
@@ -35,6 +35,10 @@ trait GameCreation implements PlayerCreation, DeckCreation {
             deck = game.deck
             status = game.status
             currentPlayer = game.currentPlayer
+        }
+
+        GameBuilder(List<PlayerBuilder> playerBuilders) {
+            players = playerBuilders.collect { createPlayer(it) }
         }
     }
 }

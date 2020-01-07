@@ -14,7 +14,7 @@ public interface GameRepository {
     void update(Game game);
 
     class GameNotFoundException extends Exception {
-        GameNotFoundException(String id) {
+        public GameNotFoundException(String id) {
             super(String.format("Game with id: [%s] not found.", id));
         }
     }

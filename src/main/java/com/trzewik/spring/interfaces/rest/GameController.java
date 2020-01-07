@@ -6,7 +6,7 @@ import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.service.GameService;
 import com.trzewik.spring.interfaces.rest.dto.GameDto;
 import com.trzewik.spring.interfaces.rest.dto.PlayerDto;
-import com.trzewik.spring.interfaces.rest.dto.ResultDto;
+import com.trzewik.spring.interfaces.rest.dto.ResultsDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -61,12 +58,10 @@ public class GameController {
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ResultDto> getResults(
+    public ResultsDto getResults(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
-        return service.getGameResults(gameId).stream()
-            .map(ResultDto::from)
-            .collect(Collectors.toList());
+        return ResultsDto.from(service.getGameResults(gameId));
     }
 
     @Getter
