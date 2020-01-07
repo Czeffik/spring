@@ -1,11 +1,11 @@
 package com.trzewik.spring.infrastructure.db
 
-import com.trzewik.spring.common.PlayerUtil
 import com.trzewik.spring.domain.deck.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.player.Player
+import com.trzewik.spring.infrastructure.db.dto.GameDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -151,7 +151,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         repository.findById(GAME.id)
 
         then:
-        thrown(PlayerUtil.PlayerNotFoundException)
+        thrown(GameDto.PlayerNotFoundException)
 
         where:
         GAME << [createGame(new GameBuilder(

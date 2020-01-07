@@ -8,6 +8,7 @@ buildscript {
         lombokVersion = '1.18.10'
         springVersion = '5.2.2.RELEASE'
         springBootVersion = '2.2.2.RELEASE'
+        jettyWebappVersion = '9.4.25.v20191220'
         jacksonVersion = '2.10.1'
         postgresVersion = '42.2.9'
         hibernateVersion = '5.4.10.Final'
@@ -39,9 +40,7 @@ dependencies {
     compile "org.springframework:spring-context:${springVersion}"
 
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-
-    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.4.25.v20191220'
-
+    compile "org.eclipse.jetty:jetty-webapp:${jettyWebappVersion}"
 
     compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"

@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db.dto;
 
-import com.trzewik.spring.common.PlayerUtil;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameFactory;
 import com.trzewik.spring.domain.player.Player;
@@ -58,11 +57,11 @@ public class GameDto {
         List<Player> allPlayers = mapTo(dto.getPlayers());
         return GameFactory.createGame(
             dto.id,
-            PlayerUtil.filterOutPlayer(allPlayers, dto.croupierId),
-            PlayerUtil.findPlayer(allPlayers, dto.croupierId),
+            filterOutPlayer(allPlayers, dto.croupierId),
+            findPlayer(allPlayers, dto.croupierId),
             DeckDto.to(dto.getDeck()),
             Game.Status.valueOf(dto.getStatus()),
-            dto.currentPlayerId == null ? null : PlayerUtil.findPlayer(allPlayers, dto.currentPlayerId)
+            dto.currentPlayerId == null ? null : findPlayer(allPlayers, dto.currentPlayerId)
         );
     }
 
@@ -71,4 +70,25 @@ public class GameDto {
             .map(PlayerGameDto::to)
             .collect(Collectors.toList());
     }
+
+
+    private static Player findPlayer(List<Player> players, String playerId) {
+        return players.stream()
+            .filter(player -> player.getId().equals(playerId))
+            .findFirst()
+            .orElseThrow(() -> new PlayerNotFoundException(players, playerId));
+    }
+
+    private static List<Player> filterOutPlayer(List<Player> players, String playerIdToExclude) {
+        return players.stream()
+            .filter(player -> !player.getId().equals(playerIdToExclude))
+            .collect(Collectors.toList());
+    }
+
+    public static class PlayerNotFoundException extends RuntimeException {
+        PlayerNotFoundException(List<Player> players, String playerId) {
+            super(String.format("Can not find player with id: [%s] in players: [%s]", playerId, players));
+        }
+    }
+
 }
