@@ -8,8 +8,8 @@ import lombok.Getter;
 
 import java.util.Set;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CroupierDto {
     private final String name;
     private final CardDto card;

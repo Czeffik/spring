@@ -3,18 +3,21 @@ package com.trzewik.spring.interfaces.rest.dto;
 import com.trzewik.spring.domain.deck.Deck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+
 @Getter
+@EqualsAndHashCode
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CardDto {
-    private final Deck.Card.Suit suit;
-    private final Deck.Card.Rank rank;
+    private final String suit;
+    private final String rank;
 
     public static CardDto from(Deck.Card card) {
         return new CardDto(
-            card.getSuit(),
-            card.getRank()
+            card.getSuit().name(),
+            card.getRank().name()
         );
     }
 }

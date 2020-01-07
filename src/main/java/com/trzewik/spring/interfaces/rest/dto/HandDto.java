@@ -9,8 +9,8 @@ import lombok.Getter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HandDto {
     private final Set<CardDto> cards;
     private final int handValue;

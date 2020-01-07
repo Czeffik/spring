@@ -5,8 +5,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResultDto {
     private int place;
     private PlayerDto player;
