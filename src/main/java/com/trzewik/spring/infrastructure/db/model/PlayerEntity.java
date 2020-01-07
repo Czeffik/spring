@@ -18,8 +18,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "player")
-@Setter
 @Getter
+@Setter
 @EqualsAndHashCode
 @NoArgsConstructor
 public class PlayerEntity implements Serializable {

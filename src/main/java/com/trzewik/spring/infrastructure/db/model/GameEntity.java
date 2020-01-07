@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db.model;
 
-import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.infrastructure.db.dto.DeckDto;
 import com.trzewik.spring.infrastructure.db.dto.GameDto;
 import com.trzewik.spring.infrastructure.db.dto.PlayerGameDto;
@@ -16,8 +15,6 @@ import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -28,8 +25,8 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "game")
-@Setter
 @Getter
+@Setter
 @EqualsAndHashCode
 @NoArgsConstructor
 @TypeDefs({
@@ -52,8 +49,7 @@ public class GameEntity implements Serializable {
     private DeckDto deck;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private Game.Status status;
+    private String status;
 
     @Column(name = "current_player_id", length = 36)
     private String currentPlayerId;

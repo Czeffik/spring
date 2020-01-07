@@ -22,14 +22,14 @@ public class PlayerGameDto {
     private String gameId;
     private PlayerDto player;
     private Set<CardDto> hand;
-    private Game.Move move;
+    private String move;
 
     public static PlayerGameDto from(String gameId, Player player) {
         return new PlayerGameDto(
             gameId,
             PlayerDto.from(player),
             createHand(player.getHand()),
-            player.getMove()
+            player.getMove().name()
         );
     }
 
@@ -47,7 +47,7 @@ public class PlayerGameDto {
             dto.getPlayer().getId(),
             dto.getPlayer().getName(),
             mapTo(dto.getHand()),
-            dto.getMove()
+            Game.Move.valueOf(dto.getMove())
         );
     }
 

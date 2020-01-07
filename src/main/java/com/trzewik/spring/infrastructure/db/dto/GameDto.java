@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GameDto {
     private String id;
     private DeckDto deck;
-    private Game.Status status;
+    private String status;
     private List<PlayerGameDto> players;
     private String currentPlayerId;
     private String croupierId;
@@ -30,7 +30,7 @@ public class GameDto {
         return new GameDto(
             game.getId(),
             DeckDto.from(game.getDeck()),
-            game.getStatus(),
+            game.getStatus().name(),
             createPlayers(game),
             game.getCurrentPlayer().getId(),
             game.getCroupier().getId()
@@ -61,7 +61,7 @@ public class GameDto {
             PlayerUtil.filterOutPlayer(allPlayers, dto.croupierId),
             PlayerUtil.findPlayer(allPlayers, dto.croupierId),
             DeckDto.to(dto.getDeck()),
-            dto.getStatus(),
+            Game.Status.valueOf(dto.getStatus()),
             dto.currentPlayerId == null ? null : PlayerUtil.findPlayer(allPlayers, dto.currentPlayerId)
         );
     }

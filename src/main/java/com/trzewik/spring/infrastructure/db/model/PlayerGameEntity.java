@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db.model;
 
-import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.infrastructure.db.dto.CardDto;
 import com.trzewik.spring.infrastructure.db.dto.PlayerGameDto;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -18,23 +17,21 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
-@Getter
 @Entity
 @Table(name = "player_game")
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor
 @TypeDefs({
     @TypeDef(name = "json", typeClass = JsonStringType.class),
     @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 })
+@Getter
+@Setter
+@EqualsAndHashCode
+@NoArgsConstructor
 public class PlayerGameEntity {
 
     @NonNull
@@ -52,8 +49,7 @@ public class PlayerGameEntity {
 
     @Getter
     @Column(name = "move")
-    @Enumerated(EnumType.STRING)
-    private Game.Move move;
+    private String move;
 
     @NonNull
     @Type(type = "jsonb")
