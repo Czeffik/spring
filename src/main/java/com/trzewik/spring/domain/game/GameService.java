@@ -1,9 +1,9 @@
-package com.trzewik.spring.domain.service;
+package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
-import com.trzewik.spring.domain.game.Result;
+import com.trzewik.spring.domain.result.Result;
 import com.trzewik.spring.domain.player.Player;
 
 import java.util.List;

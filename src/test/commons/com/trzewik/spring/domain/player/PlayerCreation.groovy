@@ -1,6 +1,6 @@
 package com.trzewik.spring.domain.player
 
-import com.trzewik.spring.domain.deck.Deck
+import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.game.Game
 
 

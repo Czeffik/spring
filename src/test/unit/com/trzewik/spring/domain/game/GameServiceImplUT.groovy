@@ -1,12 +1,8 @@
-package com.trzewik.spring.domain.service
+package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.deck.Deck
-import com.trzewik.spring.domain.game.Game
-import com.trzewik.spring.domain.game.GameCreation
-import com.trzewik.spring.domain.game.GameException
-import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.game.PlayerGameRepository
-import com.trzewik.spring.domain.game.Result
+import com.trzewik.spring.domain.common.Deck
+import com.trzewik.spring.domain.common.PlayerGameRepository
+import com.trzewik.spring.domain.result.Result
 import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository

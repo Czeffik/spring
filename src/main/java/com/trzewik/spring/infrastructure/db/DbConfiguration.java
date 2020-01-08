@@ -1,7 +1,7 @@
 package com.trzewik.spring.infrastructure.db;
 
 import com.trzewik.spring.domain.game.GameRepository;
-import com.trzewik.spring.domain.game.PlayerGameRepository;
+import com.trzewik.spring.domain.common.PlayerGameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.infrastructure.db.common.CommonRepositoryFactory;
 import com.trzewik.spring.infrastructure.db.common.PlayerGameJpaRepository;

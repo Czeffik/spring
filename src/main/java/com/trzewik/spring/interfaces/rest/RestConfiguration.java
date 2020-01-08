@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest;
 
-import com.trzewik.spring.domain.service.GameService;
+import com.trzewik.spring.domain.game.GameService;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;

@@ -1,6 +1,6 @@
 package com.trzewik.spring.infrastructure.db.common;
 
-import com.trzewik.spring.domain.game.PlayerGameRepository;
+import com.trzewik.spring.domain.common.PlayerGameRepository;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.infrastructure.db.game.PlayerGameDto;
 import lombok.AllArgsConstructor;

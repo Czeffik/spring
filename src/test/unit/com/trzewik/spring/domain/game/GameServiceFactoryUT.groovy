@@ -1,7 +1,6 @@
-package com.trzewik.spring.domain.service
+package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.game.PlayerGameRepository
+import com.trzewik.spring.domain.common.PlayerGameRepository
 import com.trzewik.spring.domain.player.PlayerRepository
 import spock.lang.Specification
 

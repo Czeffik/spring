@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.deck;
+package com.trzewik.spring.domain.common;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 import java.util.Stack;
 
-import static com.trzewik.spring.domain.deck.CardFactory.create;
+import static com.trzewik.spring.domain.common.CardFactory.create;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeckFactory {

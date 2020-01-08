@@ -1,7 +1,9 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.deck.Deck;
+import com.trzewik.spring.domain.common.Deck;
 import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.result.Result;
+import com.trzewik.spring.domain.result.ResultsHelper;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -104,7 +106,7 @@ class GameImpl implements Game {
     @Override
     public List<Result> getResults() throws GameException {
         if (gameEnded()) {
-            return PlayersResultsHelper.createResults(getPlayersWithCroupier());
+            return ResultsHelper.createResults(getPlayersWithCroupier());
         }
         throw new GameException("Results are available only when game finished. Please continue auction.");
     }

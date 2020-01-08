@@ -1,5 +1,6 @@
-package com.trzewik.spring.domain.deck
+package com.trzewik.spring.domain.common
 
+import com.trzewik.spring.domain.deck.DeckCreation
 import spock.lang.Specification
 
 class DeckFactoryUT extends Specification implements DeckCreation {
@@ -38,7 +39,7 @@ class DeckFactoryUT extends Specification implements DeckCreation {
         cardsInDeck.size() == 4
     }
 
-    def 'should throw exception when cards are null'(){
+    def 'should throw exception when cards are null'() {
         when:
         DeckFactory.createDeck(null)
 

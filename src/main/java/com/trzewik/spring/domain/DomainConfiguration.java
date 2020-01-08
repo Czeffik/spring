@@ -1,10 +1,10 @@
 package com.trzewik.spring.domain;
 
 import com.trzewik.spring.domain.game.GameRepository;
-import com.trzewik.spring.domain.game.PlayerGameRepository;
+import com.trzewik.spring.domain.common.PlayerGameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;
-import com.trzewik.spring.domain.service.GameService;
-import com.trzewik.spring.domain.service.GameServiceFactory;
+import com.trzewik.spring.domain.game.GameService;
+import com.trzewik.spring.domain.game.GameServiceFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

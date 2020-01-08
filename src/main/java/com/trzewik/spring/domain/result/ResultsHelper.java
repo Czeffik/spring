@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.game;
+package com.trzewik.spring.domain.result;
 
 import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class PlayersResultsHelper {
+public class ResultsHelper {
 
     //TODO what if players have exactly same hand value?
-    static List<Result> createResults(List<Player> playersWithCroupier) {
+    public static List<Result> createResults(List<Player> playersWithCroupier) {
         List<Player> sorted = getSortedPlayersByResults(playersWithCroupier);
         return IntStream.range(0, sorted.size())
             .mapToObj(index -> new Result(index + 1, sorted.get(index)))

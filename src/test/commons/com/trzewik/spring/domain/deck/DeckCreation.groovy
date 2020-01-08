@@ -1,8 +1,10 @@
 package com.trzewik.spring.domain.deck
 
-import com.trzewik.spring.domain.deck.Deck.Card
-import com.trzewik.spring.domain.deck.Deck.Card.Rank
-import com.trzewik.spring.domain.deck.Deck.Card.Suit
+import com.trzewik.spring.domain.common.Deck
+import com.trzewik.spring.domain.common.Deck.Card
+import com.trzewik.spring.domain.common.Deck.Card.Rank
+import com.trzewik.spring.domain.common.Deck.Card.Suit
+import com.trzewik.spring.domain.common.DeckImpl
 
 trait DeckCreation {
 

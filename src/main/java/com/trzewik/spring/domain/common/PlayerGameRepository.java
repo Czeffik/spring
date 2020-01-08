@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.game;
+package com.trzewik.spring.domain.common;
 
 import com.trzewik.spring.domain.player.Player;
 

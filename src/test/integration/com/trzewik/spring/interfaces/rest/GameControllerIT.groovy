@@ -1,13 +1,13 @@
 package com.trzewik.spring.interfaces.rest
 
-import com.trzewik.spring.domain.deck.Deck
+import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.game.Result
+import com.trzewik.spring.domain.result.Result
 import com.trzewik.spring.domain.game.ResultCreation
 import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.domain.service.GameService
+import com.trzewik.spring.domain.game.GameService
 import groovy.json.JsonSlurper
 import io.restassured.RestAssured
 import io.restassured.response.Response

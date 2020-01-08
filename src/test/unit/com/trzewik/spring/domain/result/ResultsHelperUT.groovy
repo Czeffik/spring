@@ -1,12 +1,12 @@
-package com.trzewik.spring.domain.game
+package com.trzewik.spring.domain.result
 
-import com.trzewik.spring.domain.deck.Deck
+import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.deck.DeckCreation
 import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 
-class PlayersResultsHelperUT extends Specification implements DeckCreation, PlayerCreation {
+class ResultsHelperUT extends Specification implements DeckCreation, PlayerCreation {
 
     def '''should create results - players which are closest to 21 are top players
             and should be sorted from higest to lowest hand value,
@@ -37,7 +37,7 @@ class PlayersResultsHelperUT extends Specification implements DeckCreation, Play
         def players = [player3, player2, player4, player1]
 
         when:
-        def results = PlayersResultsHelper.createResults(players)
+        def results = ResultsHelper.createResults(players)
 
         then:
         def first = results.get(0)

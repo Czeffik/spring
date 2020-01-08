@@ -1,7 +1,8 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.deck.Deck
+import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.player.PlayerCreation
+import com.trzewik.spring.domain.result.Result
 
 trait ResultCreation implements GameCreation {
 

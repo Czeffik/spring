@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.deck;
+package com.trzewik.spring.domain.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

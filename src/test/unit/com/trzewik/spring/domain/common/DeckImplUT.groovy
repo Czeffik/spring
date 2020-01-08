@@ -1,8 +1,7 @@
-package com.trzewik.spring.domain.deck
+package com.trzewik.spring.domain.common
 
 import spock.lang.Specification
 import spock.lang.Subject
-
 
 class DeckImplUT extends Specification {
 

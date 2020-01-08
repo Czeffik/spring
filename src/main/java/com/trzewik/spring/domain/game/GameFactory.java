@@ -1,7 +1,7 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.deck.Deck;
-import com.trzewik.spring.domain.deck.DeckFactory;
+import com.trzewik.spring.domain.common.Deck;
+import com.trzewik.spring.domain.common.DeckFactory;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerFactory;
 import lombok.AccessLevel;

@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest.dto;
 
-import com.trzewik.spring.domain.deck.Deck;
+import com.trzewik.spring.domain.common.Deck;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
