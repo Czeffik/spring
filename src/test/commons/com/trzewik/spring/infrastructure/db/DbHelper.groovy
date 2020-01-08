@@ -36,7 +36,7 @@ class DbHelper {
     }
 
     List<List<Object>> save(Game game) {
-        String query = "INSERT INTO $gameTable (id, deck, status, current_player_id, croupier_id) VALUES (?, ?, ?, ?, ?)"
+        String query = "INSERT INTO $gameTable (id, deck, status, current_player_id, croupier_id) VALUES (?, CAST(? AS JSON), ?, ?, ?)"
         log.info(query)
         sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.currentPlayer?.id, game.croupier?.id])
     }
@@ -77,7 +77,7 @@ class DbHelper {
     }
 
     List<List<Object>> save(String gameId, Player player) {
-        String query = "INSERT INTO $playerGameTable (game_id, player_id, hand, move) VALUES (?, ?, ?, ?)"
+        String query = "INSERT INTO $playerGameTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
         log.info(query)
         sql.executeInsert(query.toString(), [gameId, player.id, convertCardsToString(player.hand), player.move.name()])
     }

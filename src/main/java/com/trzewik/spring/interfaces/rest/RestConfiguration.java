@@ -24,12 +24,12 @@ public class RestConfiguration {
     }
 
     @Bean
-    DispatcherServletPath dispatcherServletPath(DispatcherServlet dispatcherServlet){
+    DispatcherServletPath dispatcherServletPath(DispatcherServlet dispatcherServlet) {
         return new DispatcherServletRegistrationBean(dispatcherServlet, "/");
     }
 
     @Bean
-    DispatcherServlet dispatcherServlet(){
+    DispatcherServlet dispatcherServlet() {
         return new DispatcherServlet();
     }
 }

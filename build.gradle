@@ -8,6 +8,7 @@ buildscript {
         lombokVersion = '1.18.10'
         springVersion = '5.2.2.RELEASE'
         springBootVersion = '2.2.2.RELEASE'
+        springDataVersion = '2.2.3.RELEASE'
         jettyWebappVersion = '9.4.25.v20191220'
         jacksonVersion = '2.10.1'
         postgresVersion = '42.2.9'
@@ -46,6 +47,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
 
+    compile "org.springframework.data:spring-data-jpa:${springDataVersion}"
     compile "org.postgresql:postgresql:${postgresVersion}"
     compile "org.springframework:spring-orm:${springVersion}"
     compile "org.hibernate:hibernate-core:${hibernateVersion}"

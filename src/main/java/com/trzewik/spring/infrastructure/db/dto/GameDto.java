@@ -71,7 +71,6 @@ public class GameDto {
             .collect(Collectors.toList());
     }
 
-
     private static Player findPlayer(List<Player> players, String playerId) {
         return players.stream()
             .filter(player -> player.getId().equals(playerId))

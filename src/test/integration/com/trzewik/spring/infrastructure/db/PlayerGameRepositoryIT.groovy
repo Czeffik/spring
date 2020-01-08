@@ -6,10 +6,9 @@ import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.PlayerGameRepository
 import com.trzewik.spring.domain.player.Player
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-
-import javax.persistence.PersistenceException
 
 @ActiveProfiles(['test-db'])
 @ContextConfiguration(
@@ -42,7 +41,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             player_id == croupier.id
             move == croupier.move.name()
         }
-        def parsedCroupierHand = slurper.parseText(playerGames.first().hand) as List
+        def parsedCroupierHand = slurper.parseText(playerGames.first().hand.value) as List
         validateHand(croupier.hand, parsedCroupierHand)
     }
 
@@ -58,7 +57,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
         repository.save(croupier, game.id)
 
         then:
-        thrown(PersistenceException)
+        thrown(DataIntegrityViolationException)
     }
 
     def 'should not be able add player to game when player does not exist in database'() {
@@ -73,7 +72,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
         repository.save(croupier, game.id)
 
         then:
-        thrown(PersistenceException)
+        thrown(DataIntegrityViolationException)
     }
 
     def 'should find player with game'() {
@@ -138,7 +137,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             game_id == game.id
             move == updated.move.name()
         }
-        def parsedPlayerHand = slurper.parseText(playerGames.first().hand) as List
+        def parsedPlayerHand = slurper.parseText(playerGames.first().hand.value) as List
         validateHand(updated.hand, parsedPlayerHand)
 
         and:
@@ -154,7 +153,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
 
     def 'should update players in game'() {
         given:
-        Game game = createGame()
+        Game game = createStartedGame()
         Player croupier = game.croupier
         Player player = game.currentPlayer
         def players = [croupier, player]
@@ -199,7 +198,7 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             game_id == game.id
             move == updatedCroupier.move.name()
         }
-        def parsedCroupierHand = slurper.parseText(croupierGame.hand) as List
+        def parsedCroupierHand = slurper.parseText(croupierGame.hand.value) as List
         validateHand(updatedCroupier.hand, parsedCroupierHand)
 
         and:
@@ -208,9 +207,8 @@ class PlayerGameRepositoryIT extends DbSpec implements GameCreation {
             game_id == game.id
             move == updatedPlayer.move.name()
         }
-        def parsedPlayerHand = slurper.parseText(playerGame.hand) as List
+        def parsedPlayerHand = slurper.parseText(playerGame.hand.value) as List
         validateHand(updatedPlayer.hand, parsedPlayerHand)
-
     }
 
     void validateHand(Set<Deck.Card> hand, List parsedHand) {

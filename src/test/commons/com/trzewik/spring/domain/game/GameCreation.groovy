@@ -18,15 +18,27 @@ trait GameCreation implements PlayerCreation, DeckCreation {
         )
     }
 
+    Game createStartedGame(){
+        Player currPlayer = createPlayer(new PlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)]))
+        Game game = createGame(new GameBuilder(
+            players: [
+                currPlayer,
+                createPlayer(new PlayerBuilder(hand: [createCard(Deck.Card.Rank.EIGHT), createCard(Deck.Card.Rank.QUEEN)]))
+            ],
+            croupier: createPlayer(new PlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)] as Set)),
+            currentPlayer: currPlayer,
+            status: Game.Status.STARTED
+        ))
+        return game
+    }
+
     static class GameBuilder implements GameCreation {
         String id = '123'
-        List<Player> players = createPlayers(2)
-        Player croupier = createPlayer(new PlayerBuilder(
-            hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)] as Set)
-        )
+        List<Player> players = []
+        Player croupier = createPlayer()
         Deck deck = createDeck()
-        Game.Status status = Game.Status.STARTED
-        Player currentPlayer = players.first()
+        Game.Status status = Game.Status.NOT_STARTED
+        Player currentPlayer = null
 
         GameBuilder() {}
 

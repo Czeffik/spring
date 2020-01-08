@@ -30,10 +30,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should create game successfully and return game object representation in in response'() {
         given:
-        Game game = createGame(new GameBuilder([
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)]),
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.EIGHT), createCard(Deck.Card.Rank.QUEEN)])
-        ]))
+        Game game = createStartedGame()
 
         when:
         Response response = createGameRequest()
@@ -136,10 +133,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should start game successfully and return game object representation in in response'() {
         given:
-        Game game = createGame(new GameBuilder([
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)]),
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.EIGHT), createCard(Deck.Card.Rank.QUEEN)])
-        ]))
+        Game game = createStartedGame()
 
         when:
         Response response = startGameRequest(game.id)
@@ -213,10 +207,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should make move successfully and return game object representation in response'() {
         given:
-        Game game = createGame(new GameBuilder([
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)]),
-            new PlayerBuilder(hand: [createCard(Deck.Card.Rank.EIGHT), createCard(Deck.Card.Rank.QUEEN)])
-        ]))
+        Game game = createStartedGame()
 
         and:
         Player player = game.currentPlayer

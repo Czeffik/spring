@@ -56,7 +56,7 @@ class BlackJackFT extends DbSpec implements GameRequestSender {
         startGameResponse.statusCode() == 200
 
         and:
-        helper.getAllPlayerGames().each { assert slurper.parseText(it.hand).size() == 2 }
+        helper.getAllPlayerGames().each { assert slurper.parseText(it.hand.value).size() == 2 }
         helper.getAllGames().first().status == 'STARTED'
 
         when:

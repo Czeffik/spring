@@ -35,10 +35,10 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         with(games.first()) {
             id == game.id
             status == game.status.name()
-            current_player_id == game.currentPlayer.id
+            current_player_id == game?.currentPlayer?.id
             croupier_id == game.croupier.id
         }
-        def parsedDeck = slurper.parseText(games.first().deck)
+        def parsedDeck = slurper.parseText(games.first().deck.value)
         validateDeck(game.deck, parsedDeck)
 
         and:
@@ -139,7 +139,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
             current_player_id == updated.currentPlayer.id
             croupier_id == updated.croupier.id
         }
-        def parsedDeck = slurper.parseText(games.first().deck)
+        def parsedDeck = slurper.parseText(games.first().deck.value)
         validateDeck(updated.deck, parsedDeck)
     }
 

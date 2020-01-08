@@ -73,6 +73,7 @@ abstract class DbSpec extends Specification {
             ConfigurableEnvironment env = applicationContext.environment
             MutablePropertySources propertySources = env.getPropertySources()
             MockPropertySource mock = new MockPropertySource()
+                .withProperty('db.driver.class', container.driverClassName)
                 .withProperty('db.username', container.username)
                 .withProperty('db.password', container.password)
                 .withProperty('db.url', container.jdbcUrl)

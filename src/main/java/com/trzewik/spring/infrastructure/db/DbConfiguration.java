@@ -3,64 +3,95 @@ package com.trzewik.spring.infrastructure.db;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.PlayerGameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;
-import com.trzewik.spring.infrastructure.db.crud.DatabaseCrud;
-import com.trzewik.spring.infrastructure.db.crud.DatabaseCrudFactory;
-import com.trzewik.spring.infrastructure.db.dao.DaoFactory;
-import com.trzewik.spring.infrastructure.db.model.GameEntity;
-import com.trzewik.spring.infrastructure.db.model.PlayerEntity;
-import com.trzewik.spring.infrastructure.db.model.PlayerGameEntity;
+import com.trzewik.spring.infrastructure.db.repository.GameJpaRepository;
+import com.trzewik.spring.infrastructure.db.repository.PlayerGameJpaRepository;
+import com.trzewik.spring.infrastructure.db.repository.PlayerJpaRepository;
 import com.trzewik.spring.infrastructure.db.repository.RepositoryFactory;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackages = "com.trzewik.spring.infrastructure.db.repository")
 public class DbConfiguration {
     @Bean
-    GameRepository gameRepository(DatabaseCrud<GameEntity> db) {
-        return RepositoryFactory.createGame(DaoFactory.createGame(db));
+    GameRepository gameRepository(GameJpaRepository gameJpaRepository, EntityManager entityManager) {
+        return RepositoryFactory.createGame(gameJpaRepository, entityManager);
     }
 
     @Bean
-    PlayerRepository playerRepository(DatabaseCrud<PlayerEntity> db) {
-        return RepositoryFactory.createPlayer(DaoFactory.createPlayer(db));
+    PlayerRepository playerRepository(PlayerJpaRepository playerJpaRepository) {
+        return RepositoryFactory.createPlayer(playerJpaRepository);
     }
 
     @Bean
-    PlayerGameRepository playerGameRepository(DatabaseCrud<PlayerGameEntity> db) {
-        return RepositoryFactory.createPlayerGame(DaoFactory.createPlayerGame(db));
+    PlayerGameRepository playerGameRepository(
+        PlayerGameJpaRepository playerGameJpaRepository,
+        EntityManager entityManager) {
+        return RepositoryFactory.createPlayerGame(playerGameJpaRepository, entityManager);
     }
 
     @Bean
-    DatabaseCrud db(SessionFactory sessionFactory) {
-        return DatabaseCrudFactory.create(sessionFactory);
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory);
+
+        return transactionManager;
     }
 
     @Bean
-    LocalSessionFactoryBean sessionFactory(Properties hibernateProperties) {
-        final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setHibernateProperties(hibernateProperties);
-        sessionFactory.setPackagesToScan("com.trzewik.spring.infrastructure.db.model");
-        return sessionFactory;
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(
+        DataSource dataSource,
+        Properties hibernateProperties
+    ) {
+        LocalContainerEntityManagerFactoryBean em
+            = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dataSource);
+        em.setPackagesToScan("com.trzewik.spring.infrastructure.db.model");
+
+        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendorAdapter);
+        em.setJpaProperties(hibernateProperties);
+
+        return em;
+    }
+
+    @Bean
+    public DataSource dataSource(
+        @Value("${db.driver.class}") String driverClass,
+        @Value("${db.username}") String username,
+        @Value("${db.password}") String password,
+        @Value("${db.url}") String url
+    ) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
     }
 
     @Bean
     Properties hibernateProperties(
-        @Value("${db.driver.class}") String driverClass,
-        @Value("${db.username}") String username,
-        @Value("${db.password}") String password,
-        @Value("${db.url}") String url,
+        @Value("${hibernate.hbm2ddl.auto}") String hbm2ddl,
         @Value("${db.schema}") String defaultSchema
     ) {
         final Properties properties = new Properties();
-        properties.setProperty("hibernate.connection.driver_class", driverClass);
-        properties.setProperty("hibernate.connection.url", url);
-        properties.setProperty("hibernate.connection.username", username);
-        properties.setProperty("hibernate.connection.password", password);
+        properties.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);
         properties.setProperty("hibernate.default_schema", defaultSchema);
         return properties;
     }
