@@ -1,8 +1,6 @@
-package com.trzewik.spring.infrastructure.db.model;
+package com.trzewik.spring.infrastructure.db.game;
 
-import com.trzewik.spring.infrastructure.db.dto.DeckDto;
-import com.trzewik.spring.infrastructure.db.dto.GameDto;
-import com.trzewik.spring.infrastructure.db.dto.PlayerGameDto;
+import com.trzewik.spring.infrastructure.db.common.PlayerGameEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.EqualsAndHashCode;

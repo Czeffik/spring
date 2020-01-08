@@ -1,10 +1,8 @@
-package com.trzewik.spring.infrastructure.db.repository;
+package com.trzewik.spring.infrastructure.db.common;
 
 import com.trzewik.spring.domain.game.PlayerGameRepository;
 import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.infrastructure.db.dto.PlayerGameDto;
-import com.trzewik.spring.infrastructure.db.model.PlayerGameEntity;
-import com.trzewik.spring.infrastructure.db.model.PlayerGameId;
+import com.trzewik.spring.infrastructure.db.game.PlayerGameDto;
 import lombok.AllArgsConstructor;
 
 import javax.persistence.EntityManager;

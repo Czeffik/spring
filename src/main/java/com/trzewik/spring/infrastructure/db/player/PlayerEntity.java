@@ -1,6 +1,6 @@
-package com.trzewik.spring.infrastructure.db.model;
+package com.trzewik.spring.infrastructure.db.player;
 
-import com.trzewik.spring.infrastructure.db.dto.PlayerDto;
+import com.trzewik.spring.infrastructure.db.common.PlayerGameEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

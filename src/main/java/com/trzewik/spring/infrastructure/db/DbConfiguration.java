@@ -3,10 +3,12 @@ package com.trzewik.spring.infrastructure.db;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.PlayerGameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;
-import com.trzewik.spring.infrastructure.db.repository.GameJpaRepository;
-import com.trzewik.spring.infrastructure.db.repository.PlayerGameJpaRepository;
-import com.trzewik.spring.infrastructure.db.repository.PlayerJpaRepository;
-import com.trzewik.spring.infrastructure.db.repository.RepositoryFactory;
+import com.trzewik.spring.infrastructure.db.common.CommonRepositoryFactory;
+import com.trzewik.spring.infrastructure.db.common.PlayerGameJpaRepository;
+import com.trzewik.spring.infrastructure.db.game.GameJpaRepository;
+import com.trzewik.spring.infrastructure.db.game.GameRepositoryFactory;
+import com.trzewik.spring.infrastructure.db.player.PlayerJpaRepository;
+import com.trzewik.spring.infrastructure.db.player.PlayerRepositoryFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,23 +28,27 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "com.trzewik.spring.infrastructure.db.repository")
+@EnableJpaRepositories(basePackages = {
+    "com.trzewik.spring.infrastructure.db.common",
+    "com.trzewik.spring.infrastructure.db.game",
+    "com.trzewik.spring.infrastructure.db.player"
+})
 public class DbConfiguration {
     @Bean
     GameRepository gameRepository(GameJpaRepository gameJpaRepository, EntityManager entityManager) {
-        return RepositoryFactory.createGame(gameJpaRepository, entityManager);
+        return GameRepositoryFactory.create(gameJpaRepository, entityManager);
     }
 
     @Bean
     PlayerRepository playerRepository(PlayerJpaRepository playerJpaRepository) {
-        return RepositoryFactory.createPlayer(playerJpaRepository);
+        return PlayerRepositoryFactory.create(playerJpaRepository);
     }
 
     @Bean
     PlayerGameRepository playerGameRepository(
         PlayerGameJpaRepository playerGameJpaRepository,
         EntityManager entityManager) {
-        return RepositoryFactory.createPlayerGame(playerGameJpaRepository, entityManager);
+        return CommonRepositoryFactory.create(playerGameJpaRepository, entityManager);
     }
 
     @Bean
@@ -61,7 +67,11 @@ public class DbConfiguration {
         LocalContainerEntityManagerFactoryBean em
             = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.trzewik.spring.infrastructure.db.model");
+        em.setPackagesToScan(
+            "com.trzewik.spring.infrastructure.db.common",
+            "com.trzewik.spring.infrastructure.db.game",
+            "com.trzewik.spring.infrastructure.db.player"
+        );
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

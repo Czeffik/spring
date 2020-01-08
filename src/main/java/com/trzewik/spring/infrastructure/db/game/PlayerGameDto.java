@@ -1,10 +1,12 @@
-package com.trzewik.spring.infrastructure.db.dto;
+package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.deck.Deck;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerFactory;
-import com.trzewik.spring.infrastructure.db.model.PlayerGameEntity;
+import com.trzewik.spring.infrastructure.db.common.CardDto;
+import com.trzewik.spring.infrastructure.db.common.PlayerGameEntity;
+import com.trzewik.spring.infrastructure.db.player.PlayerDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

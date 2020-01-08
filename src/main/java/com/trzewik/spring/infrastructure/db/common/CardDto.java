@@ -1,4 +1,4 @@
-package com.trzewik.spring.infrastructure.db.dto;
+package com.trzewik.spring.infrastructure.db.common;
 
 import com.trzewik.spring.domain.deck.CardFactory;
 import com.trzewik.spring.domain.deck.Deck;

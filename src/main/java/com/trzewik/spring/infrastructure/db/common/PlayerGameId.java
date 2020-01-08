@@ -1,4 +1,4 @@
-package com.trzewik.spring.infrastructure.db.model;
+package com.trzewik.spring.infrastructure.db.common;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

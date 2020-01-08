@@ -5,7 +5,7 @@ import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.infrastructure.db.dto.GameDto
+import com.trzewik.spring.infrastructure.db.game.GameDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
