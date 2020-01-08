@@ -41,9 +41,8 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
         then:
         playerRepo.repository.size() == 2
-        game.players.size() == 1
-        game.players.first() == createdPlayer
-        playerRepo.findById(createdPlayer.id).get() == createdPlayer
+        game.players.size() == 2
+        game.players.contains(createdPlayer)
         playerGameRepo.repository.size() == 2
         playerGameRepo.findById(game.id, createdPlayer.id).get() == createdPlayer
     }
@@ -292,7 +291,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         @Override
         synchronized Optional<Player> findById(String id) {
             Player player = repository.get(id)
-            return Optional.ofNullable(player == null ? player : createPlayer(new PlayerBuilder(player)))
+            return Optional.ofNullable(player == null ? null : createPlayer(new PlayerBuilder(player)))
         }
 
         synchronized Map<String, Player> getRepository() {

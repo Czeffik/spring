@@ -57,7 +57,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         Game game = createGame(new GameBuilder(
             currentPlayer: null,
             croupier: croupier,
-            players: [],
+            players: [croupier],
             status: Game.Status.NOT_STARTED
         ))
 
@@ -87,7 +87,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         Game game = createGame(new GameBuilder(
             currentPlayer: null,
             croupier: croupier,
-            players: [],
+            players: [croupier],
             status: Game.Status.NOT_STARTED
         ))
 

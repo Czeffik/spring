@@ -18,6 +18,7 @@ class GameRepoImpl implements GameRepository {
 
     @Override
     public void save(Game game) {
+
         jpaRepository.save(new GameEntity(GameDto.from(game)));
     }
 

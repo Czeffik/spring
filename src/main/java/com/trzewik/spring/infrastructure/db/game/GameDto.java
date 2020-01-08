@@ -30,8 +30,8 @@ public class GameDto {
             DeckDto.from(game.getDeck()),
             game.getStatus().name(),
             createPlayers(game),
-            game.getCurrentPlayer() == null ? null : game.getCurrentPlayer().getId(),
-            game.getCroupier().getId()
+            game.getCurrentPlayerId(),
+            game.getCroupierId()
         );
     }
 
@@ -56,11 +56,11 @@ public class GameDto {
         List<Player> allPlayers = mapTo(dto.getPlayers());
         return GameFactory.createGame(
             dto.id,
-            filterOutPlayer(allPlayers, dto.croupierId),
+            allPlayers,
             findPlayer(allPlayers, dto.croupierId),
             DeckDto.to(dto.getDeck()),
             Game.Status.valueOf(dto.getStatus()),
-            dto.currentPlayerId == null ? null : findPlayer(allPlayers, dto.currentPlayerId)
+            findPlayer(allPlayers, dto.currentPlayerId)
         );
     }
 
@@ -71,16 +71,13 @@ public class GameDto {
     }
 
     private static Player findPlayer(List<Player> players, String playerId) {
+        if (playerId == null) {
+            return null;
+        }
         return players.stream()
             .filter(player -> player.getId().equals(playerId))
             .findFirst()
             .orElseThrow(() -> new PlayerNotFoundException(players, playerId));
-    }
-
-    private static List<Player> filterOutPlayer(List<Player> players, String playerIdToExclude) {
-        return players.stream()
-            .filter(player -> !player.getId().equals(playerIdToExclude))
-            .collect(Collectors.toList());
     }
 
     public static class PlayerNotFoundException extends RuntimeException {

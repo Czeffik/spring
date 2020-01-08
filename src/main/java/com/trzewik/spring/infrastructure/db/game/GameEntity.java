@@ -57,7 +57,7 @@ public class GameEntity implements Serializable {
 
     public GameEntity(GameDto dto) {
         this.id = dto.getId();
-        this.players = createPlayerGames(dto.getPlayers());
+        //this.players = createPlayerGames(dto.getPlayers()); //todo should be able save with it
         this.deck = dto.getDeck();
         this.status = dto.getStatus();
         this.currentPlayerId = dto.getCurrentPlayerId();

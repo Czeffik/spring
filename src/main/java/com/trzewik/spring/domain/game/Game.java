@@ -21,7 +21,11 @@ public interface Game {
 
     Player getCurrentPlayer();
 
+    String getCurrentPlayerId();
+
     Player getCroupier();
+
+    String getCroupierId();
 
     List<Player> getPlayers();
 

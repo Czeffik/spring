@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @AllArgsConstructor
@@ -27,13 +27,13 @@ class GameImpl implements Game {
         if (gameStarted()) {
             throw new GameException("Game started, can not start again");
         }
-        if (players.size() == 0) {
+        if (players.size() <= 1) {
             throw new GameException("Please add at least one player before start.");
         }
         deck.shuffle();
         dealCards();
         status = Status.STARTED;
-        setCurrentPlayer(players.get(0));
+        setCurrentPlayer();
         return this;
     }
 
@@ -89,8 +89,21 @@ class GameImpl implements Game {
     }
 
     @Override
+    public String getCurrentPlayerId() {
+        if (currentPlayer == null) {
+            return null;
+        }
+        return currentPlayer.getId();
+    }
+
+    @Override
     public Player getCroupier() {
         return croupier;
+    }
+
+    @Override
+    public String getCroupierId() {
+        return croupier.getId();
     }
 
     @Override
@@ -106,7 +119,7 @@ class GameImpl implements Game {
     @Override
     public List<Result> getResults() throws GameException {
         if (gameEnded()) {
-            return ResultsHelper.createResults(getPlayersWithCroupier());
+            return ResultsHelper.createResults(players);
         }
         throw new GameException("Results are available only when game finished. Please continue auction.");
     }
@@ -135,12 +148,8 @@ class GameImpl implements Game {
         return !playerId.equals(currentPlayer.getId());
     }
 
-    private void setCurrentPlayer(Player player) {
-        currentPlayer = player;
-    }
-
     private void setCurrentPlayer() {
-        currentPlayer = players.stream()
+        currentPlayer = getPlayersWithoutCroupier().stream()
             .filter(player -> !player.isLooser())
             .filter(player -> !Move.STAND.equals(player.getMove()))
             .findFirst()
@@ -149,15 +158,15 @@ class GameImpl implements Game {
 
     private void dealCards() {
         IntStream.range(0, 2).forEach(index -> {
-            getPlayersWithCroupier().forEach(player -> {
+            players.forEach(player -> {
                 player.addCard(deck.take());
             });
         });
     }
 
-    private List<Player> getPlayersWithCroupier() {
-        List<Player> allPlayers = new ArrayList<>(players);
-        allPlayers.add(croupier);
-        return allPlayers;
+    private List<Player> getPlayersWithoutCroupier() {
+        return players.stream()
+            .filter(player -> !player.equals(croupier))
+            .collect(Collectors.toList());
     }
 }

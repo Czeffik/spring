@@ -14,9 +14,9 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
     @Subject
     Game game = GameFactory.createGame()
 
-    def 'should create game without players, with deck and croupier'() {
+    def 'should create game with one player, with deck and croupier'() {
         expect:
-        game.@players.size() == 0
+        game.@players.size() == 1
         game.@deck != null
         game.@deck.cards.size() == 52
         game.@croupier != null
@@ -30,7 +30,7 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
         game.addPlayer(createPlayer())
 
         then:
-        game.@players.size() == 1
+        game.@players.size() == 2
     }
 
     def 'should be possible get game id'() {
@@ -43,8 +43,14 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
         game.getCroupier() == game.@croupier
     }
 
+    def 'should be possible get croupier id'() {
+        expect:
+        game.getCroupierId() == game.@croupier.id
+    }
+
     def 'should be possible get current player - when is null'() {
         expect:
+        game.getCurrentPlayer() == null
         game.getCurrentPlayer() == game.@currentPlayer
     }
 
@@ -56,6 +62,21 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
 
         expect:
         game.getCurrentPlayer() == player
+    }
+
+    def 'should be possible get current player id - when current player is null'() {
+        expect:
+        game.getCurrentPlayerId() == null
+    }
+
+    def 'should be possible get current player id - when current player is not null'() {
+        given:
+        Player player = createPlayer()
+        game.addPlayer(player)
+        game.startGame()
+
+        expect:
+        game.getCurrentPlayerId() == player.id
     }
 
     @Unroll
@@ -90,7 +111,7 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
         STATUS << [Game.Status.STARTED, Game.Status.ENDED]
     }
 
-    def 'should throw exception when trying start game without players'() {
+    def 'should throw exception when trying start game without players (only with croupier)'() {
         when:
         game.startGame()
 
@@ -118,7 +139,6 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
 
         and:
         game.@currentPlayer != null
-        game.@currentPlayer == players.first()
 
         and:
         startedGame.is(game)
@@ -309,9 +329,9 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
         results.collect { it.@player }.containsAll(players)
     }
 
-    def 'should return empty list with players when no players added'() {
+    def 'should return list with one player (croupier) when no players added'() {
         expect:
-        game.getPlayers().size() == 0
+        game.getPlayers().size() == 1
     }
 
     def 'should return list with players'() {
@@ -325,8 +345,8 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
         def players = game.getPlayers()
 
         then:
-        players.size() == 1
-        players.first().is(player)
+        players.size() == 2
+        players.contains(player)
     }
 
     def 'should return deck with all cards'() {
@@ -394,16 +414,18 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
 
         then:
         1 * deck.shuffle()
+        deck.take() >> createCard()
     }
 
     def 'croupier should pick cards only if his hand value is lesser than 17'() {
         given:
         Player croupier = Mock()
-        def players = createPlayers(1)
-        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, players.first())
+        def currentPlayer = createPlayer()
+        def players = [croupier,  currentPlayer]
+        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, currentPlayer)
 
         when:
-        game.auction(players.first().id, Game.Move.STAND)
+        game.auction(currentPlayer.id, Game.Move.STAND)
 
         then:
         1 * croupier.handValue() >> 17
@@ -413,11 +435,12 @@ class GameImplUT extends Specification implements PlayerCreation, DeckCreation {
     def 'croupier should pick cards till his hand has value higher than 16'() {
         given:
         Player croupier = Mock()
-        def players = createPlayers(1)
-        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, players.first())
+        def currentPlayer = createPlayer()
+        def players = [croupier,  currentPlayer]
+        def game = new GameImpl('12312', players, croupier, createDeck(), Game.Status.STARTED, currentPlayer)
 
         when:
-        game.auction(players.first().id, Game.Move.STAND)
+        game.auction(currentPlayer.id, Game.Move.STAND)
 
         then:
         1 * croupier.handValue() >> 16
