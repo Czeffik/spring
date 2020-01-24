@@ -1,4 +1,4 @@
-package com.trzewik.spring.interfaces.rest.dto;
+package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.result.Result;
 import lombok.AccessLevel;

@@ -1,25 +1,25 @@
-package com.trzewik.spring.interfaces.rest
+package com.trzewik.spring.interfaces.rest.game
 
 import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.result.Result
+import com.trzewik.spring.domain.game.GameService
 import com.trzewik.spring.domain.game.ResultCreation
 import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.domain.game.GameService
+import com.trzewik.spring.domain.result.Result
+import com.trzewik.spring.interfaces.rest.RestConfiguration
+import com.trzewik.spring.interfaces.rest.TestRestConfig
 import groovy.json.JsonSlurper
-import io.restassured.RestAssured
 import io.restassured.response.Response
-import io.restassured.specification.RequestSpecification
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
-@ActiveProfiles(['test-rest'])
+@ActiveProfiles(['test-rest', 'test'])
 @SpringBootTest(
-    classes = [RestConfiguration, TestRestConfig],
+    classes = [RestConfiguration.class, TestRestConfig.class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class GameControllerIT extends Specification implements GameRequestSender, ResultCreation {
@@ -28,7 +28,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     JsonSlurper slurper = new JsonSlurper()
 
-    def 'should create game successfully and return game object representation in in response'() {
+    def 'should create game successfully and return game object representation in response'() {
         given:
         Game game = createStartedGame()
 
@@ -367,12 +367,5 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             )
         )
         )
-    }
-
-    RequestSpecification request(String basePath) {
-        return RestAssured.given()
-            .baseUri("http://localhost:${port}")
-            .basePath(basePath)
-            .log().all()
     }
 }

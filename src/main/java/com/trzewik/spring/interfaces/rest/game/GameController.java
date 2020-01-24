@@ -1,12 +1,9 @@
-package com.trzewik.spring.interfaces.rest;
+package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;
-import com.trzewik.spring.interfaces.rest.dto.GameDto;
-import com.trzewik.spring.interfaces.rest.dto.PlayerDto;
-import com.trzewik.spring.interfaces.rest.dto.ResultsDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

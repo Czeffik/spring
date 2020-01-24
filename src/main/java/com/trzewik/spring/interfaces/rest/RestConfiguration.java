@@ -1,6 +1,9 @@
 package com.trzewik.spring.interfaces.rest;
 
 import com.trzewik.spring.domain.game.GameService;
+import com.trzewik.spring.domain.player.PlayerService;
+import com.trzewik.spring.interfaces.rest.game.GameController;
+import com.trzewik.spring.interfaces.rest.player.PlayerController;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
@@ -14,8 +17,13 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 public class RestConfiguration {
     @Bean
-    GameController gameController(GameService service) {
-        return new GameController(service);
+    GameController gameController(GameService gameService) {
+        return new GameController(gameService);
+    }
+
+    @Bean
+    PlayerController playerController(PlayerService playerService) {
+        return new PlayerController(playerService);
     }
 
     @Bean

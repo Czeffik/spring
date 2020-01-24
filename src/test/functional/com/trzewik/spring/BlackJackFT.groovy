@@ -1,7 +1,7 @@
 package com.trzewik.spring
 
 import com.trzewik.spring.infrastructure.db.DbSpec
-import com.trzewik.spring.interfaces.rest.GameRequestSender
+import com.trzewik.spring.interfaces.rest.game.GameRequestSender
 import io.restassured.response.Response
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles

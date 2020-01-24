@@ -1,13 +1,11 @@
-package com.trzewik.spring.interfaces.rest
+package com.trzewik.spring.interfaces.rest.game
 
-
-import io.restassured.RestAssured
+import com.trzewik.spring.interfaces.rest.RequestSender
 import io.restassured.http.ContentType
 import io.restassured.response.Response
-import io.restassured.specification.RequestSpecification
 import org.springframework.boot.web.server.LocalServerPort
 
-trait GameRequestSender {
+trait GameRequestSender extends RequestSender {
     @LocalServerPort
     int port
 
@@ -35,12 +33,5 @@ trait GameRequestSender {
             .body("""{"name": "${name}"}""")
             .post()
             .thenReturn()
-    }
-
-    RequestSpecification request(String basePath) {
-        return RestAssured.given()
-            .baseUri("http://localhost:${port}")
-            .basePath(basePath)
-            .log().all()
     }
 }
