@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.result
+package com.trzewik.spring.domain.game
 
 import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification

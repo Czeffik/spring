@@ -2,8 +2,6 @@ package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.common.Deck;
 import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.result.Result;
-import com.trzewik.spring.domain.result.ResultsHelper;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;

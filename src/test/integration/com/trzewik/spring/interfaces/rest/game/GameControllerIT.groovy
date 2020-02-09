@@ -7,7 +7,7 @@ import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
 import com.trzewik.spring.domain.game.ResultCreation
 import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.domain.result.Result
+import com.trzewik.spring.domain.game.Result
 import com.trzewik.spring.interfaces.rest.RestConfiguration
 import com.trzewik.spring.interfaces.rest.TestRestConfig
 import groovy.json.JsonSlurper

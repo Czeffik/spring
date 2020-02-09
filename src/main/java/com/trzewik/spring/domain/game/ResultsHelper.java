@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.result;
+package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
