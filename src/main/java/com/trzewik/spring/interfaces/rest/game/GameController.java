@@ -4,6 +4,10 @@ import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameException;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;
+import com.trzewik.spring.domain.game.Result;
+import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.player.PlayerRepository;
+import com.trzewik.spring.domain.player.PlayerService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,30 +24,36 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @ResponseBody
 @RequestMapping
 @AllArgsConstructor
 public class GameController {
-    private GameService service;
+    private GameService gameService;
+    private PlayerService playerService;
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
-        return GameDto.from(service.createGame());
+        Game game = gameService.create(playerService.createCroupierAndGetId());
+        return GameDto.from(game);
     }
 
     @PostMapping(value = "/games/{gameId}/players", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PlayerDto addPlayer(
+    public GameDto addPlayer(
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody AddPlayerForm addPlayerForm
-    ) throws GameException, GameRepository.GameNotFoundException {
-        return PlayerDto.from(service.addPlayer(gameId, addPlayerForm.getName()));
+    ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
+        String playerId = playerService.getId(addPlayerForm.getPlayerId());
+        return GameDto.from(gameService.addPlayer(gameId, playerId));
     }
 
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto startGame(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
-        return GameDto.from(service.startGame(gameId));
+        return GameDto.from(gameService.start(gameId));
     }
 
     @PostMapping(value = "/games/{gameId}/move", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,14 +61,18 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody MoveForm moveForm
     ) throws GameException, GameRepository.GameNotFoundException {
-        return GameDto.from(service.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
+        return GameDto.from(gameService.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultsDto getResults(
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
-        return ResultsDto.from(service.getGameResults(gameId));
+        List<Result> results = gameService.getResults(gameId);
+        List<String> playerIds = results.stream().map(r -> r.getPlayer().getPlayerId()).collect(Collectors.toList());
+        List<Player> players = playerService.get(playerIds);
+
+        return ResultsDto.from(results, players);
     }
 
     @ExceptionHandler(value = {GameException.class})
@@ -70,7 +84,15 @@ public class GameController {
     @ExceptionHandler(value = {
         GameRepository.GameNotFoundException.class
     })
-    public ResponseEntity<Object> handleNotFound(Exception ex) {
+    public ResponseEntity<Object> handleGameNotFound(Exception ex) {
+        String bodyOfResponse = ex.getMessage();
+        return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {
+        PlayerRepository.PlayerNotFoundException.class
+    })
+    public ResponseEntity<Object> handlePlayerNotFound(Exception ex) {
         String bodyOfResponse = ex.getMessage();
         return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
     }
@@ -89,6 +111,6 @@ public class GameController {
     @NoArgsConstructor
     @AllArgsConstructor
     static class AddPlayerForm {
-        private String name;
+        private String playerId;
     }
 }

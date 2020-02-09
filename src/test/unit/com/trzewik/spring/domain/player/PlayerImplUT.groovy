@@ -1,92 +1,18 @@
 package com.trzewik.spring.domain.player
 
-import com.trzewik.spring.domain.common.Deck
-import com.trzewik.spring.domain.deck.DeckCreation
-import com.trzewik.spring.domain.game.Game
+
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
 
-class PlayerImplUT extends Specification implements DeckCreation {
+class PlayerImplUT extends Specification {
     static final String playerName = 'Adam'
+
     @Subject
     Player player = PlayerFactory.createPlayer(playerName)
-
 
     def 'should get player name'() {
         expect:
         player.getName() == playerName
-    }
-
-    def 'should get player hand'() {
-        expect:
-        player.getHand().size() == 0
-    }
-
-    def 'should add card to player hand'() {
-        given:
-        Deck.Card card = createCard()
-
-        when:
-        player.addCard(card)
-
-        then:
-        player.@hand.size() == 1
-        player.@hand.first() == card
-
-        and:
-        player.getHand().size() == 1
-        player.getHand().first() == card
-    }
-
-    @Unroll
-    def 'should calculate hand value correctly. Hand: #STARTING_HAND, Value: #EXPECTED_VALUE'() {
-        given:
-        STARTING_HAND.each {
-            player.addCard(it)
-        }
-
-        expect:
-        player.handValue() == EXPECTED_VALUE
-
-        where:
-        STARTING_HAND << [
-            [],
-            [createCard()],
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
-            [createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE)), createCard(new CardBuilder(rank: Deck.Card.Rank.TWO))]
-        ]
-        EXPECTED_VALUE << [
-            0,
-            10,
-            21,
-            11,
-            13
-        ]
-
-    }
-
-    def 'should check that player has more than 21 points and is loser. Hand: #STARTING_HAND, Value: #EXPECTED_VALUE'() {
-        given:
-        STARTING_HAND.each {
-            player.addCard(it)
-        }
-
-        expect:
-        player.isLooser() == EXPECTED_VALUE
-
-        where:
-        STARTING_HAND << [
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
-            [createCard(),
-             createCard(new CardBuilder(rank: Deck.Card.Rank.TWO)),
-             createCard(new CardBuilder(rank: Deck.Card.Rank.TEN))]
-        ]
-        EXPECTED_VALUE << [
-            false,
-            true
-        ]
     }
 
     def 'should get player id as string'() {
@@ -95,29 +21,9 @@ class PlayerImplUT extends Specification implements DeckCreation {
         player.getId() instanceof String
     }
 
-    def 'should get player default move = HIT'() {
-        expect:
-        player.getMove() == Game.Move.HIT
-    }
-
-    @Unroll
-    def 'should set player move = #MOVE and be possible to get it'() {
-        when:
-        player.setMove(MOVE)
-
-        then:
-        player.@move == MOVE
-
-        and:
-        player.getMove() == MOVE
-
-        where:
-        MOVE << Game.Move.values()
-    }
-
     def 'should throw exception when id is null'() {
         when:
-        new PlayerImpl(null, '', [] as Set, null)
+        new PlayerImpl(null, '')
 
         then:
         thrown(NullPointerException)
@@ -125,17 +31,14 @@ class PlayerImplUT extends Specification implements DeckCreation {
 
     def 'should throw exception when name is null'() {
         when:
-        new PlayerImpl('', null, [] as Set, null)
+        new PlayerImpl('', null)
 
         then:
         thrown(NullPointerException)
     }
 
-    def 'should throw exception when hand is null'() {
-        when:
-        new PlayerImpl('', '', null, null)
-
-        then:
-        thrown(NullPointerException)
+    def 'should return string representation of player with id and name'() {
+        expect:
+        player.toString() == "{id=${player.id}, name=${player.name}}"
     }
 }

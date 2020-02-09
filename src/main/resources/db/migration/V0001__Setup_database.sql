@@ -1,4 +1,4 @@
-CREATE TABLE game
+CREATE TABLE games
 (
     id                VARCHAR(36) PRIMARY KEY,
     deck              json,
@@ -7,16 +7,16 @@ CREATE TABLE game
     croupier_id       VARCHAR(36)
 );
 
-CREATE TABLE player
+CREATE TABLE players
 (
     id   VARCHAR(36) PRIMARY KEY,
     name TEXT
 );
 
-CREATE TABLE player_game
+CREATE TABLE games_players
 (
-    game_id   VARCHAR(36) REFERENCES game (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    player_id VARCHAR(36) REFERENCES player (id) ON UPDATE CASCADE,
+    game_id   VARCHAR(36) REFERENCES games (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    player_id VARCHAR(36) REFERENCES players (id) ON UPDATE CASCADE,
     hand json,
     move TEXT,
     CONSTRAINT game_player_pkey PRIMARY KEY (game_id, player_id)

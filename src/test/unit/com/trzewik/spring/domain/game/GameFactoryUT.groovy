@@ -1,55 +1,54 @@
 package com.trzewik.spring.domain.game
 
 import com.trzewik.spring.domain.deck.DeckCreation
-import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 
-class GameFactoryUT extends Specification implements PlayerCreation, DeckCreation {
+class GameFactoryUT extends Specification implements GamePlayerCreation, DeckCreation {
 
     def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED and currentPlayer null'() {
         when:
-        Game game = GameFactory.createGame()
+        Game game = GameFactory.createGame('croupier-id')
 
         then:
-        game.@id != null
-        game.@players.size() == 1
-        with(game.@croupier) {
-            it != null
-            it == game.@players.first()
-            name == 'Croupier'
+        game.id
+        game.players.size() == 1
+        with(game.players.first()) {
+            it
+            hand.isEmpty()
+            move == Game.Move.HIT
         }
-        with(game.@deck) {
-            it != null
-            it.@cards.size() == 52
+        with(game.deck) {
+            it
+            it.cards.size() == 52
         }
-        game.@status == Game.Status.NOT_STARTED
-        game.@currentPlayer == null
+        game.status == Game.Status.NOT_STARTED
+        game.currentPlayerId == null
     }
 
     def 'should create game with given: id, players, croupier, deck, status, currentPlayer'() {
         given:
         def id = '123'
-        def players = createPlayers(2)
-        def croupier = createPlayer(new PlayerBuilder(name: 'Croupier'))
+        def players = createGamePlayers(3)
+        def croupierId = players.first().playerId
         def deck = createDeck()
         def status = Game.Status.STARTED
-        def currentPlayer = players[1]
+        def currentPlayerId = players[1].playerId
 
         when:
-        def game = GameFactory.createGame(id, players, croupier, deck, status, currentPlayer)
+        def game = GameFactory.createGame(id, players, croupierId, deck, status, currentPlayerId)
 
         then:
-        game.@id == id
-        game.@players == players
-        game.@croupier == croupier
-        game.@deck == deck
-        game.@status == status
-        game.@currentPlayer == currentPlayer
+        game.id == id
+        game.players == players
+        game.croupierId == croupierId
+        game.deck == deck
+        game.status == status
+        game.currentPlayerId == currentPlayerId
     }
 
     def 'should throw exception when id is null'() {
         when:
-        GameFactory.createGame(null, createPlayers(2), createPlayer(), createDeck(), Game.Status.STARTED, createPlayer())
+        GameFactory.createGame(null, createGamePlayers(2), '', createDeck(), Game.Status.STARTED, '')
 
         then:
         thrown(NullPointerException)
@@ -57,7 +56,7 @@ class GameFactoryUT extends Specification implements PlayerCreation, DeckCreatio
 
     def 'should throw exception when players are null'() {
         when:
-        GameFactory.createGame('', null, createPlayer(), createDeck(), Game.Status.STARTED, createPlayer())
+        GameFactory.createGame('', null, '', createDeck(), Game.Status.STARTED, '')
 
         then:
         thrown(NullPointerException)
@@ -65,7 +64,7 @@ class GameFactoryUT extends Specification implements PlayerCreation, DeckCreatio
 
     def 'should throw exception when croupier is null'() {
         when:
-        GameFactory.createGame('', createPlayers(2), null, createDeck(), Game.Status.STARTED, createPlayer())
+        GameFactory.createGame('', createGamePlayers(), null, createDeck(), Game.Status.STARTED, '')
 
         then:
         thrown(NullPointerException)
@@ -73,7 +72,7 @@ class GameFactoryUT extends Specification implements PlayerCreation, DeckCreatio
 
     def 'should throw exception when deck is null'() {
         when:
-        GameFactory.createGame('', createPlayers(2), createPlayer(), null, Game.Status.STARTED, createPlayer())
+        GameFactory.createGame('', createGamePlayers(), '', null, Game.Status.STARTED, '')
 
         then:
         thrown(NullPointerException)
@@ -81,7 +80,7 @@ class GameFactoryUT extends Specification implements PlayerCreation, DeckCreatio
 
     def 'should throw exception when status is null'() {
         when:
-        GameFactory.createGame('', createPlayers(2), createPlayer(), createDeck(), null, createPlayer())
+        GameFactory.createGame('', createGamePlayers(), '', createDeck(), null, '')
 
         then:
         thrown(NullPointerException)

@@ -2,6 +2,7 @@ package com.trzewik.spring.infrastructure.db
 
 import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.game.Game
+import com.trzewik.spring.domain.game.GamePlayer
 import com.trzewik.spring.domain.player.Player
 import groovy.json.JsonBuilder
 import groovy.sql.GroovyRowResult
@@ -24,21 +25,21 @@ class DbHelper {
     }
 
     List<GroovyRowResult> getAllGames() {
-        String query = "SELECT * FROM $gameTable"
+        String query = "SELECT * FROM $gamesTable"
         log.info(query)
         sql.rows(query)
     }
 
     void deleteGames() {
-        String query = "DELETE FROM $gameTable"
+        String query = "DELETE FROM $gamesTable"
         log.info(query)
         sql.execute(query)
     }
 
     List<List<Object>> save(Game game) {
-        String query = "INSERT INTO $gameTable (id, deck, status, current_player_id, croupier_id) VALUES (?, CAST(? AS JSON), ?, ?, ?)"
+        String query = "INSERT INTO $gamesTable (id, deck, status, current_player_id, croupier_id) VALUES (?, CAST(? AS JSON), ?, ?, ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.currentPlayer?.id, game.croupier?.id])
+        sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.currentPlayerId, game.croupierId])
     }
 
     static String convertDeck(Deck deck) {
@@ -47,39 +48,39 @@ class DbHelper {
     }
 
     List<GroovyRowResult> getAllPlayers() {
-        String query = "SELECT * FROM $playerTable"
+        String query = "SELECT * FROM $playersTable"
         log.info(query)
         sql.rows(query)
     }
 
     void deletePlayers() {
-        String query = "DELETE FROM $playerTable"
+        String query = "DELETE FROM $playersTable"
         log.info(query)
         sql.execute(query)
     }
 
     List<List<Object>> save(Player player) {
-        String query = "INSERT INTO $playerTable (id, name) VALUES (?, ?)"
+        String query = "INSERT INTO $playersTable (id, name) VALUES (?, ?)"
         log.info(query)
         sql.executeInsert(query.toString(), [player.id, player.name])
     }
 
-    List<GroovyRowResult> getAllPlayerGames() {
-        String query = "SELECT * FROM $playerGameTable"
+    List<GroovyRowResult> getAllGamesPlayers() {
+        String query = "SELECT * FROM $gamesPlayersTable"
         log.info(query)
         sql.rows(query)
     }
 
-    void deletePlayerGames() {
-        String query = "DELETE FROM $playerGameTable"
+    void deleteGamesPlayers() {
+        String query = "DELETE FROM $gamesPlayersTable"
         log.info(query)
         sql.execute(query)
     }
 
-    List<List<Object>> save(String gameId, Player player) {
-        String query = "INSERT INTO $playerGameTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
+    List<List<Object>> save(String gameId, GamePlayer player) {
+        String query = "INSERT INTO $gamesPlayersTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [gameId, player.id, convertCardsToString(player.hand), player.move.name()])
+        sql.executeInsert(query.toString(), [gameId, player.playerId, convertCardsToString(player.hand), player.move.name()])
     }
 
     static String convertCardsToString(Collection<Deck.Card> hand) {
@@ -90,16 +91,16 @@ class DbHelper {
         return hand.collect { [suit: it.suit, rank: it.rank] }
     }
 
-    private static String getGameTable() {
-        return table('game')
+    private static String getGamesTable() {
+        return table('games')
     }
 
-    private static String getPlayerTable() {
-        return table('player')
+    private static String getPlayersTable() {
+        return table('players')
     }
 
-    private static String getPlayerGameTable() {
-        return table('player_game')
+    private static String getGamesPlayersTable() {
+        return table('games_players')
     }
 
     private static String table(String name) {

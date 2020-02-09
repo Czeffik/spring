@@ -7,7 +7,7 @@ public interface GameRepository {
 
     Optional<Game> findById(String id);
 
-    default Game findGame(String id) throws GameNotFoundException {
+    default Game getById(String id) throws GameNotFoundException {
         return findById(id).orElseThrow(() -> new GameNotFoundException(id));
     }
 

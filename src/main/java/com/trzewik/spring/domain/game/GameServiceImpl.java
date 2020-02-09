@@ -1,9 +1,5 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.common.PlayerGameRepository;
-import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerFactory;
-import com.trzewik.spring.domain.player.PlayerRepository;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -11,42 +7,33 @@ import java.util.List;
 @AllArgsConstructor
 class GameServiceImpl implements GameService {
     private final GameRepository gameRepo;
-    private final PlayerRepository playerRepo;
-    private final PlayerGameRepository playerGameRepo;
 
     @Override
-    public Game createGame() {
-        Game game = GameFactory.createGame();
-        Player croupier = game.getCroupier();
+    public Game create(String croupierId) {
+        Game game = GameFactory.createGame(croupierId);
 
-        playerRepo.save(croupier);
         gameRepo.save(game);
-        playerGameRepo.save(croupier, game.getId());
 
         return game;
     }
 
     @Override
-    public Player addPlayer(String gameId, String playerName)
+    public Game addPlayer(String gameId, String playerId)
         throws GameException, GameRepository.GameNotFoundException {
-        Game game = gameRepo.findGame(gameId);
+        Game game = gameRepo.getById(gameId);
 
-        Player player = PlayerFactory.createPlayer(playerName);
-        game.addPlayer(player);
+        game.addPlayer(playerId);
 
-        playerRepo.save(player);
-        playerGameRepo.save(player, gameId);
+        gameRepo.update(game);
 
-        return player;
+        return game;
     }
 
     @Override
-    public Game startGame(String gameId) throws GameRepository.GameNotFoundException, GameException {
-        Game game = gameRepo.findGame(gameId).startGame();
+    public Game start(String gameId) throws GameRepository.GameNotFoundException, GameException {
+        Game game = gameRepo.getById(gameId).startGame();
 
         gameRepo.update(game);
-        playerGameRepo.update(game.getPlayers(), gameId);
-        playerGameRepo.update(game.getCroupier(), gameId);
 
         return game;
     }
@@ -54,20 +41,17 @@ class GameServiceImpl implements GameService {
     @Override
     public Game makeMove(String gameId, String playerId, Game.Move move)
         throws GameRepository.GameNotFoundException, GameException {
-        Game game = gameRepo.findGame(gameId);
-        Player player = game.getCurrentPlayer();
+        Game game = gameRepo.getById(gameId);
         game.auction(playerId, move);
 
         gameRepo.update(game);
-        playerGameRepo.update(player, gameId);
-        playerGameRepo.update(game.getCroupier(), gameId);
 
         return game;
     }
 
     @Override
-    public List<Result> getGameResults(String gameId) throws GameRepository.GameNotFoundException, GameException {
-        Game game = gameRepo.findGame(gameId);
+    public List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, GameException {
+        Game game = gameRepo.getById(gameId);
         return game.getResults();
     }
 }

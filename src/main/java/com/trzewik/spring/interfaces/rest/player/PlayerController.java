@@ -26,14 +26,14 @@ public class PlayerController {
 
     @PostMapping(value = "/players", produces = MediaType.APPLICATION_JSON_VALUE)
     public PlayerDto createPlayer(@NonNull @RequestBody CreatePlayerForm form) {
-        return PlayerDto.from(service.createPlayer(form.getName()));
+        return PlayerDto.from(service.create(form.getName()));
     }
 
     @GetMapping(value = "/players/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public PlayerDto getResults(
         @PathVariable(value = "playerId") String playerId
     ) throws PlayerRepository.PlayerNotFoundException {
-        return PlayerDto.from(service.getPlayer(playerId));
+        return PlayerDto.from(service.get(playerId));
     }
 
     @ExceptionHandler(value = {PlayerRepository.PlayerNotFoundException.class})

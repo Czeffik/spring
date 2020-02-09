@@ -17,8 +17,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 public class RestConfiguration {
     @Bean
-    GameController gameController(GameService gameService) {
-        return new GameController(gameService);
+    GameController gameController(GameService gameService, PlayerService playerService) {
+        return new GameController(gameService, playerService);
     }
 
     @Bean

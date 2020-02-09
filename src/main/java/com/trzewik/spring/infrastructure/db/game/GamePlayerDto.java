@@ -2,11 +2,9 @@ package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.common.Deck;
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerFactory;
+import com.trzewik.spring.domain.game.GamePlayer;
+import com.trzewik.spring.domain.game.GamePlayerFactory;
 import com.trzewik.spring.infrastructure.db.common.CardDto;
-import com.trzewik.spring.infrastructure.db.common.PlayerGameEntity;
-import com.trzewik.spring.infrastructure.db.player.PlayerDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,34 +18,33 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlayerGameDto {
+public class GamePlayerDto {
     private String gameId;
-    private PlayerDto player;
+    private String playerId;
     private Set<CardDto> hand;
     private String move;
 
-    public static PlayerGameDto from(String gameId, Player player) {
-        return new PlayerGameDto(
+    public static GamePlayerDto from(String gameId, GamePlayer player) {
+        return new GamePlayerDto(
             gameId,
-            PlayerDto.from(player),
+            player.getPlayerId(),
             createHand(player.getHand()),
             player.getMove().name()
         );
     }
 
-    public static PlayerGameDto from(PlayerGameEntity entity) {
-        return new PlayerGameDto(
-            entity.getPlayerGameId().getGameId(),
-            PlayerDto.from(entity.getPlayer()),
-            entity.getHand(),
-            entity.getMove()
+    public static GamePlayerDto from(GamePlayerEntity gamePlayerEntity) {
+        return new GamePlayerDto(
+            gamePlayerEntity.getId().getGameId(),
+            gamePlayerEntity.getId().getPlayerId(),
+            gamePlayerEntity.getHand(),
+            gamePlayerEntity.getMove()
         );
     }
 
-    public static Player to(PlayerGameDto dto) {
-        return PlayerFactory.createPlayer(
-            dto.getPlayer().getId(),
-            dto.getPlayer().getName(),
+    public static GamePlayer to(GamePlayerDto dto) {
+        return GamePlayerFactory.create(
+            dto.getPlayerId(),
             mapTo(dto.getHand()),
             Game.Move.valueOf(dto.getMove())
         );

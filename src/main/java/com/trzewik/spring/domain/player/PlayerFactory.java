@@ -1,12 +1,8 @@
 package com.trzewik.spring.domain.player;
 
-import com.trzewik.spring.domain.common.Deck;
-import com.trzewik.spring.domain.game.Game;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -16,15 +12,11 @@ public class PlayerFactory {
     }
 
     public static Player createPlayer(String name) {
-        return createPlayer(generateId(), name, new HashSet<>(), Game.Move.HIT);
+        return createPlayer(generateId(), name);
     }
 
     public static Player createPlayer(String id, String name) {
-        return new PlayerImpl(id, name, new HashSet<>(), null);
-    }
-
-    public static Player createPlayer(String id, String name, Set<Deck.Card> hand, Game.Move move) {
-        return new PlayerImpl(id, name, hand, move);
+        return new PlayerImpl(id, name);
     }
 
     private static String generateId() {

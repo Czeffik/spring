@@ -34,7 +34,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         Response response = createPlayerRequest(player.name)
 
         then:
-        1 * service.createPlayer(player.name) >> player
+        1 * service.create(player.name) >> player
 
         and:
         response.statusCode() == 200
@@ -54,7 +54,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         Response response = getPlayerRequest(player.id)
 
         then:
-        1 * service.getPlayer(player.id) >> player
+        1 * service.get(player.id) >> player
 
         and:
         response.statusCode() == 200
@@ -74,7 +74,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         Response response = getPlayerRequest(playerId)
 
         then:
-        1 * service.getPlayer(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+        1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
 
         and:
         response.statusCode() == 404

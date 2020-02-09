@@ -1,7 +1,7 @@
 package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.common.Deck;
-import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.game.GamePlayer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ public class HandDto {
     private final Set<CardDto> cards;
     private final int handValue;
 
-    public static HandDto from(Player player) {
+    public static HandDto from(GamePlayer player) {
         return new HandDto(
             from(player.getHand()),
             player.handValue()

@@ -2,14 +2,14 @@ package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameFactory;
-import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.game.GamePlayer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,7 +20,7 @@ public class GameDto {
     private String id;
     private DeckDto deck;
     private String status;
-    private List<PlayerGameDto> players;
+    private Set<GamePlayerDto> players;
     private String currentPlayerId;
     private String croupierId;
 
@@ -35,55 +35,39 @@ public class GameDto {
         );
     }
 
-    public static GameDto from(GameEntity game) {
+    public static GameDto from(GameEntity gameEntity) {
         return new GameDto(
-            game.getId(),
-            game.getDeck(),
-            game.getStatus(),
-            game.getPlayers().stream().map(PlayerGameDto::from).collect(Collectors.toList()),
-            game.getCurrentPlayerId(),
-            game.getCroupierId()
+            gameEntity.getId(),
+            gameEntity.getDeck(),
+            gameEntity.getStatus(),
+            gameEntity.getPlayers().stream().map(GamePlayerDto::from).collect(Collectors.toSet()),
+            gameEntity.getCurrentPlayerId(),
+            gameEntity.getCroupierId()
         );
     }
 
-    private static List<PlayerGameDto> createPlayers(Game game) {
+    private static Set<GamePlayerDto> createPlayers(Game game) {
         return game.getPlayers().stream()
-            .map(player -> PlayerGameDto.from(game.getId(), player))
-            .collect(Collectors.toList());
+            .map(p -> GamePlayerDto.from(game.getId(), p))
+            .collect(Collectors.toSet());
     }
 
     public static Game to(GameDto dto) {
-        List<Player> allPlayers = mapTo(dto.getPlayers());
+        Set<GamePlayer> allPlayers = mapTo(dto.getPlayers());
         return GameFactory.createGame(
             dto.id,
             allPlayers,
-            findPlayer(allPlayers, dto.croupierId),
+            dto.croupierId,
             DeckDto.to(dto.getDeck()),
             Game.Status.valueOf(dto.getStatus()),
-            findPlayer(allPlayers, dto.currentPlayerId)
+            dto.currentPlayerId
         );
     }
 
-    private static List<Player> mapTo(List<PlayerGameDto> players) {
+    private static Set<GamePlayer> mapTo(Set<GamePlayerDto> players) {
         return players.stream()
-            .map(PlayerGameDto::to)
-            .collect(Collectors.toList());
-    }
-
-    private static Player findPlayer(List<Player> players, String playerId) {
-        if (playerId == null) {
-            return null;
-        }
-        return players.stream()
-            .filter(player -> player.getId().equals(playerId))
-            .findFirst()
-            .orElseThrow(() -> new PlayerNotFoundException(players, playerId));
-    }
-
-    public static class PlayerNotFoundException extends RuntimeException {
-        PlayerNotFoundException(List<Player> players, String playerId) {
-            super(String.format("Can not find player with id: [%s] in players: [%s]", playerId, players));
-        }
+            .map(GamePlayerDto::to)
+            .collect(Collectors.toSet());
     }
 
 }

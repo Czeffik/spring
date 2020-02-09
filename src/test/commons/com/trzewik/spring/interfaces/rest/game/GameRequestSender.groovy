@@ -28,9 +28,9 @@ trait GameRequestSender extends RequestSender {
         return request('/games').contentType(ContentType.JSON).post().thenReturn()
     }
 
-    Response addPlayerRequest(String name, String gameId) {
+    Response addPlayerRequest(String gameId, String playerId) {
         return request("/games/${gameId}/players").contentType(ContentType.JSON)
-            .body("""{"name": "${name}"}""")
+            .body("""{"playerId": "${playerId}"}""")
             .post()
             .thenReturn()
     }

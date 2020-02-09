@@ -4,9 +4,9 @@ import com.trzewik.spring.domain.common.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.infrastructure.db.game.GameDto
+import com.trzewik.spring.domain.player.PlayerCreation
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 
@@ -15,14 +15,17 @@ import org.springframework.test.context.ContextConfiguration
     classes = [TestDbConfig],
     initializers = [DbInitializer]
 )
-class GameRepositoryIT extends DbSpec implements GameCreation {
+class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
 
     @Autowired
     GameRepository repository
 
     def 'should save game in database'() {
         given:
-        Game game = createGame()
+        Game game = createStartedGame()
+
+        and:
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
 
         when:
         repository.save(game)
@@ -35,76 +38,80 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
         with(games.first()) {
             id == game.id
             status == game.status.name()
-            current_player_id == game?.currentPlayer?.id
-            croupier_id == game.croupier.id
+            current_player_id == game.currentPlayerId
+            croupier_id == game.croupierId
         }
         def parsedDeck = slurper.parseText(games.first().deck.value)
         validateDeck(game.deck, parsedDeck)
 
         and:
-        helper.getAllPlayerGames().size() == 0
-        helper.getAllPlayers().size() == 0
+        def gamesPlayers = helper.getAllGamesPlayers()
+        gamesPlayers.size() == 2
+
+        and:
+        def gameCroupier = gamesPlayers.find { it.player_id == game.croupierId }
+        gameCroupier.move == game.croupier.move.name()
+        def parsedCroupierHand = slurper.parseText(gameCroupier.hand.value) as List
+        validateHand(game.croupier.hand, parsedCroupierHand)
+
+        and:
+        def gamePlayer = gamesPlayers.find { it.player_id == game.currentPlayerId }
+        gamePlayer.move == game.currentPlayer.move.name()
+        def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
+        validateHand(game.currentPlayer.hand, parsedPlayerHand)
     }
 
-    def 'should find game by id in database and pack it in optional'() {
+    def '''should return empty optional when can not find game with it
+        and should return optional with game when can find game with id'''() {
         given:
-        Player croupier = createPlayer()
+        Game game = createStartedGame()
 
         and:
-        helper.save(croupier)
-
-        and:
-        Game game = createGame(new GameBuilder(
-            currentPlayer: null,
-            croupier: croupier,
-            players: [croupier],
-            status: Game.Status.NOT_STARTED
-        ))
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
 
         and:
         helper.save(game)
 
         and:
-        helper.save(game.id, croupier)
+        game.players.each { helper.save(game.id, it) }
 
         expect:
         !repository.findById('other-id').isPresent()
 
-        and:
+        when:
         Optional<Game> foundGame = repository.findById(game.id)
+
+        then:
         foundGame.present
         foundGame.get() == game
     }
 
-    def 'should find game by id in database'() {
+//    def '''should throw exception when can not get game by id (not present id repository)
+//        and should return game when game with id is present in repository'''
+    def sasa () {
         given:
-        Player croupier = createPlayer()
+        Game game = createStartedGame()
 
         and:
-        helper.save(croupier)
-
-        and:
-        Game game = createGame(new GameBuilder(
-            currentPlayer: null,
-            croupier: croupier,
-            players: [croupier],
-            status: Game.Status.NOT_STARTED
-        ))
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
 
         and:
         helper.save(game)
 
         and:
-        helper.save(game.id, croupier)
+        game.players.each { helper.save(game.id, it) }
 
         when:
-        repository.findGame('other-id')
+        repository.getById('other-id')
 
         then:
-        thrown(GameRepository.GameNotFoundException)
+        def ex = thrown(GameRepository.GameNotFoundException)
+
+        and:
+        ex.message == 'Game with id: [other-id] not found.'
 
         when:
-        Game foundGame = repository.findGame(game.id)
+        Game foundGame = repository.getById(game.id)
 
         then:
         foundGame == game
@@ -112,54 +119,64 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
 
     def 'should update game in database'() {
         given:
-        Game game = createGame()
+        Game game = createStartedGame()
+
+        and:
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
 
         and:
         helper.save(game)
 
         and:
-        Game updated = createGame(new GameBuilder(
-            id: game.id,
-            deck: createDeck(new DeckBuilder(cards: [createCard(), createCard(Deck.Card.Rank.FOUR)] as Stack)),
-            status: Game.Status.ENDED,
-            croupier: createPlayer(new PlayerBuilder(id: 'croupier-new-id')),
-            currentPlayer: createPlayer(new PlayerBuilder(id: 'current-player-new-id')),
-            players: []
-        ))
+        game.players.each { helper.save(game.id, it) }
+
+        and:
+        def playerId = game.currentPlayerId
+
+        and:
+        game.auction(playerId, Game.Move.STAND)
 
         when:
-        repository.update(updated)
+        repository.update(game)
 
         then:
         def games = helper.getAllGames()
         games.size() == 1
+
+        and:
         with(games.first()) {
-            id == updated.id
-            status == updated.status.name()
-            current_player_id == updated.currentPlayer.id
-            croupier_id == updated.croupier.id
+            id == game.id
+            status == game.status.name()
+            current_player_id == game.currentPlayerId
+            croupier_id == game.croupierId
         }
         def parsedDeck = slurper.parseText(games.first().deck.value)
-        validateDeck(updated.deck, parsedDeck)
+        validateDeck(game.deck, parsedDeck)
+
+        and:
+        def gamesPlayers = helper.getAllGamesPlayers()
+        gamesPlayers.size() == 2
+
+        and:
+        def gameCroupier = gamesPlayers.find { it.player_id == game.croupierId }
+        gameCroupier.move == game.croupier.move.name()
+        def parsedCroupierHand = slurper.parseText(gameCroupier.hand.value) as List
+        validateHand(game.croupier.hand, parsedCroupierHand)
+
+        and:
+        def gamePlayer = gamesPlayers.find { it.player_id == playerId }
+        def player = game.players.find { it.playerId == playerId }
+        gamePlayer.move == player.move.name()
+        def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
+        validateHand(player.hand, parsedPlayerHand)
     }
 
     def 'should throw exception when missing record in player table'() {
-        given:
-        helper.save(GAME)
-
         when:
-        repository.findById(GAME.id)
+        repository.save(createStartedGame())
 
         then:
-        thrown(GameDto.PlayerNotFoundException)
-
-        where:
-        GAME << [createGame(new GameBuilder(
-            currentPlayer: null,
-            croupier: createPlayer(),
-            players: [],
-            status: Game.Status.NOT_STARTED
-        ))]
+        thrown(DataIntegrityViolationException)
     }
 
     void validateDeck(Deck deck, parsedDeck) {
@@ -167,5 +184,12 @@ class GameRepositoryIT extends DbSpec implements GameCreation {
             assert deck.cards.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
         }
         assert parsedDeck.cards.size() == deck.cards.size()
+    }
+
+    void validateHand(Set<Deck.Card> hand, List parsedHand) {
+        parsedHand.each { parsedCard ->
+            assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+        }
+        assert parsedHand.size() == hand.size()
     }
 }

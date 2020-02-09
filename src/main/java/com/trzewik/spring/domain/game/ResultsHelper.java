@@ -1,12 +1,12 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,30 +14,30 @@ import java.util.stream.IntStream;
 public class ResultsHelper {
 
     //TODO what if players have exactly same hand value?
-    public static List<Result> createResults(List<Player> playersWithCroupier) {
-        List<Player> sorted = getSortedPlayersByResults(playersWithCroupier);
+    public static List<Result> createResults(Set<GamePlayer> playersWithCroupier) {
+        List<GamePlayer> sorted = getSortedPlayersByResults(playersWithCroupier);
         return IntStream.range(0, sorted.size())
             .mapToObj(index -> new Result(index + 1, sorted.get(index)))
             .collect(Collectors.toList());
     }
 
-    private static List<Player> getSortedPlayersByResults(List<Player> playersWithCroupier) {
-        List<Player> sorted = new ArrayList<>(getSortedWinners(playersWithCroupier));
+    private static List<GamePlayer> getSortedPlayersByResults(Set<GamePlayer> playersWithCroupier) {
+        List<GamePlayer> sorted = new ArrayList<>(getSortedWinners(playersWithCroupier));
         sorted.addAll(getSortedLosers(playersWithCroupier));
         return sorted;
     }
 
-    private static List<Player> getSortedWinners(List<Player> playersWithCroupier) {
+    private static List<GamePlayer> getSortedWinners(Set<GamePlayer> playersWithCroupier) {
         return playersWithCroupier.stream()
-            .filter(player -> !player.isLooser())
-            .sorted(Comparator.comparing(Player::handValue).reversed())
+            .filter(p -> !p.isLooser())
+            .sorted(Comparator.comparing(GamePlayer::handValue).reversed())
             .collect(Collectors.toList());
     }
 
-    private static List<Player> getSortedLosers(List<Player> playersWithCroupier) {
+    private static List<GamePlayer> getSortedLosers(Set<GamePlayer> playersWithCroupier) {
         return playersWithCroupier.stream()
-            .filter(Player::isLooser)
-            .sorted(Comparator.comparing(Player::handValue))
+            .filter(GamePlayer::isLooser)
+            .sorted(Comparator.comparing(GamePlayer::handValue))
             .collect(Collectors.toList());
     }
 }

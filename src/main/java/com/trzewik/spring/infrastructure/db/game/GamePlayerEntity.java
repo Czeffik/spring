@@ -1,0 +1,62 @@
+package com.trzewik.spring.infrastructure.db.game;
+
+import com.trzewik.spring.infrastructure.db.common.CardDto;
+import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.AssociationOverride;
+import javax.persistence.AssociationOverrides;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.Set;
+
+@Entity
+@Table(name = "games_players")
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
+@AssociationOverrides({
+    @AssociationOverride(
+        name = "game",
+        joinColumns = @JoinColumn(name = "game_id", insertable = false, updatable = false)),
+    @AssociationOverride(
+        name = "player",
+        joinColumns = @JoinColumn(name = "player_id", insertable = false, updatable = false))})
+public class GamePlayerEntity implements Serializable {
+
+    @EmbeddedId
+    private GamePlayerId id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private PlayerEntity player;
+
+    @Getter
+    @ManyToOne(cascade = CascadeType.ALL)
+    private GameEntity game;
+
+    @NonNull
+    @Type(type = "jsonb")
+    @Column(name = "hand")
+    private Set<CardDto> hand;
+
+    @Column(name = "move")
+    private String move;
+
+    public GamePlayerEntity(String gameId, GamePlayerDto dto) {
+        this.id = new GamePlayerId(gameId, dto.getPlayerId());
+        this.hand = dto.getHand();
+        this.move = dto.getMove();
+    }
+}

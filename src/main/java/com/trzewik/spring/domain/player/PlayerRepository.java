@@ -1,5 +1,7 @@
 package com.trzewik.spring.domain.player;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface PlayerRepository {
@@ -11,8 +13,10 @@ public interface PlayerRepository {
         return findById(id).orElseThrow(() -> new PlayerNotFoundException(id));
     }
 
+    List<Player> findAllById(Collection<String> ids);
+
     class PlayerNotFoundException extends Exception {
-        PlayerNotFoundException(String id) {
+        public PlayerNotFoundException(String id) {
             super(String.format("Can not find player with id: [%s] in repository.", id));
         }
     }

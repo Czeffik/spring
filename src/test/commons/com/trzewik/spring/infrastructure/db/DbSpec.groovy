@@ -45,7 +45,7 @@ abstract class DbSpec extends Specification {
     }
 
     private static void clearDb(){
-        helper.deletePlayerGames()
+        helper.deleteGamesPlayers()
         helper.deleteGames()
         helper.deletePlayers()
     }

@@ -1,7 +1,6 @@
 package com.trzewik.spring.domain.game
 
 import com.trzewik.spring.domain.common.Deck
-import com.trzewik.spring.domain.player.PlayerCreation
 
 trait ResultCreation implements GameCreation {
 
@@ -10,8 +9,10 @@ trait ResultCreation implements GameCreation {
         number.times {
             results << createResult(new ResultBuilder(
                 place: (it + 1),
-                player: new PlayerBuilder(
-                    hand: [createCard(Deck.Card.Rank.QUEEN), createCard(Deck.Card.Rank.FOUR)]
+                player: createGamePlayer(
+                    new GamePlayerBuilder(
+                        hand: [createCard(Deck.Card.Rank.QUEEN), createCard(Deck.Card.Rank.FOUR)]
+                    )
                 )
             ))
         }
@@ -21,12 +22,12 @@ trait ResultCreation implements GameCreation {
     Result createResult(ResultBuilder builder = new ResultBuilder()) {
         return new Result(
             builder.place,
-            createPlayer(builder.player)
+            builder.player
         )
     }
 
-    static class ResultBuilder implements PlayerCreation {
+    static class ResultBuilder implements GamePlayerCreation {
         int place = 1
-        PlayerBuilder player = new PlayerBuilder()
+        GamePlayer player = createGamePlayer()
     }
 }

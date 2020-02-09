@@ -1,24 +1,42 @@
 package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.common.Deck;
-import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.common.DeckFactory;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Getter
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 class GameImpl implements Game {
     private final @NonNull String id;
-    private final @NonNull List<Player> players;
-    private final @NonNull Player croupier;
+    private final @NonNull Set<GamePlayer> players;
+    private final @NonNull String croupierId;
     private final @NonNull Deck deck;
     private @NonNull Status status;
-    private Player currentPlayer;
+    private String currentPlayerId;
+
+    @SneakyThrows
+    GameImpl(@NonNull String croupierId) {
+        this.id = UUID.randomUUID().toString();
+        this.players = new LinkedHashSet<>();
+        this.croupierId = croupierId;
+        this.deck = DeckFactory.createDeck();
+        this.status = Game.Status.NOT_STARTED;
+
+        addPlayer(croupierId);
+        deck.shuffle();
+    }
 
     @Override
     public Game startGame() throws GameException {
@@ -28,29 +46,18 @@ class GameImpl implements Game {
         if (players.size() <= 1) {
             throw new GameException("Please add at least one player before start.");
         }
-        deck.shuffle();
         dealCards();
         status = Status.STARTED;
-        setCurrentPlayer();
+        setCurrentPlayerId();
         return this;
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void addPlayer(Player player) throws GameException {
+    public void addPlayer(String playerId) throws GameException {
         if (gameStarted()) {
             throw new GameException("Game started, can not add new player");
         }
-        players.add(player);
-    }
-
-    @Override
-    public Status getStatus() {
-        return status;
+        players.add(GamePlayerFactory.create(playerId));
     }
 
     @Override
@@ -63,18 +70,18 @@ class GameImpl implements Game {
         }
         if (notPlayerTurn(playerId)) {
             throw new GameException(String.format("Waiting for move from player: [%s] instead of: [%s]",
-                currentPlayer.getId(), playerId));
+                getCurrentPlayerId(), playerId));
         }
 
-        currentPlayer.setMove(move);
+        getCurrentPlayer().setMove(move);
 
         if (move.equals(Move.HIT)) {
-            currentPlayer.addCard(deck.take());
+            getCurrentPlayer().addCard(deck.take());
         }
 
-        setCurrentPlayer();
+        setCurrentPlayerId();
 
-        if (currentPlayer == null) {
+        if (getCurrentPlayerId() == null) {
             endGame();
         }
 
@@ -82,36 +89,19 @@ class GameImpl implements Game {
     }
 
     @Override
-    public Player getCurrentPlayer() {
-        return currentPlayer;
+    public GamePlayer getCurrentPlayer() {
+        return players.stream()
+            .filter(p -> p.getPlayerId().equals(getCurrentPlayerId()))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
-    public String getCurrentPlayerId() {
-        if (currentPlayer == null) {
-            return null;
-        }
-        return currentPlayer.getId();
-    }
-
-    @Override
-    public Player getCroupier() {
-        return croupier;
-    }
-
-    @Override
-    public String getCroupierId() {
-        return croupier.getId();
-    }
-
-    @Override
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    @Override
-    public Deck getDeck() {
-        return deck;
+    public GamePlayer getCroupier() {
+        return players.stream()
+            .filter(p -> p.getPlayerId().equals(getCroupierId()))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -124,13 +114,13 @@ class GameImpl implements Game {
 
     private void endGame() {
         croupierPicks();
-        croupier.setMove(Move.STAND);
+        getCroupier().setMove(Move.STAND);
         status = Status.ENDED;
     }
 
     private void croupierPicks() {
-        while (croupier.handValue() < 17) {
-            croupier.addCard(deck.take());
+        while (getCroupier().handValue() < 17) {
+            getCroupier().addCard(deck.take());
         }
     }
 
@@ -143,28 +133,27 @@ class GameImpl implements Game {
     }
 
     private boolean notPlayerTurn(String playerId) {
-        return !playerId.equals(currentPlayer.getId());
+        return !playerId.equals(getCurrentPlayerId());
     }
 
-    private void setCurrentPlayer() {
-        currentPlayer = getPlayersWithoutCroupier().stream()
-            .filter(player -> !player.isLooser())
-            .filter(player -> !Move.STAND.equals(player.getMove()))
+    private void setCurrentPlayerId() {
+        currentPlayerId = getPlayersWithoutCroupier().stream()
+            .filter(p -> !p.isLooser())
+            .filter(p -> !Move.STAND.equals(p.getMove()))
+            .map(GamePlayer::getPlayerId)
             .findFirst()
             .orElse(null);
     }
 
     private void dealCards() {
         IntStream.range(0, 2).forEach(index -> {
-            players.forEach(player -> {
-                player.addCard(deck.take());
-            });
+            players.forEach(p -> p.addCard(deck.take()));
         });
     }
 
-    private List<Player> getPlayersWithoutCroupier() {
+    private List<GamePlayer> getPlayersWithoutCroupier() {
         return players.stream()
-            .filter(player -> !player.equals(croupier))
+            .filter(p -> !p.getPlayerId().equals(getCroupierId()))
             .collect(Collectors.toList());
     }
 }

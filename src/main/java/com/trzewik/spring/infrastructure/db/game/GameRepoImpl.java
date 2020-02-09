@@ -18,14 +18,13 @@ class GameRepoImpl implements GameRepository {
 
     @Override
     public void save(Game game) {
-
         jpaRepository.save(new GameEntity(GameDto.from(game)));
     }
 
     @Override
     public Optional<Game> findById(String id) {
         Optional<GameEntity> optional = jpaRepository.findById(id);
-        return optional.map(GameEntity::getGame).map(GameDto::to);
+        return optional.map(GameDto::from).map(GameDto::to);
     }
 
     @Transactional

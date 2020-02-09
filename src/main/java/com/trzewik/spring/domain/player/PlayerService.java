@@ -1,7 +1,21 @@
 package com.trzewik.spring.domain.player;
 
-public interface PlayerService {
-    Player createPlayer(String playerName);
+import java.util.List;
 
-    Player getPlayer(String id) throws PlayerRepository.PlayerNotFoundException;
+public interface PlayerService {
+    Player create(String playerName);
+
+    default String createCroupierAndGetId() {
+        return createCroupier().getId();
+    }
+
+    Player createCroupier();
+
+    default String getId(String id) throws PlayerRepository.PlayerNotFoundException {
+        return get(id).getId();
+    }
+
+    Player get(String id) throws PlayerRepository.PlayerNotFoundException;
+
+    List<Player> get(List<String> playerIds);
 }

@@ -1,12 +1,13 @@
 package com.trzewik.spring.infrastructure.db.player;
 
-import com.trzewik.spring.infrastructure.db.common.PlayerGameEntity;
+import com.trzewik.spring.infrastructure.db.game.GamePlayerEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,13 +15,13 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "player")
+@Table(name = "players")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public class PlayerEntity implements Serializable {
     @Id
@@ -32,18 +33,11 @@ public class PlayerEntity implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(
-        fetch = FetchType.EAGER,
-        mappedBy = "player"
-    )
-    private List<PlayerGameEntity> games;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "player", cascade = CascadeType.ALL)
+    private Set<GamePlayerEntity> games;
 
     public PlayerEntity(PlayerDto player) {
         this.id = player.getId();
         this.name = player.getName();
-    }
-
-    public PlayerDto getPlayer() {
-        return PlayerDto.from(this);
     }
 }

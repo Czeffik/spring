@@ -6,8 +6,9 @@ import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
 import com.trzewik.spring.domain.game.ResultCreation
-import com.trzewik.spring.domain.player.Player
-import com.trzewik.spring.domain.game.Result
+import com.trzewik.spring.domain.player.PlayerCreation
+import com.trzewik.spring.domain.player.PlayerRepository
+import com.trzewik.spring.domain.player.PlayerService
 import com.trzewik.spring.interfaces.rest.RestConfiguration
 import com.trzewik.spring.interfaces.rest.TestRestConfig
 import groovy.json.JsonSlurper
@@ -22,21 +23,24 @@ import spock.lang.Specification
     classes = [RestConfiguration.class, TestRestConfig.class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class GameControllerIT extends Specification implements GameRequestSender, ResultCreation {
+class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation {
     @Autowired
-    GameService service
+    GameService gameService
+    @Autowired
+    PlayerService playerService
 
     JsonSlurper slurper = new JsonSlurper()
 
     def 'should create game successfully and return game object representation in response'() {
         given:
-        Game game = createStartedGame()
+        def game = createStartedGame()
 
         when:
         Response response = createGameRequest()
 
         then:
-        1 * service.createGame() >> game
+        1 * playerService.createCroupierAndGetId() >> game.croupierId
+        1 * gameService.create(game.croupierId) >> game
 
         and:
         response.statusCode() == 200
@@ -46,8 +50,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             id == game.id
             status == game.status.name()
             with(currentPlayer) {
-                id == game.currentPlayer.id
-                name == game.currentPlayer.name
+                id == game.currentPlayerId
                 move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
@@ -56,7 +59,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
                 }
             }
             with(croupier) {
-                name == game.croupier.name
+                id == game.croupierId
                 with(card) {
                     suit == game.croupier.hand.first().suit.name()
                     rank == game.croupier.hand.first().rank.name()
@@ -65,44 +68,79 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         }
     }
 
-    def 'should add player to game and return it in response'() {
+    def 'should add player to game if found in player repository and return game representation'() {
         given:
-        String gameId = 'example-game-id'
-
-        and:
-        Player player = createPlayer()
+        def game = createStartedGame()
 
         when:
-        Response response = addPlayerRequest(player.name, gameId)
+        Response response = addPlayerRequest(game.id, game.currentPlayerId)
 
         then:
-        1 * service.addPlayer(gameId, player.getName()) >> player
+        1 * playerService.getId(game.currentPlayerId) >> game.currentPlayerId
+
+        and:
+        1 * gameService.addPlayer(game.id, game.currentPlayerId) >> game
 
         and:
         response.statusCode() == 200
 
         and:
         with(slurper.parseText(response.body().asString())) {
-            id == player.id
-            name == player.name
-            move == player.move.name()
-            with(hand) {
-                handValue == player.handValue()
-                cards.size() == player.hand.size()
-                validateHand(player.hand, cards)
+            id == game.id
+            status == game.status.name()
+            with(currentPlayer) {
+                id == game.currentPlayerId
+                move == game.currentPlayer.move.name()
+                with(hand) {
+                    handValue == game.currentPlayer.handValue()
+                    cards.size() == game.currentPlayer.hand.size()
+                    validateHand(game.currentPlayer.hand, cards)
+                }
+            }
+            with(croupier) {
+                id == game.croupierId
+                with(card) {
+                    suit == game.croupier.hand.first().suit.name()
+                    rank == game.croupier.hand.first().rank.name()
+                }
             }
         }
     }
 
-    def 'should return NOT_FOUND with message when GameNotFoundException is thrown - adding new player to game'() {
+    def '''should return NOT_FOUND with message when PlayerNotFoundException is thrown - player not found in repository
+        adding new player to game'''() {
         given:
-        String gameId = 'example-game-id'
+        def playerId = 'player-id'
+        def gameId = 'game-id'
 
         when:
-        Response response = addPlayerRequest('playerName', gameId)
+        Response response = addPlayerRequest(gameId, playerId)
 
         then:
-        1 * service.addPlayer(gameId, 'playerName') >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * playerService.getId(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+
+        and:
+        0 * gameService.addPlayer(_)
+
+        and:
+        response.statusCode() == 404
+
+        and:
+        response.body().asString() == "Can not find player with id: [${playerId}] in repository."
+    }
+
+    def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
+        adding new player to game'''() {
+        given:
+        def gameId = 'example-game-id'
+        def playerId = 'player-id'
+
+        when:
+        Response response = addPlayerRequest(gameId, playerId)
+
+        then:
+        1 * playerService.getId(playerId) >> playerId
+        1 * gameService.addPlayer(gameId, playerId) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -113,16 +151,18 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should return BAD_REQUEST with message when GameException is thrown - adding new player to game'() {
         given:
-        String gameId = 'example-game-id'
+        def gameId = 'example-game-id'
+        def playerId = 'player-id'
 
         and:
         String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = addPlayerRequest('playerName', gameId)
+        Response response = addPlayerRequest(gameId, playerId)
 
         then:
-        1 * service.addPlayer(gameId, 'playerName') >> { throw new GameException(exceptionMessage) }
+        1 * playerService.getId(playerId) >> playerId
+        1 * gameService.addPlayer(gameId, playerId) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -139,7 +179,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = startGameRequest(game.id)
 
         then:
-        1 * service.startGame(game.id) >> game
+        1 * gameService.start(game.id) >> game
 
         and:
         response.statusCode() == 200
@@ -149,8 +189,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             id == game.id
             status == game.status.name()
             with(currentPlayer) {
-                id == game.currentPlayer.id
-                name == game.currentPlayer.name
+                id == game.currentPlayerId
                 move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
@@ -159,7 +198,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
                 }
             }
             with(croupier) {
-                name == game.croupier.name
+                id == game.croupierId
                 with(card) {
                     suit == game.croupier.hand.first().suit.name()
                     rank == game.croupier.hand.first().rank.name()
@@ -168,7 +207,8 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         }
     }
 
-    def 'should return NOT_FOUND with message when GameNotFoundException is thrown - starting game'() {
+    def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
+        starting game'''() {
         given:
         String gameId = 'example-game-id'
 
@@ -176,7 +216,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = startGameRequest(gameId)
 
         then:
-        1 * service.startGame(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * gameService.start(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -196,7 +236,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = startGameRequest(gameId)
 
         then:
-        1 * service.startGame(gameId) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.start(gameId) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -207,27 +247,26 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should make move successfully and return game object representation in response'() {
         given:
-        Game game = createStartedGame()
+        def game = createStartedGame()
 
         and:
-        Player player = game.currentPlayer
+        def playerId = game.currentPlayerId
 
         and:
         Game.Move playerMove = Game.Move.STAND
 
         when:
-        Response response = makeMoveRequest(game.id, player.id, playerMove.name())
+        Response response = makeMoveRequest(game.id, playerId, playerMove.name())
 
         then:
-        1 * service.makeMove(game.id, player.id, playerMove) >> game
+        1 * gameService.makeMove(game.id, playerId, playerMove) >> game
 
         and:
         with(slurper.parseText(response.body().asString())) {
             id == game.id
             status == game.status.name()
             with(currentPlayer) {
-                id == game.currentPlayer.id
-                name == game.currentPlayer.name
+                id == game.currentPlayerId
                 move == game.currentPlayer.move.name()
                 with(hand) {
                     handValue == game.currentPlayer.handValue()
@@ -236,7 +275,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
                 }
             }
             with(croupier) {
-                name == game.croupier.name
+                id == game.croupierId
                 with(card) {
                     suit == game.croupier.hand.first().suit.name()
                     rank == game.croupier.hand.first().rank.name()
@@ -245,7 +284,8 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         }
     }
 
-    def 'should return NOT_FOUND with message when GameNotFoundException is thrown - player move'() {
+    def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
+        player move'''() {
         given:
         String gameId = 'example-game-id'
 
@@ -253,7 +293,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -273,7 +313,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * service.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -284,16 +324,23 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should get results successfully and return Result object representation in response'() {
         given:
-        String gameId = 'example-game-id'
+        def gameId = 'example-game-id'
 
         and:
-        List<Result> expectedResults = createResults(3)
+        def expectedResults = createResults(3)
+
+        and:
+        def playerIds = expectedResults.collect { it.player.playerId }
+
+        and:
+        def players = createPlayers(playerIds)
 
         when:
         Response response = getResultsRequest(gameId)
 
         then:
-        1 * service.getGameResults(gameId) >> expectedResults
+        1 * gameService.getResults(gameId) >> expectedResults
+        1 * playerService.get(playerIds) >> players
 
         and:
         response.statusCode() == 200
@@ -301,8 +348,8 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         and:
         with(slurper.parseText(response.body().asString())) {
             results.size() == expectedResults.size()
-            validateResults(expectedResults, results)
         }
+        //TODO add clever validation
     }
 
     def 'should return NOT_FOUND with message when GameNotFoundException is thrown - get results'() {
@@ -313,7 +360,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = getResultsRequest(gameId)
 
         then:
-        1 * service.getGameResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * gameService.getResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -333,7 +380,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = getResultsRequest(gameId)
 
         then:
-        1 * service.getGameResults(gameId) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.getResults(gameId) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -347,25 +394,5 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
         }
         true
-    }
-
-    boolean validateResults(List<Result> results, parsedResults) {
-        parsedResults.each { parsedResult ->
-            assert results.any { result -> result.equals(createResultFrom(parsedResult)) }
-        }
-        true
-    }
-
-    Result createResultFrom(parsedResult) {
-        return createResult(new ResultBuilder(
-            place: parsedResult.place,
-            player: new PlayerBuilder(
-                id: parsedResult.player.id,
-                name: parsedResult.player.name,
-                hand: parsedResult.player.hand.cards.collect { card -> createCard(new CardBuilder(card.suit, card.rank)) } as Set,
-                move: Game.Move.valueOf(parsedResult.player.move)
-            )
-        )
-        )
     }
 }

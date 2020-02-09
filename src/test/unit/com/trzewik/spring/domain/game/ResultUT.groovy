@@ -1,14 +1,14 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.player.PlayerCreation
+
 import spock.lang.Specification
 
-class ResultUT extends Specification implements PlayerCreation {
+class ResultUT extends Specification implements GamePlayerCreation {
 
     def 'should create results'() {
         given:
         int place = 3
-        def player = createPlayer()
+        def player = createGamePlayer()
 
         when:
         Result result = new Result(place, player)

@@ -1,10 +1,7 @@
 package com.trzewik.spring.infrastructure.db;
 
-import com.trzewik.spring.domain.common.PlayerGameRepository;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.player.PlayerRepository;
-import com.trzewik.spring.infrastructure.db.common.CommonRepositoryFactory;
-import com.trzewik.spring.infrastructure.db.common.PlayerGameJpaRepository;
 import com.trzewik.spring.infrastructure.db.game.GameJpaRepository;
 import com.trzewik.spring.infrastructure.db.game.GameRepositoryFactory;
 import com.trzewik.spring.infrastructure.db.player.PlayerJpaRepository;
@@ -29,7 +26,6 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {
-    "com.trzewik.spring.infrastructure.db.common",
     "com.trzewik.spring.infrastructure.db.game",
     "com.trzewik.spring.infrastructure.db.player"
 })
@@ -42,13 +38,6 @@ public class DbConfiguration {
     @Bean
     PlayerRepository playerRepository(PlayerJpaRepository playerJpaRepository) {
         return PlayerRepositoryFactory.create(playerJpaRepository);
-    }
-
-    @Bean
-    PlayerGameRepository playerGameRepository(
-        PlayerGameJpaRepository playerGameJpaRepository,
-        EntityManager entityManager) {
-        return CommonRepositoryFactory.create(playerGameJpaRepository, entityManager);
     }
 
     @Bean
@@ -68,7 +57,6 @@ public class DbConfiguration {
             = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
         em.setPackagesToScan(
-            "com.trzewik.spring.infrastructure.db.common",
             "com.trzewik.spring.infrastructure.db.game",
             "com.trzewik.spring.infrastructure.db.player"
         );
