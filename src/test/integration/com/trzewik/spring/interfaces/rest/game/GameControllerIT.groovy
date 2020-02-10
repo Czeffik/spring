@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game
 
-import com.trzewik.spring.domain.common.Deck
+import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository

@@ -1,7 +1,5 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.common.DeckFactory
-import com.trzewik.spring.domain.deck.DeckCreation
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll

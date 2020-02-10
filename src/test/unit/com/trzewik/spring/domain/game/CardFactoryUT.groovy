@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.common
+package com.trzewik.spring.domain.game
 
 import spock.lang.Specification
 
@@ -17,7 +17,7 @@ class CardFactoryUT extends Specification {
         card.getSuit() == suit
     }
 
-    def 'should throw exception when rank is null'(){
+    def 'should throw exception when rank is null'() {
         when:
         CardFactory.create(Deck.Card.Suit.CLUB, null)
 
@@ -25,7 +25,7 @@ class CardFactoryUT extends Specification {
         thrown(NullPointerException)
     }
 
-    def 'should throw exception when suit is null'(){
+    def 'should throw exception when suit is null'() {
         when:
         CardFactory.create(null, Deck.Card.Rank.FIVE)
 

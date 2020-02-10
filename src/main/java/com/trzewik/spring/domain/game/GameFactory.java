@@ -1,6 +1,5 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.common.Deck;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

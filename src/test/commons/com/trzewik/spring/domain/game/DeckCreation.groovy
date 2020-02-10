@@ -1,10 +1,8 @@
-package com.trzewik.spring.domain.deck
+package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.common.Deck
-import com.trzewik.spring.domain.common.Deck.Card
-import com.trzewik.spring.domain.common.Deck.Card.Rank
-import com.trzewik.spring.domain.common.Deck.Card.Suit
-import com.trzewik.spring.domain.common.DeckImpl
+import com.trzewik.spring.domain.game.Deck.Card
+import com.trzewik.spring.domain.game.Deck.Card.Rank
+import com.trzewik.spring.domain.game.Deck.Card.Suit
 
 trait DeckCreation {
 
@@ -47,7 +45,7 @@ trait DeckCreation {
             rank = card.rank
         }
 
-        CardBuilder(String suit, String rank){
+        CardBuilder(String suit, String rank) {
             this.suit = Suit.valueOf(suit)
             this.rank = Rank.valueOf(rank)
         }

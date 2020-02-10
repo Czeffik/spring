@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain.common;
+package com.trzewik.spring.domain.game;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db.game;
 
-import com.trzewik.spring.infrastructure.db.common.CardDto;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

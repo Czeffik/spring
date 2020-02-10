@@ -1,8 +1,5 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.common.Deck
-import com.trzewik.spring.domain.deck.DeckCreation
-
 trait GameCreation implements GamePlayerCreation, DeckCreation {
 
     Game createGame(GameBuilder builder = new GameBuilder()) {

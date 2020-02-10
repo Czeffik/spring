@@ -1,6 +1,5 @@
-package com.trzewik.spring.domain.common
+package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.deck.DeckCreation
 import spock.lang.Specification
 
 class DeckFactoryUT extends Specification implements DeckCreation {

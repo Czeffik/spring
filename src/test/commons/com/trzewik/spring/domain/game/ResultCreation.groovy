@@ -1,7 +1,5 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.common.Deck
-
 trait ResultCreation implements GameCreation {
 
     List<Result> createResults(int number) {
