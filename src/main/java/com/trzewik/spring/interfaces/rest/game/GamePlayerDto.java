@@ -11,12 +11,18 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GamePlayerDto {
     private final String id;
+    private final String name;
     private final HandDto hand;
     private final String move;
 
     public static GamePlayerDto from(GamePlayer player) {
         return Optional.ofNullable(player)
-            .map(p -> new GamePlayerDto(p.getPlayerId(), HandDto.from(p), p.getMove().name()))
+            .map(p ->
+                new GamePlayerDto(
+                    p.getPlayer().getId(),
+                    p.getPlayer().getName(),
+                    HandDto.from(p),
+                    p.getMove().name()))
             .orElse(null);
     }
 }

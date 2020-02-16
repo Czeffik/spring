@@ -1,5 +1,6 @@
 package com.trzewik.spring.domain.game;
 
+import com.trzewik.spring.domain.player.Player;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -9,8 +10,8 @@ class GameServiceImpl implements GameService {
     private final GameRepository gameRepo;
 
     @Override
-    public Game create(String croupierId) {
-        Game game = GameFactory.createGame(croupierId);
+    public Game create(Player croupier) {
+        Game game = GameFactory.createGame(croupier);
 
         gameRepo.save(game);
 
@@ -18,11 +19,11 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game addPlayer(String gameId, String playerId)
+    public Game addPlayer(String gameId, Player player)
         throws GameException, GameRepository.GameNotFoundException {
         Game game = gameRepo.getById(gameId);
 
-        game.addPlayer(playerId);
+        game.addPlayer(player);
 
         gameRepo.update(game);
 

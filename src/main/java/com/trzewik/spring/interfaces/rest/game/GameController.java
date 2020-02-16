@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ResponseBody
 @RequestMapping
@@ -36,7 +35,7 @@ public class GameController {
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
-        Game game = gameService.create(playerService.createCroupierAndGetId());
+        Game game = gameService.create(playerService.createCroupier());
         return GameDto.from(game);
     }
 
@@ -45,8 +44,8 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody AddPlayerForm addPlayerForm
     ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
-        String playerId = playerService.getId(addPlayerForm.getPlayerId());
-        return GameDto.from(gameService.addPlayer(gameId, playerId));
+        Player player = playerService.get(addPlayerForm.getPlayerId());
+        return GameDto.from(gameService.addPlayer(gameId, player));
     }
 
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,10 +68,7 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId
     ) throws GameException, GameRepository.GameNotFoundException {
         List<Result> results = gameService.getResults(gameId);
-        List<String> playerIds = results.stream().map(r -> r.getPlayer().getPlayerId()).collect(Collectors.toList());
-        List<Player> players = playerService.get(playerIds);
-
-        return ResultsDto.from(results, players);
+        return ResultsDto.from(results);
     }
 
     @ExceptionHandler(value = {GameException.class})

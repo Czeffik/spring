@@ -1,5 +1,6 @@
 package com.trzewik.spring.domain.game;
 
+import com.trzewik.spring.domain.player.Player;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,14 +26,14 @@ class GameImpl implements Game {
     private String currentPlayerId;
 
     @SneakyThrows
-    GameImpl(@NonNull String croupierId) {
+    GameImpl(@NonNull Player croupier) {
         this.id = UUID.randomUUID().toString();
         this.players = new LinkedHashSet<>();
-        this.croupierId = croupierId;
+        this.croupierId = croupier.getId();
         this.deck = DeckFactory.createDeck();
         this.status = Game.Status.NOT_STARTED;
 
-        addPlayer(croupierId);
+        addPlayer(croupier);
         deck.shuffle();
     }
 
@@ -51,11 +52,11 @@ class GameImpl implements Game {
     }
 
     @Override
-    public void addPlayer(String playerId) throws GameException {
+    public void addPlayer(Player player) throws GameException {
         if (gameStarted()) {
             throw new GameException("Game started, can not add new player");
         }
-        players.add(GamePlayerFactory.create(playerId));
+        players.add(GamePlayerFactory.create(player));
     }
 
     @Override
@@ -89,7 +90,7 @@ class GameImpl implements Game {
     @Override
     public GamePlayer getCurrentPlayer() {
         return players.stream()
-            .filter(p -> p.getPlayerId().equals(getCurrentPlayerId()))
+            .filter(p -> p.getPlayer().getId().equals(getCurrentPlayerId()))
             .findFirst()
             .orElse(null);
     }
@@ -97,7 +98,7 @@ class GameImpl implements Game {
     @Override
     public GamePlayer getCroupier() {
         return players.stream()
-            .filter(p -> p.getPlayerId().equals(getCroupierId()))
+            .filter(p -> p.getPlayer().getId().equals(getCroupierId()))
             .findFirst()
             .orElse(null);
     }
@@ -138,7 +139,7 @@ class GameImpl implements Game {
         currentPlayerId = getPlayersWithoutCroupier().stream()
             .filter(p -> !p.isLooser())
             .filter(p -> !Move.STAND.equals(p.getMove()))
-            .map(GamePlayer::getPlayerId)
+            .map(p -> p.getPlayer().getId())
             .findFirst()
             .orElse(null);
     }
@@ -151,7 +152,7 @@ class GameImpl implements Game {
 
     private List<GamePlayer> getPlayersWithoutCroupier() {
         return players.stream()
-            .filter(p -> !p.getPlayerId().equals(getCroupierId()))
+            .filter(p -> !p.getPlayer().getId().equals(getCroupierId()))
             .collect(Collectors.toList());
     }
 }

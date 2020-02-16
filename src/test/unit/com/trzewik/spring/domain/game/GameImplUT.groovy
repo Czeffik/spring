@@ -7,11 +7,11 @@ import spock.lang.Unroll
 class GameImplUT extends Specification implements GamePlayerCreation, DeckCreation {
 
     @Subject
-    Game game = GameFactory.createGame('croupier-id')
+    Game game = GameFactory.createGame(createPlayer(new PlayerBuilder(id: 'croupier-id')))
 
     def 'should be possible add player to game'() {
         when:
-        game.addPlayer('player-id')
+        game.addPlayer(createPlayer())
 
         then:
         game.players.size() == 2
@@ -35,12 +35,12 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should be possible get current player id - when current player is not null'() {
         given:
-        def playerId = 'player-id'
-        game.addPlayer(playerId)
+        def player = createPlayer()
+        game.addPlayer(player)
         game.startGame()
 
         expect:
-        game.getCurrentPlayerId() == playerId
+        game.getCurrentPlayerId() == player.id
     }
 
     @Unroll
@@ -49,7 +49,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.@status = STATUS
 
         when:
-        game.addPlayer('player-id')
+        game.addPlayer(createPlayer())
 
         then:
         GameException ex = thrown()
@@ -148,11 +148,11 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         when:
-        game.auction(players[1].playerId, Game.Move.HIT)
+        game.auction(players[1].player.id, Game.Move.HIT)
 
         then:
         GameException ex = thrown()
-        ex.message == "Waiting for move from player: [${players.first().playerId}] instead of: [${players[1].playerId}]".toString()
+        ex.message == "Waiting for move from player: [${players.first().player.id}] instead of: [${players[1].player.id}]".toString()
     }
 
     def 'should make HIT move - setPlayer move to HIT, get extra card from deck'() {
@@ -160,7 +160,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def players = createGamePlayers()
 
         and:
-        def firstPlayerId = players.first().playerId
+        def firstPlayerId = players.first().player.id
 
         and:
         setupGame(players)
@@ -169,7 +169,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         Game gameAfterAuction = game.auction(firstPlayerId, Game.Move.HIT)
 
         then:
-        with(game.players.find { it.playerId == firstPlayerId }) {
+        with(game.players.find { it.player.id == firstPlayerId }) {
             hand.size() == 3
             move == Game.Move.HIT
         }
@@ -189,7 +189,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def players = createGamePlayers()
 
         and:
-        def firstPlayerId = players.first().playerId
+        def firstPlayerId = players.first().player.id
 
         and:
         setupGame(players)
@@ -198,7 +198,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         Game gameAfterAuction = game.auction(firstPlayerId, Game.Move.STAND)
 
         then:
-        with(game.players.find { it.playerId == firstPlayerId }) {
+        with(game.players.find { it.player.id == firstPlayerId }) {
             hand.size() == 2
             move == Game.Move.STAND
         }
@@ -221,8 +221,8 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def players = createGamePlayers()
 
         and:
-        def firstPlayerId = players.first().playerId
-        def secondPlayerId = players[1].playerId
+        def firstPlayerId = players.first().player.id
+        def secondPlayerId = players[1].player.id
 
         and:
         setupGame(players)
@@ -231,7 +231,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.auction(firstPlayerId, Game.Move.STAND)
 
         then:
-        with(game.players.find { it.playerId == firstPlayerId }) {
+        with(game.players.find { it.player.id == firstPlayerId }) {
             hand.size() == 2
             move == Game.Move.STAND
         }
@@ -240,10 +240,10 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.currentPlayer == players[1]
 
         when:
-        game.auction(players[1].playerId, Game.Move.STAND)
+        game.auction(players[1].player.id, Game.Move.STAND)
 
         then:
-        with(game.players.find { it.playerId == secondPlayerId }) {
+        with(game.players.find { it.player.id == secondPlayerId }) {
             hand.size() == 2
             move == Game.Move.STAND
         }
@@ -266,12 +266,12 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame([player] as Set)
 
         when:
-        while (game.players.find{it.playerId == player.playerId}.handValue() <= 21) {
-            game.auction(player.playerId, Game.Move.HIT)
+        while (game.players.find { it.player.id == player.player.id }.handValue() <= 21) {
+            game.auction(player.player.id, Game.Move.HIT)
         }
 
         then:
-        game.players.find{it.playerId == player.playerId}.isLooser()
+        game.players.find { it.player.id == player.player.id }.isLooser()
 
         and:
         game.croupier.handValue() >= 17
@@ -300,7 +300,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         and:
-        players.each { game.auction(it.playerId, Game.Move.STAND) }
+        players.each { game.auction(it.player.id, Game.Move.STAND) }
 
         when:
         def results = game.getResults()
@@ -320,7 +320,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def player = createGamePlayer()
 
         and:
-        game.addPlayer(player.playerId)
+        game.addPlayer(player.player)
 
         when:
         def players = game.getPlayers()
@@ -391,13 +391,13 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def croupierId = 'croupier_id'
         def currentPlayer = createGamePlayer()
         def players = [croupier, currentPlayer] as Set
-        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.playerId)
+        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.player.id)
+        croupier.player >> createPlayer(new PlayerBuilder(id: croupierId))
 
         when:
-        game.auction(currentPlayer.playerId, Game.Move.STAND)
+        game.auction(currentPlayer.player.id, Game.Move.STAND)
 
         then:
-        _ * croupier.playerId >> croupierId
         1 * croupier.handValue() >> 17
         0 * croupier.addCard(_)
     }
@@ -408,13 +408,13 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def croupierId = 'croupier_id'
         def currentPlayer = createGamePlayer()
         def players = [croupier, currentPlayer] as Set
-        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.playerId)
+        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.player.id)
+        croupier.player >> createPlayer(new PlayerBuilder(id: croupierId))
 
         when:
-        game.auction(currentPlayer.playerId, Game.Move.STAND)
+        game.auction(currentPlayer.player.id, Game.Move.STAND)
 
         then:
-        _ * croupier.playerId >> croupierId
         1 * croupier.handValue() >> 16
         1 * croupier.addCard(_)
         1 * croupier.handValue() >> 25
@@ -427,14 +427,14 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         expect:
         with(game.getCroupier()) {
             it
-            playerId == 'croupier-id'
+            player.id == 'croupier-id'
         }
     }
 
     def 'should be possible get current player - when is not null'() {
         given:
         def player = createGamePlayer()
-        game.addPlayer(player.playerId)
+        game.addPlayer(player.player)
         game.startGame()
 
         expect:
@@ -443,7 +443,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     Game setupGame(Set<GamePlayer> players) {
         players.each {
-            game.addPlayer(it.playerId)
+            game.addPlayer(it.player)
         }
         return game.startGame()
     }

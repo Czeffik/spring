@@ -34,13 +34,14 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should create game successfully and return game object representation in response'() {
         given:
         def game = createStartedGame()
+        def croup = game.croupier.player
 
         when:
         Response response = createGameRequest()
 
         then:
-        1 * playerService.createCroupierAndGetId() >> game.croupierId
-        1 * gameService.create(game.croupierId) >> game
+        1 * playerService.createCroupier() >> croup
+        1 * gameService.create(croup) >> game
 
         and:
         response.statusCode() == 200
@@ -76,10 +77,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = addPlayerRequest(game.id, game.currentPlayerId)
 
         then:
-        1 * playerService.getId(game.currentPlayerId) >> game.currentPlayerId
+        1 * playerService.get(game.currentPlayerId) >> game.currentPlayer.player
 
         and:
-        1 * gameService.addPlayer(game.id, game.currentPlayerId) >> game
+        1 * gameService.addPlayer(game.id, game.currentPlayer.player) >> game
 
         and:
         response.statusCode() == 200
@@ -117,7 +118,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = addPlayerRequest(gameId, playerId)
 
         then:
-        1 * playerService.getId(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+        1 * playerService.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
 
         and:
         0 * gameService.addPlayer(_)
@@ -133,14 +134,14 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         adding new player to game'''() {
         given:
         def gameId = 'example-game-id'
-        def playerId = 'player-id'
+        def player = createPlayer(new PlayerBuilder(id: 'player-id'))
 
         when:
-        Response response = addPlayerRequest(gameId, playerId)
+        Response response = addPlayerRequest(gameId, player.id)
 
         then:
-        1 * playerService.getId(playerId) >> playerId
-        1 * gameService.addPlayer(gameId, playerId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * playerService.get(player.id) >> player
+        1 * gameService.addPlayer(gameId, player) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -152,17 +153,17 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should return BAD_REQUEST with message when GameException is thrown - adding new player to game'() {
         given:
         def gameId = 'example-game-id'
-        def playerId = 'player-id'
+        def player = createPlayer(new PlayerBuilder(id: 'player-id'))
 
         and:
         String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = addPlayerRequest(gameId, playerId)
+        Response response = addPlayerRequest(gameId, player.id)
 
         then:
-        1 * playerService.getId(playerId) >> playerId
-        1 * gameService.addPlayer(gameId, playerId) >> { throw new GameException(exceptionMessage) }
+        1 * playerService.get(player.id) >> player
+        1 * gameService.addPlayer(gameId, player) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -329,18 +330,11 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         and:
         def expectedResults = createResults(3)
 
-        and:
-        def playerIds = expectedResults.collect { it.player.playerId }
-
-        and:
-        def players = createPlayers(playerIds)
-
         when:
         Response response = getResultsRequest(gameId)
 
         then:
         1 * gameService.getResults(gameId) >> expectedResults
-        1 * playerService.get(playerIds) >> players
 
         and:
         response.statusCode() == 200

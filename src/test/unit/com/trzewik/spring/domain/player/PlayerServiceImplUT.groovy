@@ -54,36 +54,6 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation {
         ex.message == "Can not find player with id: [${otherId}] in repository."
     }
 
-    def 'should get player id from repository'() {
-        given:
-        Player player = createPlayer()
-
-        and:
-        repository.save(player)
-
-        expect:
-        service.getId(player.id) == player.id
-
-    }
-
-    def 'should throw exception when player id is not found in repository'() {
-        given:
-        Player player = createPlayer()
-
-        and:
-        repository.save(player)
-
-        and:
-        def otherId = player.id + 'a'
-
-        when:
-        service.getId(otherId)
-
-        then:
-        def ex = thrown(PlayerRepository.PlayerNotFoundException)
-        ex.message == "Can not find player with id: [${otherId}] in repository."
-    }
-
     def 'should create new croupier and save in repository'() {
         when:
         Player player = service.createCroupier()
@@ -91,17 +61,6 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation {
         then:
         repository.repository.size() == 1
         player.name == 'Croupier'
-    }
-
-    def 'should create new croupier and save in repository and return croupier id'() {
-        when:
-        String croupierId = service.createCroupierAndGetId()
-
-        then:
-        with(repository.repository) {
-            size() == 1
-            get(croupierId)
-        }
     }
 
     def 'should get players from repository'() {

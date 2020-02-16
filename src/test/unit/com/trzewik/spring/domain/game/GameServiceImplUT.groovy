@@ -1,28 +1,27 @@
 package com.trzewik.spring.domain.game
 
-
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
 class GameServiceImplUT extends Specification implements GameCreation {
 
-    GameRepository gameRepo = new GameRepositoryMock()
+    def gameRepo = new GameRepositoryMock()
 
+    @Shared
+    def croupier = createPlayer(new PlayerBuilder(id: 'croupier-id', name: 'croupier'))
     @Subject
     GameService service = GameServiceFactory.create(gameRepo)
 
     def 'should create game with croupier and deck and save in repositories'() {
-        given:
-        def croupierId = '12312312312'
-
         when:
-        Game savedGame = service.create(croupierId)
+        def savedGame = service.create(croupier)
 
         then:
         gameRepo.repository.size() == 1
         with(gameRepo.findById(savedGame.id).get()) {
             it == savedGame
-            getCroupierId() == croupierId
+            getCroupierId() == this.croupier.id
             getCroupier()
             with(getDeck()) {
                 getCards() != createCards()
@@ -30,7 +29,8 @@ class GameServiceImplUT extends Specification implements GameCreation {
             }
             with(getPlayers()) {
                 size() == 1
-                first().playerId == croupierId
+                first().player.id == this.croupier.id
+                first().player.name == this.croupier.name
             }
 
         }
@@ -38,13 +38,13 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should add new player to game with gameId and update game in repository'() {
         given:
-        Game game = service.create('12341')
+        def game = service.create(croupier)
 
         and:
-        def playerId = '12309'
+        def player = createPlayer()
 
         when:
-        Game after = service.addPlayer(game.id, playerId)
+        def after = service.addPlayer(game.id, player)
 
         then:
         with(gameRepo.repository) {
@@ -52,14 +52,14 @@ class GameServiceImplUT extends Specification implements GameCreation {
             with(get(game.id)) {
                 it == after
                 players.size() == 2
-                players.any { it.playerId == playerId }
+                players.any { it.player.id == player.id }
             }
         }
     }
 
     def 'should NOT add player to game and throw exception when can not find game with gameId'() {
         when:
-        service.addPlayer('wrong-game-id', 'player-id')
+        service.addPlayer('wrong-game-id', createPlayer())
 
         then:
         GameRepository.GameNotFoundException ex = thrown()
@@ -71,12 +71,15 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should NOT add player to game and throw exception when trying add player to game which is started'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        service.addPlayer(game.id, createPlayer())
         service.start(game.id)
 
+        and:
+        def playerAfterStart = createPlayer()
+
         when:
-        service.addPlayer(game.id, 'player-id-2')
+        service.addPlayer(game.id, playerAfterStart)
 
         then:
         thrown(GameException)
@@ -86,7 +89,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
             size() == 1
             with(get(game.id)) {
                 players.size() == 2
-                !players.any { it.playerId == 'player-id-2' }
+                !players.any { it.player.id == playerAfterStart.id }
             }
         }
     }
@@ -94,8 +97,9 @@ class GameServiceImplUT extends Specification implements GameCreation {
     def '''should find game by id in repository and start it by
         dealing cards, setting currentPlayer and set game status to STARTED'''() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
 
         when:
         def returned = service.start(game.id)
@@ -104,7 +108,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         with(gameRepo.findById(game.id).get()) {
             status == Game.Status.STARTED
             deck.cards.size() == 48
-            currentPlayerId == 'player-id'
+            currentPlayerId == player.id
         }
         returned
     }
@@ -120,7 +124,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should NOT start game when no players added to game and throw exception'() {
         given:
-        Game game = service.create('croupier-id')
+        def game = service.create(croupier)
 
         when:
         service.start(game.id)
@@ -137,8 +141,8 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should throw exception when trying start game which is already started'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        service.addPlayer(game.id, createPlayer())
         service.start(game.id)
 
         when:
@@ -152,18 +156,18 @@ class GameServiceImplUT extends Specification implements GameCreation {
         and player should make move HIT (draw card from deck)
         and game should be updated in repository'''() {
         given:
-        Game game = service.create('croupier-id')
-        def playerId = 'player-id'
-        service.addPlayer(game.id, playerId)
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
         service.start(game.id)
 
         when:
-        Game returnedGame = service.makeMove(game.id, playerId, Game.Move.HIT)
+        Game returnedGame = service.makeMove(game.id, player.id, Game.Move.HIT)
 
         then:
         with(gameRepo.findById(game.id).get()) {
             deck.cards.size() <= 47        //less because can have more than 21 points and it will finish the game
-            with(players.find { it.playerId == playerId }) {
+            with(players.find { it.player.id == player.id }) {
                 hand.size() == 3
                 move == Game.Move.HIT
             }
@@ -175,12 +179,13 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should throw exception when can not find game with gameId in game repository when trying make move'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        Game game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
         service.start(game.id)
 
         when:
-        service.makeMove('wrong-game-id', 'player-id', Game.Move.HIT)
+        service.makeMove('wrong-game-id', player.id, Game.Move.HIT)
 
         then:
         GameRepository.GameNotFoundException ex = thrown()
@@ -189,11 +194,12 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should not be possible to make move when game was not started'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
 
         when:
-        service.makeMove(game.id, 'player-id', Game.Move.HIT)
+        service.makeMove(game.id, player.id, Game.Move.HIT)
 
         then:
         thrown(GameException)
@@ -201,25 +207,25 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should end game when last player move was STAND and should not be possible to make next move'() {
         given:
-        Game game = service.create('croupier-id')
-        def playerId = 'player-id'
-        service.addPlayer(game.id, playerId)
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
         service.start(game.id)
 
         when:
-        service.makeMove(game.id, playerId, Game.Move.STAND)
+        service.makeMove(game.id, player.id, Game.Move.STAND)
 
         then:
         gameRepo.findById(game.id).get().status == Game.Status.ENDED
         with(gameRepo.findById(game.id).get()) {
-            with(players.find { it.playerId == playerId }) {
+            with(players.find { it.player.id == player.id }) {
                 hand.size() == 2
                 move == Game.Move.STAND
             }
         }
 
         when:
-        service.makeMove(game.id, playerId, Game.Move.HIT)
+        service.makeMove(game.id, player.id, Game.Move.HIT)
 
         then:
         thrown(GameException)
@@ -227,10 +233,11 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should find game in repository and return game results when game is ended'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
         service.start(game.id)
-        service.makeMove(game.id, 'player-id', Game.Move.STAND)
+        service.makeMove(game.id, player.id, Game.Move.STAND)
 
         when:
         List<Result> results = service.getResults(game.id)
@@ -250,8 +257,9 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
     def 'should not be possible get results from game which is not ended'() {
         given:
-        Game game = service.create('croupier-id')
-        service.addPlayer(game.id, 'player-id')
+        def game = service.create(croupier)
+        def player = createPlayer()
+        service.addPlayer(game.id, player)
         service.start(game.id)
 
         when:

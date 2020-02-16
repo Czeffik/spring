@@ -12,11 +12,13 @@ import java.util.Set;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CroupierDto {
     private final String id;
+    private final String name;
     private final CardDto card;
 
     public static CroupierDto from(GamePlayer croupier) {
         return new CroupierDto(
-            croupier.getPlayerId(),
+            croupier.getPlayer().getId(),
+            croupier.getPlayer().getName(),
             getFirstCard(croupier.getHand())
         );
     }

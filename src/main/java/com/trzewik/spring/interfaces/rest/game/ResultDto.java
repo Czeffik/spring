@@ -1,7 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Result;
-import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,10 +12,10 @@ public class ResultDto {
     private String name;
     private HandDto hand;
 
-    public static ResultDto from(Result result, Player player) {
+    public static ResultDto from(Result result) {
         return new ResultDto(
             result.getPlace(),
-            player.getName(),
+            result.getPlayer().getPlayer().getName(),
             HandDto.from(result.getPlayer())
         );
     }

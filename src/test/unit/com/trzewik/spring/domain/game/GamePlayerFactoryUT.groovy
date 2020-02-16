@@ -1,38 +1,39 @@
 package com.trzewik.spring.domain.game
 
+import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 
-class GamePlayerFactoryUT extends Specification {
+class GamePlayerFactoryUT extends Specification implements PlayerCreation {
 
-    def 'should create game player with id'() {
-        given:
-        def playerId = 'player-id'
+    def player = createPlayer()
 
+    def 'should create game player with given player'() {
         when:
-        def player = GamePlayerFactory.create(playerId)
+        def gamePlayer = GamePlayerFactory.create(player)
 
         then:
-        player.playerId == playerId
-        player.hand.isEmpty()
-        player.move == Game.Move.HIT
+        gamePlayer.player.id == player.id
+        gamePlayer.player.name == player.name
+        gamePlayer.hand.isEmpty()
+        gamePlayer.move == Game.Move.HIT
     }
 
-    def 'should create game player with player id, hand and move'() {
+    def 'should create game player with given player hand and move'() {
         given:
-        def playerId = 'player-id'
         def hand = [] as Set
         def move = Game.Move.STAND
 
         when:
-        def player = GamePlayerFactory.create(playerId, hand, move)
+        def gamePlayer = GamePlayerFactory.create(player, hand, move)
 
         then:
-        player.playerId == playerId
-        player.hand == hand
-        player.move == move
+        gamePlayer.player.id == player.id
+        gamePlayer.player.name == player.name
+        gamePlayer.hand == hand
+        gamePlayer.move == move
     }
 
-    def 'should throw exception when trying create game player with null playerId'() {
+    def 'should throw exception when trying create game player with null player'() {
         when:
         GamePlayerFactory.create(null)
 
@@ -42,7 +43,7 @@ class GamePlayerFactoryUT extends Specification {
 
     def 'should throw exception when trying create game player with null hand'() {
         when:
-        GamePlayerFactory.create('', null, Game.Move.HIT)
+        GamePlayerFactory.create(player, null, Game.Move.HIT)
 
         then:
         thrown(NullPointerException)
@@ -50,7 +51,15 @@ class GamePlayerFactoryUT extends Specification {
 
     def 'should throw exception when trying create game player with null move'() {
         when:
-        GamePlayerFactory.create('', [] as Set, null)
+        GamePlayerFactory.create(player, [] as Set, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when trying create game player with null player(with hand and move)'() {
+        when:
+        GamePlayerFactory.create(null, [] as Set, Game.Move.STAND)
 
         then:
         thrown(NullPointerException)

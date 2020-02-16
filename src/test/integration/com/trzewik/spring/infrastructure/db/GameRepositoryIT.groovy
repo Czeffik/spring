@@ -25,7 +25,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
 
         when:
         repository.save(game)
@@ -67,7 +67,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
 
         and:
         helper.save(game)
@@ -86,14 +86,13 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         foundGame.get() == game
     }
 
-//    def '''should throw exception when can not get game by id (not present id repository)
-//        and should return game when game with id is present in repository'''
-    def sasa () {
+    def '''should throw exception when can not get game by id (not present id repository)
+        and should return game when game with id is present in repository''' () {
         given:
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
 
         and:
         helper.save(game)
@@ -122,7 +121,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.playerId))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
 
         and:
         helper.save(game)
@@ -165,7 +164,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
 
         and:
         def gamePlayer = gamesPlayers.find { it.player_id == playerId }
-        def player = game.players.find { it.playerId == playerId }
+        def player = game.players.find { it.player.id == playerId }
         gamePlayer.move == player.move.name()
         def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
         validateHand(player.hand, parsedPlayerHand)

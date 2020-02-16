@@ -80,7 +80,7 @@ class DbHelper {
     List<List<Object>> save(String gameId, GamePlayer player) {
         String query = "INSERT INTO $gamesPlayersTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [gameId, player.playerId, convertCardsToString(player.hand), player.move.name()])
+        sql.executeInsert(query.toString(), [gameId, player.player.id, convertCardsToString(player.hand), player.move.name()])
     }
 
     static String convertCardsToString(Collection<Deck.Card> hand) {

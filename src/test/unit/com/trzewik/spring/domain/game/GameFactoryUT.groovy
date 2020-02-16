@@ -5,14 +5,18 @@ import spock.lang.Specification
 class GameFactoryUT extends Specification implements GamePlayerCreation, DeckCreation {
 
     def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED and currentPlayer null'() {
+        given:
+        def croupier = createPlayer()
+
         when:
-        Game game = GameFactory.createGame('croupier-id')
+        def game = GameFactory.createGame(croupier)
 
         then:
         game.id
         game.players.size() == 1
         with(game.players.first()) {
-            it
+            it.player.id == croupier.id
+            it.player.name == croupier.name
             hand.isEmpty()
             move == Game.Move.HIT
         }
@@ -28,10 +32,10 @@ class GameFactoryUT extends Specification implements GamePlayerCreation, DeckCre
         given:
         def id = '123'
         def players = createGamePlayers(3)
-        def croupierId = players.first().playerId
+        def croupierId = players.first().player.id
         def deck = createDeck()
         def status = Game.Status.STARTED
-        def currentPlayerId = players[1].playerId
+        def currentPlayerId = players[1].player.id
 
         when:
         def game = GameFactory.createGame(id, players, croupierId, deck, status, currentPlayerId)

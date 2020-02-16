@@ -1,6 +1,9 @@
 package com.trzewik.spring.domain.game
 
-trait GamePlayerCreation {
+import com.trzewik.spring.domain.player.Player
+import com.trzewik.spring.domain.player.PlayerCreation
+
+trait GamePlayerCreation implements PlayerCreation {
 
     Set<GamePlayer> createGamePlayers(int numberOfPlayers = 2) {
         def players = []
@@ -10,23 +13,23 @@ trait GamePlayerCreation {
 
     GamePlayer createGamePlayer(GamePlayerBuilder builder = new GamePlayerBuilder()) {
         return new GamePlayerImpl(
-            builder.playerId,
+            builder.player,
             builder.hand,
             builder.move
         )
     }
 
     static class GamePlayerBuilder implements GamePlayerCreation {
-        String playerId = UUID.randomUUID().toString()
+        Player player = createPlayer()
         Set<Deck.Card> hand = [] as Set
         Game.Move move = Game.Move.HIT
 
         GamePlayerBuilder() {}
 
         GamePlayerBuilder(GamePlayer player) {
-            playerId = player.playerId
-            hand = player.hand
-            move = player.move
+            this.player = player.player
+            this.hand = player.hand
+            this.move = player.move
         }
     }
 

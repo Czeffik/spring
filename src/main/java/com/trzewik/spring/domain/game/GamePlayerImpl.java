@@ -1,5 +1,6 @@
 package com.trzewik.spring.domain.game;
 
+import com.trzewik.spring.domain.player.Player;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,9 +10,9 @@ import java.util.Set;
 
 @Getter
 @AllArgsConstructor
-@EqualsAndHashCode(of = "playerId")
+@EqualsAndHashCode(of = "player")
 public class GamePlayerImpl implements GamePlayer {
-    private final @NonNull String playerId;
+    private final @NonNull Player player;
     private final @NonNull Set<Deck.Card> hand;
     private @NonNull Game.Move move;
 
