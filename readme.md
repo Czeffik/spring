@@ -16,6 +16,7 @@ everything which can give and order to application: REST Controllers, JMS queues
 * `docker-compose up` - setup container with database for local development
 * `gradlew flywayMigrate -i` - run db migrations
 * run application: `com.trzewik.spring.BlackJackApp`
+* as default app start on `http://localhost:8081` and has configured [swagger-ui](http://localhost:8081/swagger-ui.html)
 
 ## Build
 
@@ -27,8 +28,9 @@ everything which can give and order to application: REST Controllers, JMS queues
 
 ### TODO
 * add logs
-* add swagger
+* add `NullPointerException` handling in cases where use `lombok.@NonNull` - it should not cause `500` but `400` with reason
 * add [archunit](https://www.archunit.org) for checking DDD rules
 * add [feign client](https://github.com/OpenFeign/feign) for example: checking player account balance
+* upgrade swagger - add descriptions for errors and fields
 * ...
 
