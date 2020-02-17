@@ -19,8 +19,8 @@ public class GamePlayerDto {
         return Optional.ofNullable(player)
             .map(p ->
                 new GamePlayerDto(
-                    p.getPlayer().getId(),
-                    p.getPlayer().getName(),
+                    p.getId(),
+                    p.getName(),
                     HandDto.from(p),
                     p.getMove().name()))
             .orElse(null);

@@ -15,8 +15,8 @@ class GameFactoryUT extends Specification implements GamePlayerCreation, DeckCre
         game.id
         game.players.size() == 1
         with(game.players.first()) {
-            it.player.id == croupier.id
-            it.player.name == croupier.name
+            it.id == croupier.id
+            it.name == croupier.name
             hand.isEmpty()
             move == Game.Move.HIT
         }
@@ -32,10 +32,10 @@ class GameFactoryUT extends Specification implements GamePlayerCreation, DeckCre
         given:
         def id = '123'
         def players = createGamePlayers(3)
-        def croupierId = players.first().player.id
+        def croupierId = players.first().id
         def deck = createDeck()
         def status = Game.Status.STARTED
-        def currentPlayerId = players[1].player.id
+        def currentPlayerId = players[1].id
 
         when:
         def game = GameFactory.createGame(id, players, croupierId, deck, status, currentPlayerId)

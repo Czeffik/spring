@@ -29,8 +29,8 @@ class GameServiceImplUT extends Specification implements GameCreation {
             }
             with(getPlayers()) {
                 size() == 1
-                first().player.id == this.croupier.id
-                first().player.name == this.croupier.name
+                first().id == this.croupier.id
+                first().name == this.croupier.name
             }
 
         }
@@ -52,7 +52,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
             with(get(game.id)) {
                 it == after
                 players.size() == 2
-                players.any { it.player.id == player.id }
+                players.any { it.id == player.id }
             }
         }
     }
@@ -89,7 +89,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
             size() == 1
             with(get(game.id)) {
                 players.size() == 2
-                !players.any { it.player.id == playerAfterStart.id }
+                !players.any { it.id == playerAfterStart.id }
             }
         }
     }
@@ -167,7 +167,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         then:
         with(gameRepo.findById(game.id).get()) {
             deck.cards.size() <= 47        //less because can have more than 21 points and it will finish the game
-            with(players.find { it.player.id == player.id }) {
+            with(players.find { it.id == player.id }) {
                 hand.size() == 3
                 move == Game.Move.HIT
             }
@@ -218,7 +218,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         then:
         gameRepo.findById(game.id).get().status == Game.Status.ENDED
         with(gameRepo.findById(game.id).get()) {
-            with(players.find { it.player.id == player.id }) {
+            with(players.find { it.id == player.id }) {
                 hand.size() == 2
                 move == Game.Move.STAND
             }

@@ -12,8 +12,8 @@ class GamePlayerFactoryUT extends Specification implements PlayerCreation {
         def gamePlayer = GamePlayerFactory.create(player)
 
         then:
-        gamePlayer.player.id == player.id
-        gamePlayer.player.name == player.name
+        gamePlayer.id == player.id
+        gamePlayer.name == player.name
         gamePlayer.hand.isEmpty()
         gamePlayer.move == Game.Move.HIT
     }
@@ -27,8 +27,8 @@ class GamePlayerFactoryUT extends Specification implements PlayerCreation {
         def gamePlayer = GamePlayerFactory.create(player, hand, move)
 
         then:
-        gamePlayer.player.id == player.id
-        gamePlayer.player.name == player.name
+        gamePlayer.id == player.id
+        gamePlayer.name == player.name
         gamePlayer.hand == hand
         gamePlayer.move == move
     }

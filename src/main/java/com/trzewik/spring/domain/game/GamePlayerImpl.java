@@ -8,13 +8,24 @@ import lombok.NonNull;
 
 import java.util.Set;
 
-@Getter
 @AllArgsConstructor
 @EqualsAndHashCode(of = "player")
 public class GamePlayerImpl implements GamePlayer {
     private final @NonNull Player player;
+    @Getter
     private final @NonNull Set<Deck.Card> hand;
+    @Getter
     private @NonNull Game.Move move;
+
+    @Override
+    public String getName() {
+        return player.getName();
+    }
+
+    @Override
+    public String getId() {
+        return player.getId();
+    }
 
     @Override
     public void addCard(Deck.Card card) {

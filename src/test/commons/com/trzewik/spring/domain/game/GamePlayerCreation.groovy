@@ -27,7 +27,7 @@ trait GamePlayerCreation implements PlayerCreation {
         GamePlayerBuilder() {}
 
         GamePlayerBuilder(GamePlayer player) {
-            this.player = player.player
+            this.player = createPlayer(new PlayerBuilder(player))
             this.hand = player.hand
             this.move = player.move
         }

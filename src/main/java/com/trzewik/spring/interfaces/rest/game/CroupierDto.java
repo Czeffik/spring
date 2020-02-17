@@ -17,8 +17,8 @@ public class CroupierDto {
 
     public static CroupierDto from(GamePlayer croupier) {
         return new CroupierDto(
-            croupier.getPlayer().getId(),
-            croupier.getPlayer().getName(),
+            croupier.getId(),
+            croupier.getName(),
             getFirstCard(croupier.getHand())
         );
     }

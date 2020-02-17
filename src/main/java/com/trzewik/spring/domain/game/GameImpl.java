@@ -90,7 +90,7 @@ class GameImpl implements Game {
     @Override
     public GamePlayer getCurrentPlayer() {
         return players.stream()
-            .filter(p -> p.getPlayer().getId().equals(getCurrentPlayerId()))
+            .filter(p -> p.getId().equals(getCurrentPlayerId()))
             .findFirst()
             .orElse(null);
     }
@@ -98,7 +98,7 @@ class GameImpl implements Game {
     @Override
     public GamePlayer getCroupier() {
         return players.stream()
-            .filter(p -> p.getPlayer().getId().equals(getCroupierId()))
+            .filter(p -> p.getId().equals(getCroupierId()))
             .findFirst()
             .orElse(null);
     }
@@ -139,7 +139,7 @@ class GameImpl implements Game {
         currentPlayerId = getPlayersWithoutCroupier().stream()
             .filter(p -> !p.isLooser())
             .filter(p -> !Move.STAND.equals(p.getMove()))
-            .map(p -> p.getPlayer().getId())
+            .map(GamePlayer::getId)
             .findFirst()
             .orElse(null);
     }
@@ -152,7 +152,7 @@ class GameImpl implements Game {
 
     private List<GamePlayer> getPlayersWithoutCroupier() {
         return players.stream()
-            .filter(p -> !p.getPlayer().getId().equals(getCroupierId()))
+            .filter(p -> !p.getId().equals(getCroupierId()))
             .collect(Collectors.toList());
     }
 }

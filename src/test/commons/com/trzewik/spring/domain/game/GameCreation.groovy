@@ -22,8 +22,8 @@ trait GameCreation implements GamePlayerCreation, DeckCreation {
         )
         Game game = createGame(new GameBuilder(
             players: [currPlayer, croupier],
-            croupierId: croupier.player.id,
-            currentPlayerId: currPlayer.player.id,
+            croupierId: croupier.id,
+            currentPlayerId: currPlayer.id,
             status: Game.Status.STARTED
         ))
         return game
@@ -32,7 +32,7 @@ trait GameCreation implements GamePlayerCreation, DeckCreation {
     static class GameBuilder implements GameCreation {
         String id = UUID.randomUUID().toString()
         Set<GamePlayer> players = [createGamePlayer()] as Set
-        String croupierId = players.first().player.id
+        String croupierId = players.first().id
         Deck deck = createDeck()
         Game.Status status = Game.Status.NOT_STARTED
         String currentPlayerId = null

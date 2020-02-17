@@ -34,7 +34,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should create game successfully and return game object representation in response'() {
         given:
         def game = createStartedGame()
-        def croup = game.croupier.player
+        def croup = createPlayer(new PlayerBuilder(game.croupier))
 
         when:
         Response response = createGameRequest()
@@ -72,15 +72,16 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should add player to game if found in player repository and return game representation'() {
         given:
         def game = createStartedGame()
+        def currPlayer = createPlayer(new PlayerBuilder(game.currentPlayer))
 
         when:
         Response response = addPlayerRequest(game.id, game.currentPlayerId)
 
         then:
-        1 * playerService.get(game.currentPlayerId) >> game.currentPlayer.player
+        1 * playerService.get(game.currentPlayerId) >> currPlayer
 
         and:
-        1 * gameService.addPlayer(game.id, game.currentPlayer.player) >> game
+        1 * gameService.addPlayer(game.id, currPlayer) >> game
 
         and:
         response.statusCode() == 200

@@ -25,7 +25,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
 
         when:
         repository.save(game)
@@ -67,7 +67,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
 
         and:
         helper.save(game)
@@ -92,7 +92,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
 
         and:
         helper.save(game)
@@ -121,7 +121,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.player.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
 
         and:
         helper.save(game)
@@ -164,7 +164,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
 
         and:
         def gamePlayer = gamesPlayers.find { it.player_id == playerId }
-        def player = game.players.find { it.player.id == playerId }
+        def player = game.players.find { it.id == playerId }
         gamePlayer.move == player.move.name()
         def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
         validateHand(player.hand, parsedPlayerHand)

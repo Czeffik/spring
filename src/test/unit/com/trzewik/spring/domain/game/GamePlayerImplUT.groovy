@@ -86,8 +86,8 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
 
     def 'should get player id as string'() {
         expect:
-        gamePlayer.player.id != null
-        gamePlayer.player.id instanceof String
+        gamePlayer.id != null
+        gamePlayer.id instanceof String
     }
 
     def 'should get player default move = HIT'() {

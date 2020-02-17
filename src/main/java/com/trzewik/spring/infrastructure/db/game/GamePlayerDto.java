@@ -28,8 +28,8 @@ public class GamePlayerDto {
     public static GamePlayerDto from(String gameId, GamePlayer player) {
         return new GamePlayerDto(
             gameId,
-            player.getPlayer().getId(),
-            player.getPlayer().getName(),
+            player.getId(),
+            player.getName(),
             createHand(player.getHand()),
             player.getMove().name()
         );

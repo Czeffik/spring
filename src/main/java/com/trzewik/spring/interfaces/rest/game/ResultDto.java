@@ -15,7 +15,7 @@ public class ResultDto {
     public static ResultDto from(Result result) {
         return new ResultDto(
             result.getPlace(),
-            result.getPlayer().getPlayer().getName(),
+            result.getPlayer().getName(),
             HandDto.from(result.getPlayer())
         );
     }

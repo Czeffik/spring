@@ -1,5 +1,7 @@
 package com.trzewik.spring.domain.player
 
+import com.trzewik.spring.domain.game.GamePlayer
+
 trait PlayerCreation {
 
     Player createPlayer(PlayerBuilder builder = new PlayerBuilder()) {
@@ -28,6 +30,11 @@ trait PlayerCreation {
         PlayerBuilder() {}
 
         PlayerBuilder(Player player) {
+            id = player.id
+            name = player.name
+        }
+
+        PlayerBuilder(GamePlayer player) {
             id = player.id
             name = player.name
         }
