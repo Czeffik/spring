@@ -53,7 +53,7 @@ public class Game {
         if (gameStarted()) {
             throw new GameException("Game started, can not add new player");
         }
-        players.add(GamePlayerFactory.create(player));
+        players.add(new GamePlayer(player));
     }
 
     public Game auction(String playerId, @NonNull Move move) throws GameException {

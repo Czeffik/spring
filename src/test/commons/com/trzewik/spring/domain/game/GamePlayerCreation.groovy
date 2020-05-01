@@ -12,7 +12,7 @@ trait GamePlayerCreation implements PlayerCreation {
     }
 
     GamePlayer createGamePlayer(GamePlayerBuilder builder = new GamePlayerBuilder()) {
-        return new GamePlayerImpl(
+        return new GamePlayer(
             builder.player,
             builder.hand,
             builder.move

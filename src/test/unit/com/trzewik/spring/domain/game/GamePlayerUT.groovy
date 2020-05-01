@@ -5,13 +5,13 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class GamePlayerImplUT extends Specification implements GamePlayerCreation, DeckCreation{
+class GamePlayerUT extends Specification implements GamePlayerCreation, DeckCreation {
     @Shared
     def playerId = 'player-id'
     @Shared
     def player = createPlayer(new PlayerBuilder(id: playerId))
     @Subject
-    GamePlayer gamePlayer = GamePlayerFactory.create(player)
+    GamePlayer gamePlayer = new GamePlayer(player)
 
     def 'should get player hand'() {
         expect:
@@ -108,5 +108,63 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
 
         where:
         MOVE << Move.values()
+    }
+
+    def 'should create game player with given player'() {
+        when:
+        def gamePlayer = new GamePlayer(player)
+
+        then:
+        gamePlayer.id == player.id
+        gamePlayer.name == player.name
+        gamePlayer.hand.isEmpty()
+        gamePlayer.move == Move.HIT
+    }
+
+    def 'should create game player with given player hand and move'() {
+        given:
+        def hand = [] as Set
+        def move = Move.STAND
+
+        when:
+        def gamePlayer = new GamePlayer(player, hand, move)
+
+        then:
+        gamePlayer.id == player.id
+        gamePlayer.name == player.name
+        gamePlayer.hand == hand
+        gamePlayer.move == move
+    }
+
+    def 'should throw exception when trying create game player with null player'() {
+        when:
+        new GamePlayer(null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when trying create game player with null hand'() {
+        when:
+        new GamePlayer(player, null, Move.HIT)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when trying create game player with null move'() {
+        when:
+        new GamePlayer(player, [] as Set, null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def 'should throw exception when trying create game player with null player(with hand and move)'() {
+        when:
+        new GamePlayer(null, [] as Set, Move.STAND)
+
+        then:
+        thrown(NullPointerException)
     }
 }

@@ -2,7 +2,6 @@ package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Card;
 import com.trzewik.spring.domain.game.GamePlayer;
-import com.trzewik.spring.domain.game.GamePlayerFactory;
 import com.trzewik.spring.domain.game.Move;
 import com.trzewik.spring.domain.player.PlayerFactory;
 import lombok.AccessLevel;
@@ -46,7 +45,7 @@ public class GamePlayerDto {
     }
 
     public static GamePlayer to(GamePlayerDto dto) {
-        return GamePlayerFactory.create(
+        return new GamePlayer(
             PlayerFactory.createPlayer(dto.getPlayerId(), dto.getName()),
             mapTo(dto.getHand()),
             Move.valueOf(dto.getMove())
