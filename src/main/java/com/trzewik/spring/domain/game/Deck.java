@@ -20,7 +20,7 @@ public class Deck {
         shuffle();
     }
 
-    public Card take() {
+    Card take() {
         return cards.pop();
     }
 

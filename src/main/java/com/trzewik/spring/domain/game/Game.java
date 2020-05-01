@@ -36,7 +36,7 @@ public class Game {
         addPlayer(croupier);
     }
 
-    public Game startGame() throws GameException {
+    Game startGame() throws GameException {
         if (gameStarted()) {
             throw new GameException("Game started, can not start again");
         }
@@ -49,7 +49,7 @@ public class Game {
         return this;
     }
 
-    public void addPlayer(Player player) throws GameException {
+    void addPlayer(Player player) throws GameException {
         if (gameStarted()) {
             throw new GameException("Game started, can not add new player");
         }
@@ -97,7 +97,7 @@ public class Game {
             .orElse(null);
     }
 
-    public List<Result> getResults() throws GameException {
+    List<Result> getResults() throws GameException {
         if (gameEnded()) {
             return ResultsHelper.createResults(players);
         }

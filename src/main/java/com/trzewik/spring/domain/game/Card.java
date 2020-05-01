@@ -17,7 +17,7 @@ public class Card {
         return suit.getImage() + rank.getRankName();
     }
 
-    public boolean isAce() {
+    boolean isAce() {
         return rank.equals(Rank.ACE);
     }
 }
