@@ -347,7 +347,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when id is null'() {
         when:
-        new GameImpl(null, [] as Set, '', DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+        new GameImpl(null, [] as Set, '', new Deck(), Game.Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -355,7 +355,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when players are null'() {
         when:
-        new GameImpl('', null, '', DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+        new GameImpl('', null, '', new Deck(), Game.Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -363,7 +363,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when croupier id is null'() {
         when:
-        new GameImpl('', [] as Set, null, DeckFactory.createDeck(), Game.Status.NOT_STARTED, null)
+        new GameImpl('', [] as Set, null, new Deck(), Game.Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -379,7 +379,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when status is null'() {
         when:
-        new GameImpl('', [] as Set, '', DeckFactory.createDeck(), null, null)
+        new GameImpl('', [] as Set, '', new Deck(), null, null)
 
         then:
         thrown(NullPointerException)

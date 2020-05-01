@@ -1,11 +1,44 @@
 package com.trzewik.spring.domain.game;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
 
-public interface Deck {
-    Stack<Card> getCards();
+@Getter
+@RequiredArgsConstructor
+@EqualsAndHashCode
+public class Deck {
+    private final @NonNull Stack<Card> cards;
 
-    void shuffle();
+    public Deck() {
+        cards = createCards();
+        shuffle();
+    }
 
-    Card take();
+    public Card take() {
+        return cards.pop();
+    }
+
+    private void shuffle() {
+        Collections.shuffle(cards);
+    }
+
+    private Stack<Card> createCards() {
+        Stack<Card> stack = new Stack<>();
+        Arrays.stream(Suit.values())
+            .forEach(suit -> {
+                    Arrays.stream(Rank.values())
+                        .forEach(rank -> {
+                                stack.push(new Card(suit, rank));
+                            }
+                        );
+                }
+            );
+        return stack;
+    }
 }

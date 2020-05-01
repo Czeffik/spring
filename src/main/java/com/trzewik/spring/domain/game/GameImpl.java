@@ -30,11 +30,10 @@ class GameImpl implements Game {
         this.id = UUID.randomUUID().toString();
         this.players = new LinkedHashSet<>();
         this.croupierId = croupier.getId();
-        this.deck = DeckFactory.createDeck();
+        this.deck = new Deck();
         this.status = Game.Status.NOT_STARTED;
 
         addPlayer(croupier);
-        deck.shuffle();
     }
 
     @Override

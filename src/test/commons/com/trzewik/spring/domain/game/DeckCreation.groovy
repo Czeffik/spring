@@ -3,7 +3,7 @@ package com.trzewik.spring.domain.game
 trait DeckCreation {
 
     Deck createDeck(DeckBuilder builder = new DeckBuilder(cards: createCards())) {
-        return new DeckImpl(createCards())
+        return new Deck(createCards())
     }
 
     Stack<Card> createCards() {

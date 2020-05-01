@@ -1,7 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Deck;
-import com.trzewik.spring.domain.game.DeckFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class DeckDto {
     }
 
     public static Deck to(DeckDto dto) {
-        return DeckFactory.createDeck(
+        return new Deck(
             dto.getCards().stream()
                 .map(CardDto::to)
                 .collect(Collectors.toCollection(Stack::new))
