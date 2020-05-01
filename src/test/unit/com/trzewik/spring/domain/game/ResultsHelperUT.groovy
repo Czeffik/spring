@@ -9,25 +9,25 @@ class ResultsHelperUT extends Specification implements DeckCreation, GamePlayerC
             players which have greater hand value than 21 should be sorted from lowest to highest '''() {
         given:
         def player1 = createGamePlayer()
-        player1.addCard(createCard(Deck.Card.Rank.ACE))
-        player1.addCard(createCard(Deck.Card.Rank.KING))
+        player1.addCard(createCard(Rank.ACE))
+        player1.addCard(createCard(Rank.KING))
 
         and:
         def player2 = createGamePlayer()
-        player2.addCard(createCard(Deck.Card.Rank.QUEEN))
-        player2.addCard(createCard(Deck.Card.Rank.KING))
+        player2.addCard(createCard(Rank.QUEEN))
+        player2.addCard(createCard(Rank.KING))
 
         and:
         def player3 = createGamePlayer()
-        player3.addCard(createCard(Deck.Card.Rank.QUEEN))
-        player3.addCard(createCard(Deck.Card.Rank.KING))
-        player3.addCard(createCard(Deck.Card.Rank.TWO))
+        player3.addCard(createCard(Rank.QUEEN))
+        player3.addCard(createCard(Rank.KING))
+        player3.addCard(createCard(Rank.TWO))
 
         and:
         def player4 = createGamePlayer()
-        player4.addCard(createCard(Deck.Card.Rank.QUEEN))
-        player4.addCard(createCard(Deck.Card.Rank.KING))
-        player4.addCard(createCard(Deck.Card.Rank.TEN))
+        player4.addCard(createCard(Rank.QUEEN))
+        player4.addCard(createCard(Rank.KING))
+        player4.addCard(createCard(Rank.TEN))
 
         and:
         def players = [player3, player2, player4, player1] as Set

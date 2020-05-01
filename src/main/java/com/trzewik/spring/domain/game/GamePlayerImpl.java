@@ -13,7 +13,7 @@ import java.util.Set;
 public class GamePlayerImpl implements GamePlayer {
     private final @NonNull Player player;
     @Getter
-    private final @NonNull Set<Deck.Card> hand;
+    private final @NonNull Set<Card> hand;
     @Getter
     private @NonNull Game.Move move;
 
@@ -28,7 +28,7 @@ public class GamePlayerImpl implements GamePlayer {
     }
 
     @Override
-    public void addCard(Deck.Card card) {
+    public void addCard(Card card) {
         hand.add(card);
     }
 
@@ -66,6 +66,6 @@ public class GamePlayerImpl implements GamePlayer {
 
     private boolean hasAceInHand() {
         return hand.stream()
-            .anyMatch(Deck.Card::isAce);
+            .anyMatch(Card::isAce);
     }
 }

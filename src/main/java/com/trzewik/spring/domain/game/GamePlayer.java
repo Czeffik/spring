@@ -7,9 +7,9 @@ public interface GamePlayer {
 
     String getId();
 
-    Set<Deck.Card> getHand();
+    Set<Card> getHand();
 
-    void addCard(Deck.Card card);
+    void addCard(Card card);
 
     int handValue();
 

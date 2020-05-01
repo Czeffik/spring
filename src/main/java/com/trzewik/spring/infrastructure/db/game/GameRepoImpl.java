@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @AllArgsConstructor
 class GameRepoImpl implements GameRepository {
-    private GameJpaRepository jpaRepository;
+    private final GameJpaRepository jpaRepository;
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Override
     public void save(Game game) {

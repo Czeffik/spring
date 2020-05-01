@@ -1,9 +1,5 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.game.Deck.Card
-import com.trzewik.spring.domain.game.Deck.Card.Rank
-import com.trzewik.spring.domain.game.Deck.Card.Suit
-
 trait DeckCreation {
 
     Deck createDeck(DeckBuilder builder = new DeckBuilder(cards: createCards())) {
@@ -21,14 +17,14 @@ trait DeckCreation {
     }
 
     Card createCard(Rank rank) {
-        return new DeckImpl.CardImpl(
+        return new Card(
             Suit.SPADE,
             rank
         )
     }
 
     Card createCard(CardBuilder builder = new CardBuilder()) {
-        return new DeckImpl.CardImpl(
+        return new Card(
             builder.suit,
             builder.rank
         )

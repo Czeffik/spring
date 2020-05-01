@@ -20,7 +20,7 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
 
     def 'should add card to player hand'() {
         given:
-        Deck.Card card = createCard()
+        Card card = createCard()
 
         when:
         gamePlayer.addCard(card)
@@ -48,9 +48,9 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
         STARTING_HAND << [
             [],
             [createCard()],
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
-            [createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE)), createCard(new CardBuilder(rank: Deck.Card.Rank.TWO))]
+            [createCard(), createCard(new CardBuilder(rank: Rank.ACE))],
+            [createCard(new CardBuilder(rank: Rank.ACE))],
+            [createCard(), createCard(new CardBuilder(rank: Rank.ACE)), createCard(new CardBuilder(rank: Rank.TWO))]
         ]
         EXPECTED_VALUE << [
             0,
@@ -73,10 +73,10 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
 
         where:
         STARTING_HAND << [
-            [createCard(), createCard(new CardBuilder(rank: Deck.Card.Rank.ACE))],
+            [createCard(), createCard(new CardBuilder(rank: Rank.ACE))],
             [createCard(),
-             createCard(new CardBuilder(rank: Deck.Card.Rank.TWO)),
-             createCard(new CardBuilder(rank: Deck.Card.Rank.TEN))]
+             createCard(new CardBuilder(rank: Rank.TWO)),
+             createCard(new CardBuilder(rank: Rank.TEN))]
         ]
         EXPECTED_VALUE << [
             false,

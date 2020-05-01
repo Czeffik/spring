@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 import java.util.Stack;
 
-import static com.trzewik.spring.domain.game.CardFactory.create;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeckFactory {
 
@@ -15,17 +13,17 @@ public class DeckFactory {
         return createDeck(createSackWithCards());
     }
 
-    public static Deck createDeck(Stack<Deck.Card> cards) {
+    public static Deck createDeck(Stack<Card> cards) {
         return new DeckImpl(cards);
     }
 
-    private static Stack<Deck.Card> createSackWithCards() {
-        Stack<Deck.Card> stack = new Stack<>();
-        Arrays.stream(Deck.Card.Suit.values())
+    private static Stack<Card> createSackWithCards() {
+        Stack<Card> stack = new Stack<>();
+        Arrays.stream(Suit.values())
             .forEach(suit -> {
-                    Arrays.stream(Deck.Card.Rank.values())
+                    Arrays.stream(Rank.values())
                         .forEach(rank -> {
-                                stack.push(create(suit, rank));
+                                stack.push(new Card(suit, rank));
                             }
                         );
                 }

@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db
 
+import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GamePlayer
@@ -83,11 +84,11 @@ class DbHelper {
         sql.executeInsert(query.toString(), [gameId, player.id, convertCardsToString(player.hand), player.move.name()])
     }
 
-    static String convertCardsToString(Collection<Deck.Card> hand) {
+    static String convertCardsToString(Collection<Card> hand) {
         return new JsonBuilder(convertCards(hand)).toPrettyString()
     }
 
-    static List<Map> convertCards(Collection<Deck.Card> hand) {
+    static List<Map> convertCards(Collection<Card> hand) {
         return hand.collect { [suit: it.suit, rank: it.rank] }
     }
 

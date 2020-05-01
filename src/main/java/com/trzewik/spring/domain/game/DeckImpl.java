@@ -12,7 +12,7 @@ import java.util.Stack;
 @AllArgsConstructor
 @EqualsAndHashCode
 class DeckImpl implements Deck {
-    private final @NonNull Stack<Deck.Card> cards;
+    private final @NonNull Stack<Card> cards;
 
     @Override
     public void shuffle() {
@@ -20,25 +20,7 @@ class DeckImpl implements Deck {
     }
 
     @Override
-    public Deck.Card take() {
+    public Card take() {
         return cards.pop();
-    }
-
-    @AllArgsConstructor
-    @Getter
-    @EqualsAndHashCode
-    static class CardImpl implements Deck.Card {
-        private final @NonNull Suit suit;
-        private final @NonNull Rank rank;
-
-        @Override
-        public String toString() {
-            return suit.getImage() + rank.getRankName();
-        }
-
-        @Override
-        public boolean isAce() {
-            return rank.equals(Rank.ACE);
-        }
     }
 }

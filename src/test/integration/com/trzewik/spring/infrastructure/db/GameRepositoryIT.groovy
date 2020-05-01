@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db
 
+import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
@@ -87,7 +88,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
     }
 
     def '''should throw exception when can not get game by id (not present id repository)
-        and should return game when game with id is present in repository''' () {
+        and should return game when game with id is present in repository'''() {
         given:
         Game game = createStartedGame()
 
@@ -185,7 +186,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         assert parsedDeck.cards.size() == deck.cards.size()
     }
 
-    void validateHand(Set<Deck.Card> hand, List parsedHand) {
+    void validateHand(Set<Card> hand, List parsedHand) {
         parsedHand.each { parsedCard ->
             assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
         }

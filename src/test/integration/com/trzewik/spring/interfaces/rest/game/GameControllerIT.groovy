@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game
 
-import com.trzewik.spring.domain.game.Deck
+import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
@@ -384,7 +384,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         response.body().asString() == exceptionMessage
     }
 
-    boolean validateHand(Set<Deck.Card> hand, parsedCards) {
+    boolean validateHand(Set<Card> hand, parsedCards) {
         parsedCards.each { parsedCard ->
             assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
         }

@@ -15,10 +15,10 @@ trait GameCreation implements GamePlayerCreation, DeckCreation {
 
     Game createStartedGame() {
         GamePlayer currPlayer = createGamePlayer(
-            new GamePlayerBuilder(hand: [createCard(Deck.Card.Rank.FOUR), createCard(Deck.Card.Rank.SEVEN)])
+            new GamePlayerBuilder(hand: [createCard(Rank.FOUR), createCard(Rank.SEVEN)])
         )
         GamePlayer croupier = createGamePlayer(
-            new GamePlayerBuilder(hand: [createCard(Deck.Card.Rank.EIGHT), createCard(Deck.Card.Rank.QUEEN)])
+            new GamePlayerBuilder(hand: [createCard(Rank.EIGHT), createCard(Rank.QUEEN)])
         )
         Game game = createGame(new GameBuilder(
             players: [currPlayer, croupier],

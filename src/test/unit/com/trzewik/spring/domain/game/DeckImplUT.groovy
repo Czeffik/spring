@@ -29,10 +29,10 @@ class DeckImplUT extends Specification {
 
     def 'should take one card from deck'() {
         when:
-        Deck.Card takenCard = deck.take()
+        Card takenCard = deck.take()
 
         then:
-        Stack<Deck.Card> cards = (deck as DeckImpl).cards
+        Stack<Card> cards = (deck as DeckImpl).cards
         cards.size() == 51
 
         and:

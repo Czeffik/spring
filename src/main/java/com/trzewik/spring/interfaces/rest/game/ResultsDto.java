@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResultsDto {
-    private List<ResultDto> results;
+    private final List<ResultDto> results;
 
     public static ResultsDto from(List<Result> results) {
         return new ResultsDto(

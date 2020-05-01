@@ -1,6 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
-import com.trzewik.spring.domain.game.Deck;
+import com.trzewik.spring.domain.game.Card;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GamePlayer;
 import com.trzewik.spring.domain.game.GamePlayerFactory;
@@ -53,13 +53,13 @@ public class GamePlayerDto {
         );
     }
 
-    private static Set<Deck.Card> mapTo(Set<CardDto> hand) {
+    private static Set<Card> mapTo(Set<CardDto> hand) {
         return hand.stream()
             .map(CardDto::to)
             .collect(Collectors.toSet());
     }
 
-    private static Set<CardDto> createHand(Set<Deck.Card> hand) {
+    private static Set<CardDto> createHand(Set<Card> hand) {
         return hand.stream()
             .map(CardDto::from)
             .collect(Collectors.toSet());

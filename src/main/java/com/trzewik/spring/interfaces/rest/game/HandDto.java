@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game;
 
-import com.trzewik.spring.domain.game.Deck;
+import com.trzewik.spring.domain.game.Card;
 import com.trzewik.spring.domain.game.GamePlayer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class HandDto {
         );
     }
 
-    private static Set<CardDto> from(Set<Deck.Card> cards) {
+    private static Set<CardDto> from(Set<Card> cards) {
         return cards.stream()
             .map(CardDto::from)
             .collect(Collectors.toSet());

@@ -13,7 +13,7 @@ public class GamePlayerFactory {
         return create(player, new HashSet<>(), Game.Move.HIT);
     }
 
-    public static GamePlayer create(Player player, Set<Deck.Card> cards, Game.Move move) {
+    public static GamePlayer create(Player player, Set<Card> cards, Game.Move move) {
         return new GamePlayerImpl(player, cards, move);
     }
 }

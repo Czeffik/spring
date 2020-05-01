@@ -6,9 +6,9 @@ class DeckFactoryUT extends Specification implements DeckCreation {
 
     def 'should create deck with 52 cards with all cards combinations, and without duplicates'() {
         given:
-        Stack<Deck.Card> expectedCards = []
-        Deck.Card.Suit.values().each { suit ->
-            Deck.Card.Rank.values().each { rank ->
+        Stack<Card> expectedCards = []
+        Suit.values().each { suit ->
+            Rank.values().each { rank ->
                 expectedCards << createCard(new CardBuilder(rank: rank, suit: suit))
             }
         }
@@ -16,7 +16,7 @@ class DeckFactoryUT extends Specification implements DeckCreation {
         Deck deck = DeckFactory.createDeck()
 
         then:
-        Stack<Deck.Card> cards = deck.@cards
+        Stack<Card> cards = deck.@cards
         cards.size() == 52
         cards.containsAll(expectedCards)
         expectedCards.containsAll(cards)
@@ -24,8 +24,8 @@ class DeckFactoryUT extends Specification implements DeckCreation {
 
     def 'should create deck with given stack of cards'() {
         given:
-        Stack<Deck.Card> cards = []
-        Deck.Card.Suit.values().each { suit ->
+        Stack<Card> cards = []
+        Suit.values().each { suit ->
             cards << createCard(new CardBuilder(suit: suit))
         }
 

@@ -8,9 +8,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResultDto {
-    private int place;
-    private String name;
-    private HandDto hand;
+    private final int place;
+    private final String name;
+    private final HandDto hand;
 
     public static ResultDto from(Result result) {
         return new ResultDto(

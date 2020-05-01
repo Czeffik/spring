@@ -9,7 +9,7 @@ trait ResultCreation implements GameCreation {
                 place: (it + 1),
                 player: createGamePlayer(
                     new GamePlayerBuilder(
-                        hand: [createCard(Deck.Card.Rank.QUEEN), createCard(Deck.Card.Rank.FOUR)]
+                        hand: [createCard(Rank.QUEEN), createCard(Rank.FOUR)]
                     )
                 )
             ))

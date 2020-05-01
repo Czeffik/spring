@@ -1,6 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game;
 
-import com.trzewik.spring.domain.game.Deck;
+import com.trzewik.spring.domain.game.Card;
 import com.trzewik.spring.domain.game.GamePlayer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ public class CroupierDto {
         );
     }
 
-    private static CardDto getFirstCard(Set<Deck.Card> cards) {
+    private static CardDto getFirstCard(Set<Card> cards) {
         if (cards.iterator().hasNext()) {
             return CardDto.from(cards.iterator().next());
         }
