@@ -5,16 +5,22 @@ buildscript {
             mavenLocal()
             mavenCentral()
         }
-        lombokVersion = '1.18.10'
-        springVersion = '5.2.2.RELEASE'
-        springBootVersion = '2.2.2.RELEASE'
-        springDataVersion = '2.2.3.RELEASE'
-        jettyWebappVersion = '9.4.25.v20191220'
-        jacksonVersion = '2.10.1'
-        postgresVersion = '42.2.9'
-        hibernateVersion = '5.4.10.Final'
-        hibernateTypesVersion = '2.8.0'
+        lombokVersion = '1.18.12'
+        springVersion = '5.2.6.RELEASE'
+
+        springDataVersion = '2.2.7.RELEASE'
+        postgresVersion = '42.2.12'
+        hibernateVersion = '5.4.14.Final'
+        hibernateTypesVersion = '2.9.9'
+
+        springBootVersion = '2.2.6.RELEASE'
+        jettyWebappVersion = '9.4.28.v20200408'
         swaggerVersion = '2.9.2'
+        jacksonVersion = '2.11.0'
+
+        //plugins
+        pitestVersion = '1.4.6'
+        flywayVersion = '6.4.1'
         repositories(repos)
     }
 }
@@ -24,9 +30,9 @@ plugins {
     id 'groovy'
     id 'java'
     id 'idea'
-    id 'info.solidsoft.pitest' version '1.4.6'
+    id 'info.solidsoft.pitest' version "$pitestVersion"
     id 'checkstyle'
-    id "org.flywaydb.flyway" version '6.2.2'
+    id "org.flywaydb.flyway" version "$flywayVersion"
 }
 
 apply from: 'gradle/test.gradle'
@@ -39,8 +45,6 @@ sourceCompatibility = 1.8
 repositories(repos)
 
 dependencies {
-    compile "org.springframework:spring-context:${springVersion}"
-
     compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     compile "org.eclipse.jetty:jetty-webapp:${jettyWebappVersion}"
     compile "io.springfox:springfox-swagger2:${swaggerVersion}"
