@@ -3,9 +3,6 @@ package com.trzewik.spring.interfaces.rest.player;
 import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.domain.player.PlayerService;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping
 @AllArgsConstructor
 public class PlayerController {
-    private PlayerService service;
+    private final PlayerService service;
 
     @PostMapping(value = "/players", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PlayerDto createPlayer(@NonNull @RequestBody CreatePlayerForm form) {
+    public PlayerDto createPlayer(@NonNull @RequestBody PlayerService.CreatePlayerForm form) {
         return PlayerDto.from(service.create(form.getName()));
     }
 
@@ -42,11 +39,4 @@ public class PlayerController {
         return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static class CreatePlayerForm {
-        private String name;
-    }
 }

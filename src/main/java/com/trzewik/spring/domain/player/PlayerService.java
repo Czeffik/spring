@@ -1,5 +1,7 @@
 package com.trzewik.spring.domain.player;
 
+import lombok.Data;
+
 import java.util.List;
 
 public interface PlayerService {
@@ -10,4 +12,9 @@ public interface PlayerService {
     Player get(String id) throws PlayerRepository.PlayerNotFoundException;
 
     List<Player> get(List<String> playerIds);
+
+    @Data
+    class CreatePlayerForm {
+        private String name;
+    }
 }

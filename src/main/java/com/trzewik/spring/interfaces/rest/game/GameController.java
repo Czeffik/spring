@@ -9,9 +9,6 @@ import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.domain.player.PlayerService;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +27,8 @@ import java.util.List;
 @RequestMapping
 @AllArgsConstructor
 public class GameController {
-    private GameService gameService;
-    private PlayerService playerService;
+    private final GameService gameService;
+    private final PlayerService playerService;
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
@@ -42,7 +39,7 @@ public class GameController {
     @PostMapping(value = "/games/{gameId}/players", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto addPlayer(
         @PathVariable(value = "gameId") String gameId,
-        @NonNull @RequestBody AddPlayerForm addPlayerForm
+        @NonNull @RequestBody GameService.AddPlayerForm addPlayerForm
     ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
         Player player = playerService.get(addPlayerForm.getPlayerId());
         return GameDto.from(gameService.addPlayer(gameId, player));
@@ -58,7 +55,7 @@ public class GameController {
     @PostMapping(value = "/games/{gameId}/move", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto makeMove(
         @PathVariable(value = "gameId") String gameId,
-        @NonNull @RequestBody MoveForm moveForm
+        @NonNull @RequestBody GameService.MoveForm moveForm
     ) throws GameException, GameRepository.GameNotFoundException {
         return GameDto.from(gameService.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
     }
@@ -91,22 +88,5 @@ public class GameController {
     public ResponseEntity<Object> handlePlayerNotFound(Exception ex) {
         String bodyOfResponse = ex.getMessage();
         return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static class MoveForm {
-        private Game.Move move;
-        private String playerId;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    static class AddPlayerForm {
-        private String playerId;
     }
 }
