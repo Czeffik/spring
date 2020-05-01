@@ -4,10 +4,10 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class GameImplUT extends Specification implements GamePlayerCreation, DeckCreation {
+class GameUT extends Specification implements GamePlayerCreation, DeckCreation {
 
     @Subject
-    Game game = GameFactory.createGame(createPlayer(new PlayerBuilder(id: 'croupier-id')))
+    Game game = new Game(createPlayer(new PlayerBuilder(id: 'croupier-id')))
 
     def 'should be possible add player to game'() {
         when:
@@ -56,7 +56,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         ex.message == "Game started, can not add new player"
 
         where:
-        STATUS << [Game.Status.STARTED, Game.Status.ENDED]
+        STATUS << [Status.STARTED, Status.ENDED]
     }
 
     @Unroll
@@ -72,7 +72,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         ex.message == "Game started, can not start again"
 
         where:
-        STATUS << [Game.Status.STARTED, Game.Status.ENDED]
+        STATUS << [Status.STARTED, Status.ENDED]
     }
 
     def 'should throw exception when trying start game without players (only with croupier)'() {
@@ -98,7 +98,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.deck.cards.size() == 52 - 6
 
         and:
-        game.status == Game.Status.STARTED
+        game.status == Status.STARTED
 
         and:
         game.currentPlayer
@@ -116,12 +116,12 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.getStatus() == STATUS
 
         where:
-        STATUS << Game.Status.values()
+        STATUS << Status.values()
     }
 
     def 'should throw exception when doing auction without starting game'() {
         when:
-        game.auction('player-id', Game.Move.HIT)
+        game.auction('player-id', Move.HIT)
 
         then:
         GameException ex = thrown()
@@ -130,10 +130,10 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when doing auction when game ended'() {
         given:
-        game.@status = Game.Status.ENDED
+        game.@status = Status.ENDED
 
         when:
-        game.auction('player-id', Game.Move.HIT)
+        game.auction('player-id', Move.HIT)
 
         then:
         GameException ex = thrown()
@@ -148,7 +148,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         when:
-        game.auction(players[1].id, Game.Move.HIT)
+        game.auction(players[1].id, Move.HIT)
 
         then:
         GameException ex = thrown()
@@ -166,19 +166,19 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         when:
-        Game gameAfterAuction = game.auction(firstPlayerId, Game.Move.HIT)
+        Game gameAfterAuction = game.auction(firstPlayerId, Move.HIT)
 
         then:
         with(game.players.find { it.id == firstPlayerId }) {
             hand.size() == 3
-            move == Game.Move.HIT
+            move == Move.HIT
         }
 
         and:
         game.deck.cards.size() == 52 - 6 - 1
 
         and:
-        game.status == Game.Status.STARTED
+        game.status == Status.STARTED
 
         and:
         gameAfterAuction.is(game)
@@ -195,12 +195,12 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         when:
-        Game gameAfterAuction = game.auction(firstPlayerId, Game.Move.STAND)
+        Game gameAfterAuction = game.auction(firstPlayerId, Move.STAND)
 
         then:
         with(game.players.find { it.id == firstPlayerId }) {
             hand.size() == 2
-            move == Game.Move.STAND
+            move == Move.STAND
         }
 
         and:
@@ -210,7 +210,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.currentPlayer == players[1]
 
         and:
-        game.status == Game.Status.STARTED
+        game.status == Status.STARTED
 
         and:
         gameAfterAuction.is(game)
@@ -228,24 +228,24 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         when:
-        game.auction(firstPlayerId, Game.Move.STAND)
+        game.auction(firstPlayerId, Move.STAND)
 
         then:
         with(game.players.find { it.id == firstPlayerId }) {
             hand.size() == 2
-            move == Game.Move.STAND
+            move == Move.STAND
         }
 
         and:
         game.currentPlayer == players[1]
 
         when:
-        game.auction(players[1].id, Game.Move.STAND)
+        game.auction(players[1].id, Move.STAND)
 
         then:
         with(game.players.find { it.id == secondPlayerId }) {
             hand.size() == 2
-            move == Game.Move.STAND
+            move == Move.STAND
         }
 
         and:
@@ -255,7 +255,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.currentPlayer == null
 
         and:
-        game.status == Game.Status.ENDED
+        game.status == Status.ENDED
     }
 
     def 'should end player turn when has more than 21 point on hand'() {
@@ -267,7 +267,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
         when:
         while (game.players.find { it.id == player.id }.handValue() <= 21) {
-            game.auction(player.id, Game.Move.HIT)
+            game.auction(player.id, Move.HIT)
         }
 
         then:
@@ -280,7 +280,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         game.currentPlayer == null
 
         and:
-        game.status == Game.Status.ENDED
+        game.status == Status.ENDED
     }
 
     def 'should throw exception when trying get results when game was not ended'() {
@@ -300,7 +300,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         setupGame(players)
 
         and:
-        players.each { game.auction(it.id, Game.Move.STAND) }
+        players.each { game.auction(it.id, Move.STAND) }
 
         when:
         def results = game.getResults()
@@ -347,7 +347,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when id is null'() {
         when:
-        new GameImpl(null, [] as Set, '', new Deck(), Game.Status.NOT_STARTED, null)
+        new Game(null, [] as Set, '', new Deck(), Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -355,7 +355,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when players are null'() {
         when:
-        new GameImpl('', null, '', new Deck(), Game.Status.NOT_STARTED, null)
+        new Game('', null, '', new Deck(), Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -363,7 +363,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when croupier id is null'() {
         when:
-        new GameImpl('', [] as Set, null, new Deck(), Game.Status.NOT_STARTED, null)
+        new Game('', [] as Set, null, new Deck(), Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -371,7 +371,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when deck is null'() {
         when:
-        new GameImpl('', [] as Set, '', null, Game.Status.NOT_STARTED, null)
+        new Game('', [] as Set, '', null, Status.NOT_STARTED, null)
 
         then:
         thrown(NullPointerException)
@@ -379,7 +379,7 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
 
     def 'should throw exception when status is null'() {
         when:
-        new GameImpl('', [] as Set, '', new Deck(), null, null)
+        new Game('', [] as Set, '', new Deck(), null, null)
 
         then:
         thrown(NullPointerException)
@@ -391,11 +391,11 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def croupierId = 'croupier_id'
         def currentPlayer = createGamePlayer()
         def players = [croupier, currentPlayer] as Set
-        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.id)
+        def game = new Game('12312', players, croupierId, createDeck(), Status.STARTED, currentPlayer.id)
         croupier.id >> croupierId
 
         when:
-        game.auction(currentPlayer.id, Game.Move.STAND)
+        game.auction(currentPlayer.id, Move.STAND)
 
         then:
         1 * croupier.handValue() >> 17
@@ -408,11 +408,11 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
         def croupierId = 'croupier_id'
         def currentPlayer = createGamePlayer()
         def players = [croupier, currentPlayer] as Set
-        def game = new GameImpl('12312', players, croupierId, createDeck(), Game.Status.STARTED, currentPlayer.id)
+        def game = new Game('12312', players, croupierId, createDeck(), Status.STARTED, currentPlayer.id)
         croupier.id >> croupierId
 
         when:
-        game.auction(currentPlayer.id, Game.Move.STAND)
+        game.auction(currentPlayer.id, Move.STAND)
 
         then:
         1 * croupier.handValue() >> 16
@@ -446,5 +446,58 @@ class GameImplUT extends Specification implements GamePlayerCreation, DeckCreati
             game.addPlayer(createPlayer(new PlayerBuilder(it)))
         }
         return game.startGame()
+    }
+
+    def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED and currentPlayer null'() {
+        given:
+        def croupier = createPlayer()
+
+        when:
+        def game = new Game(croupier)
+
+        then:
+        game.id
+        game.players.size() == 1
+        with(game.players.first()) {
+            it.id == croupier.id
+            it.name == croupier.name
+            hand.isEmpty()
+            move == Move.HIT
+        }
+        with(game.deck) {
+            it
+            it.cards.size() == 52
+        }
+        game.status == Status.NOT_STARTED
+        game.currentPlayerId == null
+    }
+
+    def 'should create game with given: id, players, croupier, deck, status, currentPlayer'() {
+        given:
+        def id = '123'
+        def players = createGamePlayers(3)
+        def croupierId = players.first().id
+        def deck = createDeck()
+        def status = Status.STARTED
+        def currentPlayerId = players[1].id
+
+        when:
+        def game = new Game(id, players, croupierId, deck, status, currentPlayerId)
+
+        then:
+        game.id == id
+        game.players == players
+        game.croupierId == croupierId
+        game.deck == deck
+        game.status == status
+        game.currentPlayerId == currentPlayerId
+    }
+
+    def 'should throw exception when croupier is null'() {
+        when:
+        new Game('', createGamePlayers(), null, createDeck(), Status.STARTED, '')
+
+        then:
+        thrown(NullPointerException)
     }
 }

@@ -15,7 +15,7 @@ public class GamePlayerImpl implements GamePlayer {
     @Getter
     private final @NonNull Set<Card> hand;
     @Getter
-    private @NonNull Game.Move move;
+    private @NonNull Move move;
 
     @Override
     public String getName() {
@@ -49,7 +49,7 @@ public class GamePlayerImpl implements GamePlayer {
     }
 
     @Override
-    public void setMove(@NonNull Game.Move move) {
+    public void setMove(@NonNull Move move) {
         this.move = move;
     }
 

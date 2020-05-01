@@ -106,7 +106,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
 
         then:
         with(gameRepo.findById(game.id).get()) {
-            status == Game.Status.STARTED
+            status == Status.STARTED
             deck.cards.size() == 48
             currentPlayerId == player.id
         }
@@ -133,10 +133,10 @@ class GameServiceImplUT extends Specification implements GameCreation {
         thrown(GameException)
 
         and:
-        game.status == Game.Status.NOT_STARTED
+        game.status == Status.NOT_STARTED
 
         and:
-        gameRepo.findById(game.id).get().status == Game.Status.NOT_STARTED
+        gameRepo.findById(game.id).get().status == Status.NOT_STARTED
     }
 
     def 'should throw exception when trying start game which is already started'() {
@@ -162,14 +162,14 @@ class GameServiceImplUT extends Specification implements GameCreation {
         service.start(game.id)
 
         when:
-        Game returnedGame = service.makeMove(game.id, player.id, Game.Move.HIT)
+        Game returnedGame = service.makeMove(game.id, player.id, Move.HIT)
 
         then:
         with(gameRepo.findById(game.id).get()) {
             deck.cards.size() <= 47        //less because can have more than 21 points and it will finish the game
             with(players.find { it.id == player.id }) {
                 hand.size() == 3
-                move == Game.Move.HIT
+                move == Move.HIT
             }
         }
 
@@ -185,7 +185,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         service.start(game.id)
 
         when:
-        service.makeMove('wrong-game-id', player.id, Game.Move.HIT)
+        service.makeMove('wrong-game-id', player.id, Move.HIT)
 
         then:
         GameRepository.GameNotFoundException ex = thrown()
@@ -199,7 +199,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         service.addPlayer(game.id, player)
 
         when:
-        service.makeMove(game.id, player.id, Game.Move.HIT)
+        service.makeMove(game.id, player.id, Move.HIT)
 
         then:
         thrown(GameException)
@@ -213,19 +213,19 @@ class GameServiceImplUT extends Specification implements GameCreation {
         service.start(game.id)
 
         when:
-        service.makeMove(game.id, player.id, Game.Move.STAND)
+        service.makeMove(game.id, player.id, Move.STAND)
 
         then:
-        gameRepo.findById(game.id).get().status == Game.Status.ENDED
+        gameRepo.findById(game.id).get().status == Status.ENDED
         with(gameRepo.findById(game.id).get()) {
             with(players.find { it.id == player.id }) {
                 hand.size() == 2
-                move == Game.Move.STAND
+                move == Move.STAND
             }
         }
 
         when:
-        service.makeMove(game.id, player.id, Game.Move.HIT)
+        service.makeMove(game.id, player.id, Move.HIT)
 
         then:
         thrown(GameException)
@@ -237,7 +237,7 @@ class GameServiceImplUT extends Specification implements GameCreation {
         def player = createPlayer()
         service.addPlayer(game.id, player)
         service.start(game.id)
-        service.makeMove(game.id, player.id, Game.Move.STAND)
+        service.makeMove(game.id, player.id, Move.STAND)
 
         when:
         List<Result> results = service.getResults(game.id)

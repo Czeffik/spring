@@ -1,8 +1,8 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.game.GameFactory;
 import com.trzewik.spring.domain.game.GamePlayer;
+import com.trzewik.spring.domain.game.Status;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,12 +54,12 @@ public class GameDto {
 
     public static Game to(GameDto dto) {
         Set<GamePlayer> allPlayers = mapTo(dto.getPlayers());
-        return GameFactory.createGame(
+        return new Game(
             dto.id,
             allPlayers,
             dto.croupierId,
             DeckDto.to(dto.getDeck()),
-            Game.Status.valueOf(dto.getStatus()),
+            Status.valueOf(dto.getStatus()),
             dto.currentPlayerId
         );
     }

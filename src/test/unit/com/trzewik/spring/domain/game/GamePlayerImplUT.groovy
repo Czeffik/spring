@@ -92,7 +92,7 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
 
     def 'should get player default move = HIT'() {
         expect:
-        gamePlayer.getMove() == Game.Move.HIT
+        gamePlayer.getMove() == Move.HIT
     }
 
     @Unroll
@@ -107,6 +107,6 @@ class GamePlayerImplUT extends Specification implements GamePlayerCreation, Deck
         gamePlayer.getMove() == MOVE
 
         where:
-        MOVE << Game.Move.values()
+        MOVE << Move.values()
     }
 }

@@ -5,6 +5,7 @@ import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
+import com.trzewik.spring.domain.game.Move
 import com.trzewik.spring.domain.game.ResultCreation
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository
@@ -255,7 +256,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         def playerId = game.currentPlayerId
 
         and:
-        Game.Move playerMove = Game.Move.STAND
+        Move playerMove = Move.STAND
 
         when:
         Response response = makeMoveRequest(game.id, playerId, playerMove.name())
@@ -295,7 +296,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * gameService.makeMove(gameId, 'player-id', Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -315,7 +316,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.makeMove(gameId, 'player-id', Move.STAND) >> { throw new GameException(exceptionMessage) }
 
         and:
         response.statusCode() == 400

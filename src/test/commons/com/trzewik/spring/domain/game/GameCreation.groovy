@@ -3,7 +3,7 @@ package com.trzewik.spring.domain.game
 trait GameCreation implements GamePlayerCreation, DeckCreation {
 
     Game createGame(GameBuilder builder = new GameBuilder()) {
-        return new GameImpl(
+        return new Game(
             builder.id,
             builder.players,
             builder.croupierId,
@@ -24,7 +24,7 @@ trait GameCreation implements GamePlayerCreation, DeckCreation {
             players: [currPlayer, croupier],
             croupierId: croupier.id,
             currentPlayerId: currPlayer.id,
-            status: Game.Status.STARTED
+            status: Status.STARTED
         ))
         return game
     }
@@ -34,7 +34,7 @@ trait GameCreation implements GamePlayerCreation, DeckCreation {
         Set<GamePlayer> players = [createGamePlayer()] as Set
         String croupierId = players.first().id
         Deck deck = createDeck()
-        Game.Status status = Game.Status.NOT_STARTED
+        Status status = Status.NOT_STARTED
         String currentPlayerId = null
 
         GameBuilder() {}

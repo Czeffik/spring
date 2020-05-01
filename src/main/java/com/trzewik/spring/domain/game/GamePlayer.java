@@ -15,7 +15,7 @@ public interface GamePlayer {
 
     boolean isLooser();
 
-    Game.Move getMove();
+    Move getMove();
 
-    void setMove(Game.Move move);
+    void setMove(Move move);
 }

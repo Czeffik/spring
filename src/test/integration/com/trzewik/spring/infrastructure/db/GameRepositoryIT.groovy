@@ -5,6 +5,7 @@ import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
+import com.trzewik.spring.domain.game.Move
 import com.trzewik.spring.domain.player.PlayerCreation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
@@ -134,7 +135,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         def playerId = game.currentPlayerId
 
         and:
-        game.auction(playerId, Game.Move.STAND)
+        game.auction(playerId, Move.STAND)
 
         when:
         repository.update(game)

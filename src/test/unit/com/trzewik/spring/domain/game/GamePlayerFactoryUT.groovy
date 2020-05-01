@@ -15,13 +15,13 @@ class GamePlayerFactoryUT extends Specification implements PlayerCreation {
         gamePlayer.id == player.id
         gamePlayer.name == player.name
         gamePlayer.hand.isEmpty()
-        gamePlayer.move == Game.Move.HIT
+        gamePlayer.move == Move.HIT
     }
 
     def 'should create game player with given player hand and move'() {
         given:
         def hand = [] as Set
-        def move = Game.Move.STAND
+        def move = Move.STAND
 
         when:
         def gamePlayer = GamePlayerFactory.create(player, hand, move)
@@ -43,7 +43,7 @@ class GamePlayerFactoryUT extends Specification implements PlayerCreation {
 
     def 'should throw exception when trying create game player with null hand'() {
         when:
-        GamePlayerFactory.create(player, null, Game.Move.HIT)
+        GamePlayerFactory.create(player, null, Move.HIT)
 
         then:
         thrown(NullPointerException)
@@ -59,7 +59,7 @@ class GamePlayerFactoryUT extends Specification implements PlayerCreation {
 
     def 'should throw exception when trying create game player with null player(with hand and move)'() {
         when:
-        GamePlayerFactory.create(null, [] as Set, Game.Move.STAND)
+        GamePlayerFactory.create(null, [] as Set, Move.STAND)
 
         then:
         thrown(NullPointerException)

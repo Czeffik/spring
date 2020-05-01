@@ -10,10 +10,10 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GamePlayerFactory {
     public static GamePlayer create(Player player) {
-        return create(player, new HashSet<>(), Game.Move.HIT);
+        return create(player, new HashSet<>(), Move.HIT);
     }
 
-    public static GamePlayer create(Player player, Set<Card> cards, Game.Move move) {
+    public static GamePlayer create(Player player, Set<Card> cards, Move move) {
         return new GamePlayerImpl(player, cards, move);
     }
 }

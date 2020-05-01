@@ -22,7 +22,7 @@ trait GamePlayerCreation implements PlayerCreation {
     static class GamePlayerBuilder implements GamePlayerCreation {
         Player player = createPlayer()
         Set<Card> hand = [] as Set
-        Game.Move move = Game.Move.HIT
+        Move move = Move.HIT
 
         GamePlayerBuilder() {}
 

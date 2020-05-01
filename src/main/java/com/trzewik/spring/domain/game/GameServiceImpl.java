@@ -11,7 +11,7 @@ class GameServiceImpl implements GameService {
 
     @Override
     public Game create(Player croupier) {
-        Game game = GameFactory.createGame(croupier);
+        Game game = new Game(croupier);
 
         gameRepo.save(game);
 
@@ -40,7 +40,7 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game makeMove(String gameId, String playerId, Game.Move move)
+    public Game makeMove(String gameId, String playerId, Move move)
         throws GameRepository.GameNotFoundException, GameException {
         Game game = gameRepo.getById(gameId);
         game.auction(playerId, move);
