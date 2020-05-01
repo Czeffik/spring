@@ -7,7 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 
 @Import({
     DomainConfiguration.class,
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.PropertySource;
     DbConfiguration.class,
     PropertyPlaceholderAutoConfiguration.class
 })
-@PropertySource("classpath:application.properties")
 @SpringBootConfiguration
 public class BlackJackApp {
     public static void main(String[] args) {
