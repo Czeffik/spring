@@ -10,7 +10,7 @@ class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player create(String playerName) {
-        Player player = PlayerFactory.createPlayer(playerName);
+        Player player = new Player(playerName);
 
         playerRepo.save(player);
 
@@ -19,7 +19,7 @@ class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player createCroupier() {
-        Player croupier = PlayerFactory.createCroupier();
+        Player croupier = Player.createCroupier();
 
         playerRepo.save(croupier);
 

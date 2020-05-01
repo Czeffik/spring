@@ -1,14 +1,13 @@
 package com.trzewik.spring.domain.player
 
-
 import spock.lang.Specification
 import spock.lang.Subject
 
-class PlayerImplUT extends Specification {
+class PlayerUT extends Specification {
     static final String playerName = 'Adam'
 
     @Subject
-    Player player = PlayerFactory.createPlayer(playerName)
+    Player player = new Player(playerName)
 
     def 'should get player name'() {
         expect:
@@ -23,7 +22,7 @@ class PlayerImplUT extends Specification {
 
     def 'should throw exception when id is null'() {
         when:
-        new PlayerImpl(null, '')
+        new Player(null, '')
 
         then:
         thrown(NullPointerException)
@@ -31,7 +30,7 @@ class PlayerImplUT extends Specification {
 
     def 'should throw exception when name is null'() {
         when:
-        new PlayerImpl('', null)
+        new Player('', null)
 
         then:
         thrown(NullPointerException)
@@ -40,5 +39,39 @@ class PlayerImplUT extends Specification {
     def 'should return string representation of player with id and name'() {
         expect:
         player.toString() == "{id=${player.id}, name=${player.name}}"
+    }
+
+    def 'should create player with given name'() {
+        given:
+        def name = 'Adam'
+
+        when:
+        def player = new Player(name)
+
+        then:
+        player.@name == name
+        player.@id != null
+    }
+
+    def 'should create croupier with generated id'() {
+        when:
+        def player = Player.createCroupier()
+
+        then:
+        player.@name == 'Croupier'
+        player.@id != null
+    }
+
+    def 'should create player with given name and id'() {
+        given:
+        def name = 'Adam'
+        def id = '1231'
+
+        when:
+        def player = new Player(id, name)
+
+        then:
+        player.@name == name
+        player.@id == id
     }
 }

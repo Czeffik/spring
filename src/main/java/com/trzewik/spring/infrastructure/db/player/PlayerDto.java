@@ -1,7 +1,6 @@
 package com.trzewik.spring.infrastructure.db.player;
 
 import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class PlayerDto {
     }
 
     public static Player to(PlayerDto dto) {
-        return PlayerFactory.createPlayer(
+        return new Player(
             dto.getId(),
             dto.getName()
         );

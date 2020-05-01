@@ -5,7 +5,7 @@ import com.trzewik.spring.domain.game.GamePlayer
 trait PlayerCreation {
 
     Player createPlayer(PlayerBuilder builder = new PlayerBuilder()) {
-        return new PlayerImpl(
+        return new Player(
             builder.id,
             builder.name
         )
