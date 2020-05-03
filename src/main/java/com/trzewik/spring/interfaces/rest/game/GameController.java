@@ -1,7 +1,7 @@
 package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.game.GameException;
+import com.trzewik.spring.domain.game.Game.Exception;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;
 import com.trzewik.spring.domain.game.Result;
@@ -40,7 +40,7 @@ public class GameController {
     public GameDto addPlayer(
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody GameService.AddPlayerForm addPlayerForm
-    ) throws GameException, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
+    ) throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
         Player player = playerService.get(addPlayerForm.getPlayerId());
         return GameDto.from(gameService.addPlayer(gameId, player));
     }
@@ -48,7 +48,7 @@ public class GameController {
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto startGame(
         @PathVariable(value = "gameId") String gameId
-    ) throws GameException, GameRepository.GameNotFoundException {
+    ) throws Game.Exception, GameRepository.GameNotFoundException {
         return GameDto.from(gameService.start(gameId));
     }
 
@@ -56,36 +56,28 @@ public class GameController {
     public GameDto makeMove(
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody GameService.MoveForm moveForm
-    ) throws GameException, GameRepository.GameNotFoundException {
+    ) throws Game.Exception, GameRepository.GameNotFoundException {
         return GameDto.from(gameService.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultsDto getResults(
         @PathVariable(value = "gameId") String gameId
-    ) throws GameException, GameRepository.GameNotFoundException {
+    ) throws Result.Exception, GameRepository.GameNotFoundException {
         List<Result> results = gameService.getResults(gameId);
         return ResultsDto.from(results);
     }
 
-    @ExceptionHandler(value = {GameException.class})
-    public ResponseEntity<Object> handleBadRequest(GameException ex) {
+    @ExceptionHandler(value = {Game.Exception.class, Result.Exception.class})
+    public ResponseEntity<Object> handleBadRequest(Exception ex) {
         String bodyOfResponse = ex.getMessage();
         return new ResponseEntity<>(bodyOfResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {
-        GameRepository.GameNotFoundException.class
+        GameRepository.GameNotFoundException.class, PlayerRepository.PlayerNotFoundException.class
     })
     public ResponseEntity<Object> handleGameNotFound(Exception ex) {
-        String bodyOfResponse = ex.getMessage();
-        return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(value = {
-        PlayerRepository.PlayerNotFoundException.class
-    })
-    public ResponseEntity<Object> handlePlayerNotFound(Exception ex) {
         String bodyOfResponse = ex.getMessage();
         return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
     }

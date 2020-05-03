@@ -3,22 +3,22 @@ package com.trzewik.spring.domain.game
 import spock.lang.Specification
 import spock.lang.Subject
 
-class DeckUT extends Specification implements DeckCreation {
+class DeckUT extends Specification implements DeckCreation, CardCreation {
 
     @Subject
-    Deck deck = new Deck()
+    def deck = new Deck()
 
     def 'should create deck with 52 cards'() {
         expect:
-        (deck as Deck).cards.size() == 52
+        deck.cards.size() == 52
     }
 
-    def 'should take one card from deck'() {
+    def 'should be possible to take one card from deck'() {
         when:
-        Card takenCard = deck.take()
+        def takenCard = deck.take()
 
         then:
-        Stack<Card> cards = (deck as Deck).cards
+        def cards = deck.cards
         cards.size() == 51
 
         and:
@@ -30,41 +30,39 @@ class DeckUT extends Specification implements DeckCreation {
         new Deck(null)
 
         then:
-        thrown(NullPointerException)
+        NullPointerException ex = thrown()
+        ex.message == 'cards is marked non-null but is null'
     }
 
     def 'should create deck with given stack of cards'() {
         given:
-        Stack<Card> cards = []
-        Suit.values().each { suit ->
-            cards << createCard(new CardBuilder(suit: suit))
-        }
+        def cards = [] as Stack
 
         when:
-        Deck deck = new Deck(cards)
+        def deck = new Deck(cards)
 
         then:
-        def cardsInDeck = deck.@cards
-        cardsInDeck.is(cards)
-        cardsInDeck.size() == 4
+        deck.cards.is(cards)
     }
 
     def 'should create shuffled deck with 52 cards with all cards combinations, and without duplicates'() {
         given:
-        Stack<Card> expectedCards = []
-        Suit.values().each { suit ->
-            Rank.values().each { rank ->
-                expectedCards << createCard(new CardBuilder(rank: rank, suit: suit))
-            }
-        }
+        def expectedCards = createCards(createDeckCreators())
 
         expect:
-        Stack<Card> cards = deck.@cards
+        def cards = deck.cards
         cards.size() == 52
         cards.containsAll(expectedCards)
         expectedCards.containsAll(cards)
 
         and: 'cards with random order'
         cards != expectedCards
+    }
+
+    def 'deck to string method should print return string representation of all cards in deck'() {
+        given:
+        def deckWithOrderedCards = createDeck()
+        expect:
+        deckWithOrderedCards.toString().contains('Deck(cards=[')
     }
 }

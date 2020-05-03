@@ -1,503 +1,342 @@
 package com.trzewik.spring.domain.game
 
+import com.trzewik.spring.domain.player.Player
+import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class GameUT extends Specification implements GamePlayerCreation, DeckCreation {
+class GameUT extends Specification implements PlayerCreation, PlayerInGameCreation, DeckCreation, CardCreation, GameCreation {
+
+    def croupier = createPlayer(PlayerCreator.croupier())
 
     @Subject
-    Game game = new Game(createPlayer(new PlayerBuilder(id: 'croupier-id')))
+    def game = new Game(croupier)
 
-    def 'should be possible add player to game'() {
-        when:
-        game.addPlayer(createPlayer())
-
-        then:
-        game.players.size() == 2
-    }
-
-    def 'should be possible get game id'() {
-        expect:
-        game.getId() == game.@id
-    }
-
-    def 'should be possible get croupier id'() {
-        expect:
-        game.getCroupierId() == game.@croupierId
-    }
-
-
-    def 'should be possible get current player id - when is null'() {
-        expect:
-        game.getCurrentPlayerId() == null
-    }
-
-    def 'should be possible get current player id - when current player is not null'() {
+    def 'should end game when all players made moves and game was started'() {
         given:
-        def player = createPlayer()
-        game.addPlayer(player)
-        game.startGame()
-
-        expect:
-        game.getCurrentPlayerId() == player.id
-    }
-
-    @Unroll
-    def 'should throw exception when trying add player when game was #STATUS'() {
-        given:
-        game.@status = STATUS
-
+        def game = createGame(new GameCreator(
+            status: Game.Status.STARTED,
+            players: [(createPlayer(PlayerCreator.croupier())): createPlayerInGame(),
+                      (createPlayer())                        : createPlayerInGame(new PlayerInGameCreator(move: Game.Move.STAND))]
+        ))
         when:
-        game.addPlayer(createPlayer())
-
+        def endedGame = game.end()
         then:
-        GameException ex = thrown()
-        ex.message == "Game started, can not add new player"
-
-        where:
-        STATUS << [Status.STARTED, Status.ENDED]
-    }
-
-    @Unroll
-    def 'should throw exception when trying start already started game #STATUS'() {
-        given:
-        game.@status = STATUS
-
-        when:
-        game.startGame()
-
-        then:
-        GameException ex = thrown()
-        ex.message == "Game started, can not start again"
-
-        where:
-        STATUS << [Status.STARTED, Status.ENDED]
-    }
-
-    def 'should throw exception when trying start game without players (only with croupier)'() {
-        when:
-        game.startGame()
-
-        then:
-        GameException ex = thrown()
-        ex.message == "Please add at least one player before start."
-    }
-
-    def 'should start game successfully  when at least one player is added - dealCards, set status to started and set currentPlayer'() {
-        given:
-        def players = createGamePlayers()
-
-        when:
-        Game startedGame = setupGame(players)
-
-        then:
-        game.players.each {
-            assert it.getHand().size() == 2
+        game != endedGame
+        and:
+        endedGame.status == Game.Status.ENDED
+        with(endedGame.players.get(croupier)) {
+            move == Game.Move.STAND
+            handValue() >= 17
         }
-        game.deck.cards.size() == 52 - 6
+    }
 
+    def 'croupier should draw cards only when his hand value is lesser than 17'() {
+        given:
+        def croupier = Mock(PlayerInGame)
         and:
-        game.status == Status.STARTED
+        def game = createGame(new GameCreator(
+            status: Game.Status.STARTED,
+            players: [(createPlayer(PlayerCreator.croupier())): croupier,
+                      (createPlayer())                        : createPlayerInGame(new PlayerInGameCreator(move: Game.Move.STAND))]
+        ))
+        when:
+        game.end()
+        then:
+        1 * croupier.handValue() >> 17
+        1 * croupier.changeMove(Game.Move.STAND) >> createPlayerInGame(new PlayerInGameCreator(move: Game.Move.STAND))
+        0 * croupier.addCard(_)
+    }
 
+    def 'croupier should draw cards until his hand has value greater than 16'() {
+        given:
+        def croupier = Mock(PlayerInGame)
         and:
-        game.currentPlayer
+        def game = createGame(new GameCreator(
+            status: Game.Status.STARTED,
+            players: [(createPlayer(PlayerCreator.croupier())): croupier,
+                      (createPlayer())                        : createPlayerInGame(new PlayerInGameCreator(move: Game.Move.STAND))]
+        ))
+        when:
+        game.end()
+        then:
+        1 * croupier.handValue() >> 16
+        1 * croupier.addCard(_) >> croupier
+        1 * croupier.handValue() >> 17
+        1 * croupier.changeMove(Game.Move.STAND) >> createPlayerInGame(new PlayerInGameCreator(move: Game.Move.STAND))
+    }
 
-        and:
-        startedGame.is(game)
+    def 'should do nothing when current game has active player'() {
+        given:
+        def game = createGame(new GameCreator(
+            status: Game.Status.STARTED,
+            players: [(createPlayer(PlayerCreator.croupier())): createPlayerInGame(),
+                      (createPlayer())                        : createPlayerInGame(new PlayerInGameCreator(move: Game.Move.HIT))]
+        ))
+        when:
+        def endedGame = game.end()
+        then:
+        game == endedGame
     }
 
     @Unroll
-    def 'should get game status: #STATUS'() {
+    def 'should do nothing when current game has status: #STATUS'() {
         given:
-        game.@status = STATUS
-
-        expect:
-        game.getStatus() == STATUS
-
+        def game = createGame(new GameCreator(
+            status: STATUS
+        ))
+        when:
+        def endedGame = game.end()
+        then:
+        game == endedGame
         where:
-        STATUS << Status.values()
+        STATUS                  | _
+        Game.Status.NOT_STARTED | _
+        Game.Status.ENDED       | _
     }
 
-    def 'should throw exception when doing auction without starting game'() {
+    def 'should make HIT move for player with given id'() {
+        given:
+        def game = createGame(new GameCreator(status: Game.Status.STARTED))
+        def playerId = game.players.keySet().find { it.id != game.croupier.id }.id
         when:
-        game.auction('player-id', Move.HIT)
-
+        def gameAfterAuction = game.auction(playerId, Game.Move.HIT)
         then:
-        GameException ex = thrown()
+        game != gameAfterAuction
+        and:
+        gameAfterAuction.status == Game.Status.STARTED
+        with(gameAfterAuction.players.find { it.key.id == playerId }.value) {
+            hand.size() == 1
+            move == Game.Move.HIT
+        }
+    }
+
+    def 'should make STAND move for player with given id'() {
+        given:
+        def game = createGame(new GameCreator(status: Game.Status.STARTED))
+        def playerId = game.players.keySet().find { it.id != game.croupier.id }.id
+        when:
+        def gameAfterAuction = game.auction(playerId, Game.Move.STAND)
+        then:
+        game != gameAfterAuction
+        and:
+        gameAfterAuction.status == Game.Status.STARTED
+        with(gameAfterAuction.players.find { it.key.id == playerId }.value) {
+            hand.size() == 0
+            move == Game.Move.STAND
+        }
+    }
+
+    def 'should throw exception when trying make auction in not started game'() {
+        given:
+        def game = createGame()
+        def playerId = game.players.keySet().find { it.id != game.croupier.id }.id
+        when:
+        game.auction(playerId, Game.Move.HIT)
+        then:
+        Game.Exception ex = thrown()
         ex.message == 'Game NOT started, please start game before auction'
     }
 
-    def 'should throw exception when doing auction when game ended'() {
+    def 'should throw exception when trying make auction in ended game'() {
         given:
-        game.@status = Status.ENDED
-
+        def game = createGame(new GameCreator(status: Game.Status.ENDED))
+        def playerId = game.players.keySet().find { it.id != game.croupier.id }.id
         when:
-        game.auction('player-id', Move.HIT)
-
+        game.auction(playerId, Game.Move.HIT)
         then:
-        GameException ex = thrown()
+        Game.Exception ex = thrown()
         ex.message == 'Game finished. Now you can check results!'
     }
 
-    def 'should throw exception when wrong player (not this player turn) trying auction'() {
+    def 'should throw exception when other player try make auction (not current player)'() {
         given:
-        def players = createGamePlayers()
-
-        and:
-        setupGame(players)
-
+        def game = createGame(new GameCreator(status: Game.Status.STARTED))
+        def playerId = game.players.keySet().find { it.id != game.croupier.id }.id
+        def otherId = 'other-player-id'
         when:
-        game.auction(players[1].id, Move.HIT)
-
+        game.auction(otherId, Game.Move.HIT)
         then:
-        GameException ex = thrown()
-        ex.message == "Waiting for move from player: [${players.first().id}] instead of: [${players[1].id}]".toString()
+        Game.Exception ex = thrown()
+        ex.message == "Waiting for move from player: [${playerId}] instead of: [${otherId}]"
     }
 
-    def 'should make HIT move - setPlayer move to HIT, get extra card from deck'() {
+    def 'should start game'() {
         given:
-        def players = createGamePlayers()
-
-        and:
-        def firstPlayerId = players.first().id
-
-        and:
-        setupGame(players)
-
+        def game = createGame()
         when:
-        Game gameAfterAuction = game.auction(firstPlayerId, Move.HIT)
-
+        def startedGame = game.start()
         then:
-        with(game.players.find { it.id == firstPlayerId }) {
-            hand.size() == 3
-            move == Move.HIT
+        game != startedGame
+        and:
+        startedGame.status == Game.Status.STARTED
+        and:
+        startedGame.players.values().each {
+            assert it.hand.size() == 2
         }
-
         and:
-        game.deck.cards.size() == 52 - 6 - 1
-
-        and:
-        game.status == Status.STARTED
-
-        and:
-        gameAfterAuction.is(game)
+        startedGame.deck.cards.size() == 52 - (2 * game.players.size())
     }
 
-    def 'should make STAND move - setPlayer move to STAND'() {
+    def 'should throw exception when starting already started game'() {
         given:
-        def players = createGamePlayers()
-
-        and:
-        def firstPlayerId = players.first().id
-
-        and:
-        setupGame(players)
-
+        def game = createGame(new GameCreator(status: Game.Status.STARTED))
         when:
-        Game gameAfterAuction = game.auction(firstPlayerId, Move.STAND)
-
+        game.start()
         then:
-        with(game.players.find { it.id == firstPlayerId }) {
-            hand.size() == 2
-            move == Move.STAND
-        }
-
-        and:
-        game.deck.cards.size() == 52 - 6
-
-        and:
-        game.currentPlayer == players[1]
-
-        and:
-        game.status == Status.STARTED
-
-        and:
-        gameAfterAuction.is(game)
+        Game.Exception ex = thrown()
+        ex.message == 'Game started, can not start again'
     }
 
-    def 'should end game when all players make stand move'() {
+    def 'should throw exception when starting game without players'() {
+        when:
+        game.start()
+        then:
+        Game.Exception ex = thrown()
+        ex.message == 'Please add at least one player before start.'
+    }
+
+    def 'should add player to game'() {
         given:
-        def players = createGamePlayers()
-
-        and:
-        def firstPlayerId = players.first().id
-        def secondPlayerId = players[1].id
-
-        and:
-        setupGame(players)
-
+        def player = createPlayer()
         when:
-        game.auction(firstPlayerId, Move.STAND)
-
+        def gameWithPlayer = game.addPlayer(player)
         then:
-        with(game.players.find { it.id == firstPlayerId }) {
-            hand.size() == 2
-            move == Move.STAND
-        }
-
+        game != gameWithPlayer
         and:
-        game.currentPlayer == players[1]
-
-        when:
-        game.auction(players[1].id, Move.STAND)
-
-        then:
-        with(game.players.find { it.id == secondPlayerId }) {
-            hand.size() == 2
-            move == Move.STAND
-        }
-
-        and:
-        game.croupier.handValue() >= 17
-
-        and:
-        game.currentPlayer == null
-
-        and:
-        game.status == Status.ENDED
+        gameWithPlayer.players.size() == 2
+        gameWithPlayer.players.keySet().contains(player)
     }
 
-    def 'should end player turn when has more than 21 point on hand'() {
+    def 'should throw exception when adding player to started game'() {
         given:
-        def player = createGamePlayer()
-
+        def player = createPlayer()
         and:
-        setupGame([player] as Set)
-
+        def game = createGame(new GameCreator(status: Game.Status.STARTED))
         when:
-        while (game.players.find { it.id == player.id }.handValue() <= 21) {
-            game.auction(player.id, Move.HIT)
-        }
-
+        game.addPlayer(player)
         then:
-        game.players.find { it.id == player.id }.isLooser()
-
-        and:
-        game.croupier.handValue() >= 17
-
-        and:
-        game.currentPlayer == null
-
-        and:
-        game.status == Status.ENDED
+        Game.Exception ex = thrown()
+        ex.message == 'Game started, can not add new player'
     }
 
-    def 'should throw exception when trying get results when game was not ended'() {
-        when:
-        game.getResults()
-
-        then:
-        GameException ex = thrown()
-        ex.message == 'Results are available only when game finished. Please continue auction.'
-    }
-
-    def 'should return results when game ended'() {
+    def 'should throw exception when adding croupier to game'() {
         given:
-        def players = createGamePlayers()
-
-        and:
-        setupGame(players)
-
-        and:
-        players.each { game.auction(it.id, Move.STAND) }
-
+        def game = createGame()
         when:
-        def results = game.getResults()
-
+        game.addPlayer(croupier)
         then:
-        results.size() == 3
-        results.collect { it.player }.containsAll(players)
+        Game.Exception ex = thrown()
+        ex.message == "Player: [${croupier.toString()}] already added to game!"
     }
 
-    def 'should return list with one player (croupier) when no players added'() {
+    def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED'() {
         expect:
-        game.getPlayers().size() == 1
+        game.id
+        game.players.size() == 1
+        game.players.keySet().first().is(croupier)
+        game.deck
+        game.croupier.is(croupier)
+        game.status == Game.Status.NOT_STARTED
     }
 
-    def 'should return list with players'() {
+    def 'should create game with given: id, deck, players, croupier and status'() {
         given:
-        def player = createGamePlayer()
-
-        and:
-        game.addPlayer(createPlayer(new PlayerBuilder(player)))
+        def id = '123'
+        def deck = createDeck()
+        def players = [:] as Map
+        def status = Game.Status.STARTED
 
         when:
-        def players = game.getPlayers()
+        def game = new Game(id, deck, players, croupier, status)
 
         then:
-        players.size() == 2
-        players.contains(player)
-    }
-
-    def 'should return deck with all cards'() {
-        expect:
-        game.getDeck().cards.size() == 52
-    }
-
-    def 'should return deck without cards which was picked'() {
-        given:
-        3.times {
-            game.deck.take()
-        }
-
-        expect:
-        game.getDeck().cards.size() == 49
+        game.id.is(id)
+        game.deck.is(deck)
+        game.players == players
+        game.croupier.is(croupier)
+        game.status.is(status)
     }
 
     def 'should throw exception when id is null'() {
         when:
-        new Game(null, [] as Set, '', new Deck(), Status.NOT_STARTED, null)
+        new Game(null, createDeck(), [:], croupier, Game.Status.NOT_STARTED)
 
         then:
-        thrown(NullPointerException)
-    }
-
-    def 'should throw exception when players are null'() {
-        when:
-        new Game('', null, '', new Deck(), Status.NOT_STARTED, null)
-
-        then:
-        thrown(NullPointerException)
-    }
-
-    def 'should throw exception when croupier id is null'() {
-        when:
-        new Game('', [] as Set, null, new Deck(), Status.NOT_STARTED, null)
-
-        then:
-        thrown(NullPointerException)
+        NullPointerException ex = thrown()
+        ex.message == 'id is marked non-null but is null'
     }
 
     def 'should throw exception when deck is null'() {
         when:
-        new Game('', [] as Set, '', null, Status.NOT_STARTED, null)
+        new Game('', null, [:], croupier, Game.Status.NOT_STARTED)
 
         then:
-        thrown(NullPointerException)
+        NullPointerException ex = thrown()
+        ex.message == 'deck is marked non-null but is null'
     }
 
-    def 'should throw exception when status is null'() {
+    def 'should throw exception when players are null'() {
         when:
-        new Game('', [] as Set, '', new Deck(), null, null)
+        new Game('', createDeck(), null, croupier, Game.Status.NOT_STARTED)
 
         then:
-        thrown(NullPointerException)
-    }
-
-    def 'croupier should pick cards only if his hand value is lesser than 17'() {
-        given:
-        def croupier = Mock(GamePlayer)
-        def croupierId = 'croupier_id'
-        def currentPlayer = createGamePlayer()
-        def players = [croupier, currentPlayer] as Set
-        def game = new Game('12312', players, croupierId, createDeck(), Status.STARTED, currentPlayer.id)
-        croupier.id >> croupierId
-
-        when:
-        game.auction(currentPlayer.id, Move.STAND)
-
-        then:
-        1 * croupier.handValue() >> 17
-        0 * croupier.addCard(_)
-    }
-
-    def 'croupier should pick cards till his hand has value higher than 16'() {
-        given:
-        def croupier = Mock(GamePlayer)
-        def croupierId = 'croupier_id'
-        def currentPlayer = createGamePlayer()
-        def players = [croupier, currentPlayer] as Set
-        def game = new Game('12312', players, croupierId, createDeck(), Status.STARTED, currentPlayer.id)
-        croupier.id >> croupierId
-
-        when:
-        game.auction(currentPlayer.id, Move.STAND)
-
-        then:
-        1 * croupier.handValue() >> 16
-        1 * croupier.addCard(_)
-        1 * croupier.handValue() >> 25
-    }
-
-    def 'should be possible get croupier'() {
-        given:
-        setupGame(createGamePlayers())
-
-        expect:
-        with(game.getCroupier()) {
-            it
-            id == 'croupier-id'
-        }
-    }
-
-    def 'should be possible get current player - when is not null'() {
-        given:
-        def player = createGamePlayer()
-        game.addPlayer(createPlayer(new PlayerBuilder(player)))
-        game.startGame()
-
-        expect:
-        game.getCurrentPlayer() == player
-    }
-
-    Game setupGame(Set<GamePlayer> players) {
-        players.each {
-            game.addPlayer(createPlayer(new PlayerBuilder(it)))
-        }
-        return game.startGame()
-    }
-
-    def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED and currentPlayer null'() {
-        given:
-        def croupier = createPlayer()
-
-        when:
-        def game = new Game(croupier)
-
-        then:
-        game.id
-        game.players.size() == 1
-        with(game.players.first()) {
-            it.id == croupier.id
-            it.name == croupier.name
-            hand.isEmpty()
-            move == Move.HIT
-        }
-        with(game.deck) {
-            it
-            it.cards.size() == 52
-        }
-        game.status == Status.NOT_STARTED
-        game.currentPlayerId == null
-    }
-
-    def 'should create game with given: id, players, croupier, deck, status, currentPlayer'() {
-        given:
-        def id = '123'
-        def players = createGamePlayers(3)
-        def croupierId = players.first().id
-        def deck = createDeck()
-        def status = Status.STARTED
-        def currentPlayerId = players[1].id
-
-        when:
-        def game = new Game(id, players, croupierId, deck, status, currentPlayerId)
-
-        then:
-        game.id == id
-        game.players == players
-        game.croupierId == croupierId
-        game.deck == deck
-        game.status == status
-        game.currentPlayerId == currentPlayerId
+        NullPointerException ex = thrown()
+        ex.message == 'players is marked non-null but is null'
     }
 
     def 'should throw exception when croupier is null'() {
         when:
-        new Game('', createGamePlayers(), null, createDeck(), Status.STARTED, '')
+        new Game('', createDeck(), [:], null, Game.Status.NOT_STARTED)
 
         then:
-        thrown(NullPointerException)
+        NullPointerException ex = thrown()
+        ex.message == 'croupier is marked non-null but is null'
+    }
+
+    def 'should throw exception when status is null'() {
+        when:
+        new Game('', createDeck(), [:], croupier, null)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'status is marked non-null but is null'
+    }
+
+    def 'should throw exception when croupier is null - one arg constructor'() {
+        when:
+        new Game(null as Player)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'null key in entry: null={hand=[], move=null}'
+    }
+
+    def 'should throw exception when trying add null player to game'() {
+        when:
+        game.addPlayer(null)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'player is marked non-null but is null'
+    }
+
+    def 'should throw exception when trying auction with null playerId'() {
+        when:
+        game.auction(null, Game.Move.HIT)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'playerId is marked non-null but is null'
+    }
+
+    def 'should throw exception when trying auction with null player move'() {
+        when:
+        game.auction('', null)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'move is marked non-null but is null'
     }
 }

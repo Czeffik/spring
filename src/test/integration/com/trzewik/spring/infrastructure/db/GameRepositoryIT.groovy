@@ -1,11 +1,12 @@
 package com.trzewik.spring.infrastructure.db
 
 import com.trzewik.spring.domain.game.Card
+import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
-import com.trzewik.spring.domain.game.Move
+
 import com.trzewik.spring.domain.player.PlayerCreation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
@@ -17,7 +18,7 @@ import org.springframework.test.context.ContextConfiguration
     classes = [TestDbConfig],
     initializers = [DbInitializer]
 )
-class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
+class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation, CardCreation {
 
     @Autowired
     GameRepository repository
@@ -27,7 +28,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
 
         when:
         repository.save(game)
@@ -69,7 +70,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
 
         and:
         helper.save(game)
@@ -94,7 +95,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
 
         and:
         helper.save(game)
@@ -123,7 +124,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         Game game = createStartedGame()
 
         and:
-        game.players.each { helper.save(createPlayer(new PlayerBuilder(id: it.id))) }
+        game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
 
         and:
         helper.save(game)
@@ -135,7 +136,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
         def playerId = game.currentPlayerId
 
         and:
-        game.auction(playerId, Move.STAND)
+        game.auction(playerId, Game.Move.STAND)
 
         when:
         repository.update(game)
@@ -182,14 +183,14 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation {
 
     void validateDeck(Deck deck, parsedDeck) {
         parsedDeck.cards.each { parsedCard ->
-            assert deck.cards.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+            assert deck.cards.any { it.equals(createCard(new CardCreator(parsedCard.suit, parsedCard.rank))) }
         }
         assert parsedDeck.cards.size() == deck.cards.size()
     }
 
     void validateHand(Set<Card> hand, List parsedHand) {
         parsedHand.each { parsedCard ->
-            assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+            assert hand.any { it.equals(createCard(new CardCreator(parsedCard.suit, parsedCard.rank))) }
         }
         assert parsedHand.size() == hand.size()
     }

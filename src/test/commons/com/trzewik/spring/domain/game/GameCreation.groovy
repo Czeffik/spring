@@ -1,51 +1,35 @@
 package com.trzewik.spring.domain.game
 
-trait GameCreation implements GamePlayerCreation, DeckCreation {
+import com.trzewik.spring.domain.player.Player
+import com.trzewik.spring.domain.player.PlayerCreation
 
-    Game createGame(GameBuilder builder = new GameBuilder()) {
+trait GameCreation {
+
+    Game createGame(GameCreator creator = new GameCreator()) {
         return new Game(
-            builder.id,
-            builder.players,
-            builder.croupierId,
-            builder.deck,
-            builder.status,
-            builder.currentPlayerId
+            creator.id,
+            creator.deck,
+            creator.players,
+            creator.croupier,
+            creator.status
         )
     }
 
-    Game createStartedGame() {
-        GamePlayer currPlayer = createGamePlayer(
-            new GamePlayerBuilder(hand: [createCard(Rank.FOUR), createCard(Rank.SEVEN)])
-        )
-        GamePlayer croupier = createGamePlayer(
-            new GamePlayerBuilder(hand: [createCard(Rank.EIGHT), createCard(Rank.QUEEN)])
-        )
-        Game game = createGame(new GameBuilder(
-            players: [currPlayer, croupier],
-            croupierId: croupier.id,
-            currentPlayerId: currPlayer.id,
-            status: Status.STARTED
-        ))
-        return game
-    }
-
-    static class GameBuilder implements GameCreation {
+    static class GameCreator implements PlayerCreation, PlayerInGameCreation {
         String id = UUID.randomUUID().toString()
-        Set<GamePlayer> players = [createGamePlayer()] as Set
-        String croupierId = players.first().id
-        Deck deck = createDeck()
-        Status status = Status.NOT_STARTED
-        String currentPlayerId = null
+        Deck deck = new Deck()
+        Map<Player, PlayerInGame> players = [(createPlayer(PlayerCreator.croupier())): createPlayerInGame(), (createPlayer()): createPlayerInGame()]
+        Player croupier = createPlayer(PlayerCreator.croupier())
+        Game.Status status = Game.Status.NOT_STARTED
 
-        GameBuilder() {}
+        GameCreator() {}
 
-        GameBuilder(Game game) {
+        GameCreator(Game game) {
             id = game.id
-            players = game.players
-            croupierId = game.croupierId
             deck = game.deck
+            players = game.players
+            croupier = game.croupier
             status = game.status
-            currentPlayerId = game.currentPlayerId
         }
     }
 }

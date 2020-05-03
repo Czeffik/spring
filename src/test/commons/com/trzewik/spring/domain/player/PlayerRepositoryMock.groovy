@@ -5,19 +5,19 @@ class PlayerRepositoryMock implements PlayerRepository, PlayerCreation {
 
     @Override
     synchronized void save(Player player) {
-        repository.put(player.getId(), createPlayer(new PlayerBuilder(player)))
+        repository.put(player.getId(), createPlayer(new PlayerCreator(player)))
     }
 
     @Override
     synchronized Optional<Player> findById(String id) {
         Player player = repository.get(id)
-        return Optional.ofNullable(player == null ? null : createPlayer(new PlayerBuilder(player)))
+        return Optional.ofNullable(player == null ? null : createPlayer(new PlayerCreator(player)))
     }
 
     @Override
     synchronized List<Player> findAllById(Collection<String> ids) {
         def players = []
-        ids.each { players << createPlayer(new PlayerBuilder(repository.get(it))) }
+        ids.each { players << createPlayer(new PlayerCreator(repository.get(it))) }
         return players
     }
 

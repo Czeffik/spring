@@ -1,11 +1,10 @@
 package com.trzewik.spring.interfaces.rest.game
 
 import com.trzewik.spring.domain.game.Card
+import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Game
-import com.trzewik.spring.domain.game.GameException
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
-import com.trzewik.spring.domain.game.Move
 import com.trzewik.spring.domain.game.ResultCreation
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository
@@ -24,7 +23,7 @@ import spock.lang.Specification
     classes = [RestConfiguration.class, TestRestConfig.class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation {
+class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation, CardCreation {
     @Autowired
     GameService gameService
     @Autowired
@@ -35,7 +34,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should create game successfully and return game object representation in response'() {
         given:
         def game = createStartedGame()
-        def croup = createPlayer(new PlayerBuilder(game.croupier))
+        def croup = createPlayer(new PlayerCreator(game.croupier))
 
         when:
         Response response = createGameRequest()
@@ -73,7 +72,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should add player to game if found in player repository and return game representation'() {
         given:
         def game = createStartedGame()
-        def currPlayer = createPlayer(new PlayerBuilder(game.currentPlayer))
+        def currPlayer = createPlayer(new PlayerCreator(game.currentPlayer))
 
         when:
         Response response = addPlayerRequest(game.id, game.currentPlayerId)
@@ -136,7 +135,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         adding new player to game'''() {
         given:
         def gameId = 'example-game-id'
-        def player = createPlayer(new PlayerBuilder(id: 'player-id'))
+        def player = createPlayer(new PlayerCreator(id: 'player-id'))
 
         when:
         Response response = addPlayerRequest(gameId, player.id)
@@ -155,7 +154,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should return BAD_REQUEST with message when GameException is thrown - adding new player to game'() {
         given:
         def gameId = 'example-game-id'
-        def player = createPlayer(new PlayerBuilder(id: 'player-id'))
+        def player = createPlayer(new PlayerCreator(id: 'player-id'))
 
         and:
         String exceptionMessage = 'exception message which should be returned by controller'
@@ -165,7 +164,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
         then:
         1 * playerService.get(player.id) >> player
-        1 * gameService.addPlayer(gameId, player) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.addPlayer(gameId, player) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -239,7 +238,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = startGameRequest(gameId)
 
         then:
-        1 * gameService.start(gameId) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.start(gameId) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -256,7 +255,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         def playerId = game.currentPlayerId
 
         and:
-        Move playerMove = Move.STAND
+        Game.Move playerMove = Game.Move.STAND
 
         when:
         Response response = makeMoveRequest(game.id, playerId, playerMove.name())
@@ -296,7 +295,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
+        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
         response.statusCode() == 404
@@ -316,7 +315,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Move.STAND) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -376,7 +375,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = getResultsRequest(gameId)
 
         then:
-        1 * gameService.getResults(gameId) >> { throw new GameException(exceptionMessage) }
+        1 * gameService.getResults(gameId) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
         response.statusCode() == 400
@@ -387,7 +386,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     boolean validateHand(Set<Card> hand, parsedCards) {
         parsedCards.each { parsedCard ->
-            assert hand.any { it.equals(createCard(new CardBuilder(parsedCard.suit, parsedCard.rank))) }
+            assert hand.any { it.equals(createCard(new CardCreator(parsedCard.suit, parsedCard.rank))) }
         }
         true
     }

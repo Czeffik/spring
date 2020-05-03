@@ -1,151 +1,239 @@
 package com.trzewik.spring.domain.game;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.trzewik.spring.domain.player.Player;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Getter
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 public class Game {
     private final @NonNull String id;
-    private final @NonNull Set<GamePlayer> players;
-    private final @NonNull String croupierId;
     private final @NonNull Deck deck;
-    private @NonNull Status status;
-    private String currentPlayerId;
+    private final @NonNull Map<Player, PlayerInGame> players;
+    private final @NonNull Player croupier;
+    private final @NonNull Status status;
 
-    @SneakyThrows
-    public Game(@NonNull Player croupier) {
-        this.id = UUID.randomUUID().toString();
-        this.players = new LinkedHashSet<>();
-        this.croupierId = croupier.getId();
-        this.deck = new Deck();
-        this.status = Status.NOT_STARTED;
-
-        addPlayer(croupier);
+    public Game(@NonNull String id,
+                @NonNull Deck deck,
+                @NonNull Map<Player, PlayerInGame> players,
+                @NonNull Player croupier,
+                @NonNull Status status
+    ) {
+        this.id = id;
+        this.deck = deck;
+        this.players = ImmutableMap.copyOf(players);
+        this.croupier = croupier;
+        this.status = status;
     }
 
-    Game startGame() throws GameException {
-        if (gameStarted()) {
-            throw new GameException("Game started, can not start again");
+    Game(@NonNull Player croupier) {
+        this(
+            UUID.randomUUID().toString(),
+            new Deck(),
+            ImmutableMap.<Player, PlayerInGame>builder()
+                .put(croupier, new PlayerInGame())
+                .build(),
+            croupier,
+            Status.NOT_STARTED
+        );
+    }
+
+    private Game(@NonNull Game game) {
+        this(game, game.getStatus());
+    }
+
+    private Game(@NonNull Game game, @NonNull Status status) {
+        this(
+            game.getId(),
+            game.getDeck(),
+            game.getPlayers(),
+            game.getCroupier(),
+            status
+        );
+    }
+
+    private Game(@NonNull Game game, @NonNull Map<Player, PlayerInGame> players, @NonNull Status status) {
+        this(
+            game.getId(),
+            game.getDeck(),
+            players,
+            game.getCroupier(),
+            status
+        );
+    }
+
+    public Player getCurrentPlayer() {
+        return players.keySet().stream()
+            .filter(p -> !p.equals(croupier))
+            .filter(p -> !getPlayerInGame(p).isLooser())
+            .filter(p -> Move.isNotStand(getPlayerInGame(p).getMove()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    Game addPlayer(@NonNull Player player) throws Exception {
+        validatePlayerAddition(player);
+
+        return new Game(this, createPlayersWith(player), this.getStatus());
+    }
+
+    private Map<Player, PlayerInGame> createPlayersWith(Player player) {
+        return ImmutableMap.<Player, PlayerInGame>builder()
+            .putAll(this.players)
+            .put(player, new PlayerInGame())
+            .build();
+    }
+
+    Game start() throws Exception {
+        validateStart();
+
+        return new Game(this, dealCards(), Status.STARTED);
+    }
+
+    private Map<Player, PlayerInGame> dealCards() {
+        return players.entrySet().stream()
+            .map(this::addCard)
+            .map(this::addCard)
+            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map.Entry<Player, PlayerInGame> addCard(Map.Entry<Player, PlayerInGame> entry) {
+        return Maps.immutableEntry(entry.getKey(), entry.getValue().addCard(deck.take()));
+    }
+
+    Game auction(@NonNull String playerId, @NonNull Move move) throws Exception {
+        validateAuction(playerId);
+
+        return makeMove(move);
+    }
+
+    private Game makeMove(Move move) {
+        Player currentPlayer = getCurrentPlayer();
+        PlayerInGame playerAfterMove = makeMove(getPlayerInGame(currentPlayer), move);
+        return new Game(this, updatePlayerInGame(currentPlayer, playerAfterMove), this.getStatus());
+    }
+
+    private PlayerInGame makeMove(PlayerInGame currentPlayer, Move move) {
+        PlayerInGame playerWithChangedMove = currentPlayer.changeMove(move);
+        if (Move.isHit(move)) {
+            return playerWithChangedMove.addCard(deck.take());
+        }
+        return playerWithChangedMove;
+    }
+
+    private Map<Player, PlayerInGame> updatePlayerInGame(Player player, PlayerInGame playerInGame) {
+        return ImmutableMap.<Player, PlayerInGame>builder()
+            .putAll(putPlayer(player, playerInGame))
+            .build();
+    }
+
+    private Map<Player, PlayerInGame> putPlayer(Player player, PlayerInGame playerInGame) {
+        Map<Player, PlayerInGame> copy = new LinkedHashMap<>(this.players);
+        copy.put(player, playerInGame);
+        return copy;
+    }
+
+    Game end() {
+        if (getCurrentPlayer() == null && status.started()) {
+            PlayerInGame croupierAfterDrawing = croupierDrawCards(getCroupierInGame()).changeMove(Move.STAND);
+
+            return new Game(this, updatePlayerInGame(croupier, croupierAfterDrawing), Status.ENDED);
+        }
+        return new Game(this);
+    }
+
+    private PlayerInGame croupierDrawCards(PlayerInGame croupier) {
+        if (croupier.handValue() < 17) {
+            return croupierDrawCards(croupier.addCard(deck.take()));
+        }
+        return croupier;
+    }
+
+    private void validatePlayerAddition(Player player) throws Exception {
+        if (status.isStarted()) {
+            throw new Exception("Game started, can not add new player");
+        }
+        if (players.containsKey(player)) {
+            throw new Exception(String.format("Player: [%s] already added to game!", player));
+        }
+    }
+
+    private void validateStart() throws Exception {
+        if (status.isStarted()) {
+            throw new Exception("Game started, can not start again");
         }
         if (players.size() <= 1) {
-            throw new GameException("Please add at least one player before start.");
-        }
-        dealCards();
-        status = Status.STARTED;
-        setCurrentPlayerId();
-        return this;
-    }
-
-    void addPlayer(Player player) throws GameException {
-        if (gameStarted()) {
-            throw new GameException("Game started, can not add new player");
-        }
-        players.add(new GamePlayer(player));
-    }
-
-    public Game auction(String playerId, @NonNull Move move) throws GameException {
-        if (!gameStarted()) {
-            throw new GameException("Game NOT started, please start game before auction");
-        }
-        if (gameEnded()) {
-            throw new GameException("Game finished. Now you can check results!");
-        }
-        if (notPlayerTurn(playerId)) {
-            throw new GameException(String.format("Waiting for move from player: [%s] instead of: [%s]",
-                getCurrentPlayerId(), playerId));
-        }
-
-        getCurrentPlayer().setMove(move);
-
-        if (move.equals(Move.HIT)) {
-            getCurrentPlayer().addCard(deck.take());
-        }
-
-        setCurrentPlayerId();
-
-        if (getCurrentPlayerId() == null) {
-            endGame();
-        }
-
-        return this;
-    }
-
-    public GamePlayer getCurrentPlayer() {
-        return players.stream()
-            .filter(p -> p.getId().equals(getCurrentPlayerId()))
-            .findFirst()
-            .orElse(null);
-    }
-
-    public GamePlayer getCroupier() {
-        return players.stream()
-            .filter(p -> p.getId().equals(getCroupierId()))
-            .findFirst()
-            .orElse(null);
-    }
-
-    List<Result> getResults() throws GameException {
-        if (gameEnded()) {
-            return ResultsHelper.createResults(players);
-        }
-        throw new GameException("Results are available only when game finished. Please continue auction.");
-    }
-
-    private void endGame() {
-        croupierPicks();
-        getCroupier().setMove(Move.STAND);
-        status = Status.ENDED;
-    }
-
-    private void croupierPicks() {
-        while (getCroupier().handValue() < 17) {
-            getCroupier().addCard(deck.take());
+            throw new Exception("Please add at least one player before start.");
         }
     }
 
-    private boolean gameStarted() {
-        return !status.equals(Status.NOT_STARTED);
+    private void validateAuction(String playerId) throws Exception {
+        if (!status.isStarted()) {
+            throw new Exception("Game NOT started, please start game before auction");
+        }
+        if (status.isEnded()) {
+            throw new Exception("Game finished. Now you can check results!");
+        }
+        if (isNotPlayerTurn(playerId)) {
+            throw new Exception(String.format("Waiting for move from player: [%s] instead of: [%s]",
+                getCurrentPlayer().getId(), playerId));
+        }
     }
 
-    private boolean gameEnded() {
-        return status.equals(Status.ENDED);
+    private PlayerInGame getCurrentPlayerInGame() {
+        return getPlayerInGame(getCurrentPlayer());
     }
 
-    private boolean notPlayerTurn(String playerId) {
-        return !playerId.equals(getCurrentPlayerId());
+    private PlayerInGame getCroupierInGame() {
+        return getPlayerInGame(croupier);
     }
 
-    private void setCurrentPlayerId() {
-        currentPlayerId = getPlayersWithoutCroupier().stream()
-            .filter(p -> !p.isLooser())
-            .filter(p -> !Move.STAND.equals(p.getMove()))
-            .map(GamePlayer::getId)
-            .findFirst()
-            .orElse(null);
+    private PlayerInGame getPlayerInGame(Player player) {
+        return players.get(player);
     }
 
-    private void dealCards() {
-        IntStream.range(0, 2).forEach(index -> {
-            players.forEach(p -> p.addCard(deck.take()));
-        });
+    private boolean isNotPlayerTurn(String playerId) {
+        return !playerId.equals(getCurrentPlayer().getId());
     }
 
-    private List<GamePlayer> getPlayersWithoutCroupier() {
-        return players.stream()
-            .filter(p -> !p.getId().equals(getCroupierId()))
-            .collect(Collectors.toList());
+    public enum Move {
+        HIT, STAND;
+
+        static boolean isNotStand(Move move) {
+            return !STAND.equals(move);
+        }
+
+        static boolean isHit(Move move) {
+            return HIT.equals(move);
+        }
+    }
+
+    public enum Status {
+        NOT_STARTED, STARTED, ENDED;
+
+        boolean isEnded() {
+            return this.equals(ENDED);
+        }
+
+        boolean isStarted() {
+            return !this.equals(NOT_STARTED);
+        }
+
+        boolean started() {
+            return this.equals(STARTED);
+        }
+    }
+
+    public static class Exception extends java.lang.Exception {
+        public Exception(String msg) {
+            super(msg);
+        }
     }
 }

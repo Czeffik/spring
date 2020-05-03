@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
+import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.EqualsAndHashCode;
@@ -16,9 +17,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Entity
@@ -43,21 +45,21 @@ public class GameEntity implements Serializable {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "current_player_id", length = 36)
-    private String currentPlayerId;
-
-    @Column(name = "croupier_id", length = 36)
-    private String croupierId;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private PlayerEntity croupier;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
-    private Set<GamePlayerEntity> players;
+    private Map<PlayerEntity, PlayerInGameEntity> players;
 
     public GameEntity(GameDto dto) {
         this.id = dto.getId();
         this.deck = dto.getDeck();
         this.status = dto.getStatus();
-        this.currentPlayerId = dto.getCurrentPlayerId();
-        this.croupierId = dto.getCroupierId();
-        this.players = dto.getPlayers().stream().map(p -> new GamePlayerEntity(id, p)).collect(Collectors.toSet());
+        this.croupier = new PlayerEntity(dto.getCroupier());
+        this.players = dto.getPlayers().entrySet().stream()
+            .collect(Collectors.toMap(
+                e -> new PlayerEntity(e.getKey()),
+                e -> new PlayerInGameEntity(e.getValue())
+            ));
     }
 }
