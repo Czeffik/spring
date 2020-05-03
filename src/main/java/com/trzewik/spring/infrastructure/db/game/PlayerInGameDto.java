@@ -1,9 +1,8 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Card;
-import com.trzewik.spring.domain.game.GamePlayer;
-import com.trzewik.spring.domain.game.Move;
-import com.trzewik.spring.domain.player.Player;
+import com.trzewik.spring.domain.game.Game;
+import com.trzewik.spring.domain.game.PlayerInGame;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,38 +16,34 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GamePlayerDto {
+public class PlayerInGameDto {
     private String gameId;
     private String playerId;
-    private String name;
     private Set<CardDto> hand;
     private String move;
 
-    public static GamePlayerDto from(String gameId, GamePlayer player) {
-        return new GamePlayerDto(
+    public static PlayerInGameDto from(String gameId, String playerId, PlayerInGame player) {
+        return new PlayerInGameDto(
             gameId,
-            player.getId(),
-            player.getName(),
+            playerId,
             createHand(player.getHand()),
             player.getMove().name()
         );
     }
 
-    public static GamePlayerDto from(GamePlayerEntity gamePlayerEntity) {
-        return new GamePlayerDto(
+    public static PlayerInGameDto from(PlayerInGameEntity gamePlayerEntity) {
+        return new PlayerInGameDto(
             gamePlayerEntity.getId().getGameId(),
             gamePlayerEntity.getId().getPlayerId(),
-            gamePlayerEntity.getPlayer().getName(),
             gamePlayerEntity.getHand(),
             gamePlayerEntity.getMove()
         );
     }
 
-    public static GamePlayer to(GamePlayerDto dto) {
-        return new GamePlayer(
-            new Player(dto.getPlayerId(), dto.getName()),
+    public static PlayerInGame to(PlayerInGameDto dto) {
+        return new PlayerInGame(
             mapTo(dto.getHand()),
-            Move.valueOf(dto.getMove())
+            Game.Move.valueOf(dto.getMove())
         );
     }
 

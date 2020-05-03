@@ -8,18 +8,18 @@ import java.util.List;
 public interface GameService {
     Game create(Player croupier);
 
-    Game addPlayer(String gameId, Player player) throws GameException, GameRepository.GameNotFoundException;
+    Game addPlayer(String gameId, Player player) throws GameRepository.GameNotFoundException, Game.Exception;
 
-    Game start(String gameId) throws GameRepository.GameNotFoundException, GameException;
+    Game start(String gameId) throws GameRepository.GameNotFoundException, Game.Exception;
 
-    Game makeMove(String gameId, String playerId, Move move)
-        throws GameRepository.GameNotFoundException, GameException;
+    Game makeMove(String gameId, String playerId, Game.Move move)
+        throws GameRepository.GameNotFoundException, Game.Exception;
 
-    List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, GameException;
+    List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, Result.Exception;
 
     @Data
     class MoveForm {
-        private Move move;
+        private Game.Move move;
         private String playerId;
     }
 

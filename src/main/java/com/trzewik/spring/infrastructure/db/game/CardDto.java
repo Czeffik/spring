@@ -1,8 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Card;
-import com.trzewik.spring.domain.game.Rank;
-import com.trzewik.spring.domain.game.Suit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CardDto {
-    private Suit suit;
-    private Rank rank;
+    private Card.Suit suit;
+    private Card.Rank rank;
 
     public static CardDto from(Card card) {
         return new CardDto(

@@ -1,16 +1,18 @@
 package com.trzewik.spring.domain.player;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
-@EqualsAndHashCode(of = {"id"})
-@AllArgsConstructor
+@EqualsAndHashCode
+@RequiredArgsConstructor
 public class Player {
+    public static final String CROUPIER_ID = "CROUPIER-ID";
+    public static final String CROUPIER_NAME = "CROUPIER";
     private final @NonNull String id;
     private final @NonNull String name;
 
@@ -20,7 +22,7 @@ public class Player {
     }
 
     static Player createCroupier() {
-        return new Player("Croupier");
+        return new Player(CROUPIER_ID, CROUPIER_NAME);
     }
 
     @Override

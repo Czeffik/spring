@@ -16,7 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Embeddable
 @EqualsAndHashCode
-public class GamePlayerId implements Serializable {
+public class PlayerInGameId implements Serializable {
     @Column(name = "game_id")
     private String gameId;
 

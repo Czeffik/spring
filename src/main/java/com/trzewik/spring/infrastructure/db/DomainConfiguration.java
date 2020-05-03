@@ -1,4 +1,4 @@
-package com.trzewik.spring.domain;
+package com.trzewik.spring.infrastructure.db;
 
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;

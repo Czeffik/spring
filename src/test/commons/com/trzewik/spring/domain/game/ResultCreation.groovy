@@ -1,31 +1,21 @@
 package com.trzewik.spring.domain.game
 
-trait ResultCreation implements GameCreation {
+import com.trzewik.spring.domain.player.Player
+import com.trzewik.spring.domain.player.PlayerCreation
 
-    List<Result> createResults(int number) {
-        List<Result> results = []
-        number.times {
-            results << createResult(new ResultBuilder(
-                place: (it + 1),
-                player: createGamePlayer(
-                    new GamePlayerBuilder(
-                        hand: [createCard(Rank.QUEEN), createCard(Rank.FOUR)]
-                    )
-                )
-            ))
-        }
-        return results
-    }
+trait ResultCreation {
 
-    Result createResult(ResultBuilder builder = new ResultBuilder()) {
+    Result createResult(ResultCreator creator = new ResultCreator()) {
         return new Result(
-            builder.place,
-            builder.player
+            creator.place,
+            creator.player,
+            creator.playerInGame
         )
     }
 
-    static class ResultBuilder implements GamePlayerCreation {
+    static class ResultCreator implements PlayerCreation, PlayerInGameCreation {
         int place = 1
-        GamePlayer player = createGamePlayer()
+        Player player = createPlayer()
+        PlayerInGame playerInGame = createPlayerInGame()
     }
 }

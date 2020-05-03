@@ -1,11 +1,11 @@
 package com.trzewik.spring.domain.game;
 
 import com.trzewik.spring.domain.player.Player;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 class GameServiceImpl implements GameService {
     private final GameRepository gameRepo;
 
@@ -20,10 +20,8 @@ class GameServiceImpl implements GameService {
 
     @Override
     public Game addPlayer(String gameId, Player player)
-        throws GameException, GameRepository.GameNotFoundException {
-        Game game = gameRepo.getById(gameId);
-
-        game.addPlayer(player);
+        throws Game.Exception, GameRepository.GameNotFoundException {
+        Game game = gameRepo.getById(gameId).addPlayer(player);
 
         gameRepo.update(game);
 
@@ -31,8 +29,8 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game start(String gameId) throws GameRepository.GameNotFoundException, GameException {
-        Game game = gameRepo.getById(gameId).startGame();
+    public Game start(String gameId) throws GameRepository.GameNotFoundException, Game.Exception {
+        Game game = gameRepo.getById(gameId).start();
 
         gameRepo.update(game);
 
@@ -40,10 +38,9 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game makeMove(String gameId, String playerId, Move move)
-        throws GameRepository.GameNotFoundException, GameException {
-        Game game = gameRepo.getById(gameId);
-        game.auction(playerId, move);
+    public Game makeMove(String gameId, String playerId, Game.Move move)
+        throws GameRepository.GameNotFoundException, Game.Exception {
+        Game game = gameRepo.getById(gameId).auction(playerId, move).end();
 
         gameRepo.update(game);
 
@@ -51,8 +48,8 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, GameException {
+    public List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, Result.Exception {
         Game game = gameRepo.getById(gameId);
-        return game.getResults();
+        return ResultsHelper.createResults(game);
     }
 }

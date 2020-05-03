@@ -33,15 +33,14 @@ import java.util.Set;
     @AssociationOverride(
         name = "player",
         joinColumns = @JoinColumn(name = "player_id", insertable = false, updatable = false))})
-public class GamePlayerEntity implements Serializable {
+public class PlayerInGameEntity implements Serializable {
 
     @EmbeddedId
-    private GamePlayerId id;
+    private PlayerInGameId id;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private PlayerEntity player;
 
-    @Getter
     @ManyToOne(cascade = CascadeType.ALL)
     private GameEntity game;
 
@@ -53,8 +52,8 @@ public class GamePlayerEntity implements Serializable {
     @Column(name = "move")
     private String move;
 
-    public GamePlayerEntity(String gameId, GamePlayerDto dto) {
-        this.id = new GamePlayerId(gameId, dto.getPlayerId());
+    public PlayerInGameEntity(PlayerInGameDto dto) {
+        this.id = new PlayerInGameId(dto.getGameId(), dto.getPlayerId());
         this.hand = dto.getHand();
         this.move = dto.getMove();
     }

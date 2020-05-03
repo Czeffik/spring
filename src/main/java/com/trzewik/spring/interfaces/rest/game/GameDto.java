@@ -10,15 +10,15 @@ import lombok.Getter;
 public class GameDto {
     private final String id;
     private final String status;
-    private final GamePlayerDto currentPlayer;
+    private final PlayerInGameDto currentPlayer;
     private final CroupierDto croupier;
 
     public static GameDto from(final Game game) {
         return new GameDto(
             game.getId(),
             game.getStatus().name(),
-            GamePlayerDto.from(game.getCurrentPlayer()),
-            CroupierDto.from(game.getCroupier())
+            PlayerInGameDto.from(game.getCurrentPlayer(), game.getPlayers()),
+            CroupierDto.from(game.getCroupier(), game.getPlayers())
         );
     }
 }

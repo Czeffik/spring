@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 class PlayerRepoImpl implements PlayerRepository {
-    private PlayerJpaRepository jpaRepository;
+    private final PlayerJpaRepository jpaRepository;
 
     @Override
     public void save(Player player) {

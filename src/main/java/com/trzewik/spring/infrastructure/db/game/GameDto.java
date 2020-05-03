@@ -1,15 +1,14 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.game.GamePlayer;
-import com.trzewik.spring.domain.game.Status;
+import com.trzewik.spring.infrastructure.db.player.PlayerDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,9 +19,8 @@ public class GameDto {
     private String id;
     private DeckDto deck;
     private String status;
-    private Set<GamePlayerDto> players;
-    private String currentPlayerId;
-    private String croupierId;
+    private Map<PlayerDto, PlayerInGameDto> players;
+    private PlayerDto croupier;
 
     public static GameDto from(Game game) {
         return new GameDto(
@@ -30,8 +28,7 @@ public class GameDto {
             DeckDto.from(game.getDeck()),
             game.getStatus().name(),
             createPlayers(game),
-            game.getCurrentPlayerId(),
-            game.getCroupierId()
+            PlayerDto.from(game.getCroupier())
         );
     }
 
@@ -40,34 +37,33 @@ public class GameDto {
             gameEntity.getId(),
             gameEntity.getDeck(),
             gameEntity.getStatus(),
-            gameEntity.getPlayers().stream().map(GamePlayerDto::from).collect(Collectors.toSet()),
-            gameEntity.getCurrentPlayerId(),
-            gameEntity.getCroupierId()
+            gameEntity.getPlayers().entrySet().stream()
+                .collect(Collectors.toMap(
+                    e -> PlayerDto.from(e.getKey()),
+                    e -> PlayerInGameDto.from(e.getValue())
+                )),
+            PlayerDto.from(gameEntity.getCroupier())
         );
     }
 
-    private static Set<GamePlayerDto> createPlayers(Game game) {
-        return game.getPlayers().stream()
-            .map(p -> GamePlayerDto.from(game.getId(), p))
-            .collect(Collectors.toSet());
+    private static Map<PlayerDto, PlayerInGameDto> createPlayers(Game game) {
+        return game.getPlayers().entrySet().stream()
+            .collect(Collectors.toMap(
+                e -> PlayerDto.from(e.getKey()),
+                e -> PlayerInGameDto.from(game.getId(), e.getKey().getId(), e.getValue())
+            ));
     }
 
     public static Game to(GameDto dto) {
-        Set<GamePlayer> allPlayers = mapTo(dto.getPlayers());
         return new Game(
             dto.id,
-            allPlayers,
-            dto.croupierId,
             DeckDto.to(dto.getDeck()),
-            Status.valueOf(dto.getStatus()),
-            dto.currentPlayerId
+            dto.getPlayers().entrySet().stream().collect(Collectors.toMap(
+                e -> PlayerDto.to(e.getKey()),
+                e -> PlayerInGameDto.to(e.getValue())
+            )),
+            PlayerDto.to(dto.getCroupier()),
+            Game.Status.valueOf(dto.getStatus())
         );
     }
-
-    private static Set<GamePlayer> mapTo(Set<GamePlayerDto> players) {
-        return players.stream()
-            .map(GamePlayerDto::to)
-            .collect(Collectors.toSet());
-    }
-
 }

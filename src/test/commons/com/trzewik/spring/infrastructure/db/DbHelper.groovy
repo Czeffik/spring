@@ -3,7 +3,7 @@ package com.trzewik.spring.infrastructure.db
 import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
-import com.trzewik.spring.domain.game.GamePlayer
+import com.trzewik.spring.domain.game.PlayerInGame
 import com.trzewik.spring.domain.player.Player
 import groovy.json.JsonBuilder
 import groovy.sql.GroovyRowResult
@@ -78,10 +78,10 @@ class DbHelper {
         sql.execute(query)
     }
 
-    List<List<Object>> save(String gameId, GamePlayer player) {
+    List<List<Object>> save(String gameId, String playerId, PlayerInGame player) {
         String query = "INSERT INTO $gamesPlayersTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [gameId, player.id, convertCardsToString(player.hand), player.move.name()])
+        sql.executeInsert(query.toString(), [gameId, playerId, convertCardsToString(player.hand), player.move.name()])
     }
 
     static String convertCardsToString(Collection<Card> hand) {
