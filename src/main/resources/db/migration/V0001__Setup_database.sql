@@ -21,3 +21,4 @@ CREATE TABLE games_players
     move TEXT,
     CONSTRAINT game_player_pkey PRIMARY KEY (game_id, player_id)
 );
+INSERT INTO players (id, name) VALUES ('CROUPIER-ID', 'CROUPIER');

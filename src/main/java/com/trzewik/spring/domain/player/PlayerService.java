@@ -5,16 +5,16 @@ import lombok.Data;
 import java.util.List;
 
 public interface PlayerService {
-    Player create(String playerName);
+    Player create(CreateForm form);
 
-    Player createCroupier();
+    Player getCroupier();
 
     Player get(String id) throws PlayerRepository.PlayerNotFoundException;
 
     List<Player> get(List<String> playerIds);
 
     @Data
-    class CreatePlayerForm {
+    class CreateForm {
         private String name;
     }
 }
