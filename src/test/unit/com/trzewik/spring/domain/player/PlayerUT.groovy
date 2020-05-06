@@ -4,11 +4,11 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class PlayerUT extends Specification {
+class PlayerUT extends Specification implements PlayerFormCreation {
     static final String playerName = 'Adam'
 
     @Subject
-    Player player = new Player(playerName)
+    Player player = new Player(createPlayerForm(new PlayerFormCreator(name: playerName)))
 
     def 'should get player name'() {
         expect:
@@ -39,21 +39,30 @@ class PlayerUT extends Specification {
         ex.message == 'name is marked non-null but is null'
     }
 
+    def 'should throw exception when form is null one arg constructor'() {
+        when:
+        new Player(null as PlayerService.CreateForm)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'form is marked non-null but is null'
+    }
+
     def 'should return string representation of player with id and name'() {
         expect:
         player.toString() == "{id=${player.id}, name=${player.name}}"
     }
 
-    def 'should create player with given name and generated id'() {
+    def 'should create player from given form with generated id'() {
         given:
-        def name = 'Adam'
+        def form = createPlayerForm()
 
         when:
-        def player = new Player(name)
+        def player = new Player(form)
 
         then:
-        player.name == name
-        player.id != null
+        player.name == form.getName()
+        player.id
     }
 
     def 'should create croupier with generated id'() {

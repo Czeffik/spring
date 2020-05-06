@@ -40,7 +40,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         Response response = createGameRequest()
 
         then:
-        1 * playerService.createCroupier() >> croup
+        1 * playerService.getCroupier() >> croup
         1 * gameService.create(croup) >> game
 
         and:

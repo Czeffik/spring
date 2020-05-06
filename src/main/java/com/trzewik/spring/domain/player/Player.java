@@ -16,9 +16,9 @@ public class Player {
     private final @NonNull String id;
     private final @NonNull String name;
 
-    Player(String name) {
+    Player(@NonNull PlayerService.CreateForm form) {
         this.id = UUID.randomUUID().toString();
-        this.name = name;
+        this.name = form.getName();
     }
 
     static Player createCroupier() {

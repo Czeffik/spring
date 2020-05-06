@@ -32,7 +32,7 @@ public class GameController {
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
-        Game game = gameService.create(playerService.createCroupier());
+        Game game = gameService.create(playerService.getCroupier());
         return GameDto.from(game);
     }
 

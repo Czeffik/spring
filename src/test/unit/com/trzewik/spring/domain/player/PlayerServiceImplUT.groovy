@@ -3,42 +3,47 @@ package com.trzewik.spring.domain.player
 import spock.lang.Specification
 import spock.lang.Subject
 
-class PlayerServiceImplUT extends Specification implements PlayerCreation {
+class PlayerServiceImplUT extends Specification implements PlayerCreation, PlayerFormCreation {
     PlayerRepository repository = new PlayerRepositoryMock()
 
     @Subject
-    PlayerService service = PlayerServiceFactory.create(repository)
+    def service = PlayerServiceFactory.create(repository)
 
     def 'should create new player with given name and save in repository'() {
         given:
-        def playerName = 'Antoni'
+        def form = createPlayerForm()
 
         when:
-        Player player = service.create(playerName)
+        def player = service.create(form)
 
         then:
         repository.repository.size() == 1
-        player.name == playerName
+
+        and:
+        player.name == form.name
+        player.id
+
+        and:
+        repository.repository.get(player.id).name == form.name
     }
 
     def 'should get player from repository'() {
         given:
-        Player player = createPlayer()
+        def player = createPlayer()
 
         and:
         repository.save(player)
 
         when:
-        Player found = service.get(player.id)
+        def found = service.get(player.id)
 
         then:
         found == player
-        found.name == player.name
     }
 
     def 'should throw exception when player is not found in repository'() {
         given:
-        Player player = createPlayer()
+        def player = createPlayer()
 
         and:
         repository.save(player)
@@ -56,16 +61,40 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation {
 
     def 'should create new croupier and save in repository'() {
         when:
-        Player player = service.createCroupier()
+        def player = service.getCroupier()
 
         then:
         repository.repository.size() == 1
-        player.name == 'Croupier'
+
+        and:
+        player.name == 'CROUPIER'
+        player.id == 'CROUPIER-ID'
+
+        and:
+        repository.repository.get('CROUPIER-ID').name == 'CROUPIER'
+    }
+
+    def 'should get croupier from repository'() {
+        given:
+        repository.save(createPlayer(PlayerCreator.croupier()))
+
+        when:
+        def player = service.getCroupier()
+
+        then:
+        repository.repository.size() == 1
+
+        and:
+        player.name == 'CROUPIER'
+        player.id == 'CROUPIER-ID'
+
+        and:
+        repository.repository.get('CROUPIER-ID').name == 'CROUPIER'
     }
 
     def 'should get players from repository'() {
         given:
-        def players = createPlayers(4)
+        def players = createPlayers()
 
         and:
         players.each { repository.save(it) }
@@ -79,6 +108,36 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation {
         then:
         found.size() == players.size()
         found == players
+    }
+
+    def 'should throw null pointer exception when form is null when trying create new player'() {
+        when:
+        service.create(null)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'newPlayerForm is marked non-null but is null'
+
+        and:
+        repository.repository.isEmpty()
+    }
+
+    def 'should throw null pointer exception when player id is null when getting player'() {
+        when:
+        service.get(null as String)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'id is marked non-null but is null'
+    }
+
+    def 'should throw null pointer exception when player ids is null when getting players'() {
+        when:
+        service.get(null as List<String>)
+
+        then:
+        NullPointerException ex = thrown()
+        ex.message == 'playerIds is marked non-null but is null'
     }
 
 }

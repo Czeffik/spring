@@ -1,38 +1,49 @@
 package com.trzewik.spring.domain.player;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 class PlayerServiceImpl implements PlayerService {
     private final PlayerRepository playerRepo;
 
     @Override
-    public Player create(String playerName) {
-        Player player = new Player(playerName);
+    public Player create(@NonNull PlayerService.CreateForm newPlayerForm) {
+        log.info("Created player from form: [{}]", newPlayerForm);
+        Player player = new Player(newPlayerForm);
 
+        log.info("Created player: [{}]", player);
         playerRepo.save(player);
 
         return player;
     }
 
     @Override
-    public Player createCroupier() {
-        Player croupier = Player.createCroupier();
+    public Player getCroupier() {
+        try {
+            return get(Player.CROUPIER_ID);
+        } catch (PlayerRepository.PlayerNotFoundException e) {
+            log.error("Croupier not found in repository.");
 
-        playerRepo.save(croupier);
-
-        return croupier;
+            Player croupier = Player.createCroupier();
+            playerRepo.save(croupier);
+            return croupier;
+        }
     }
 
     @Override
-    public Player get(String id) throws PlayerRepository.PlayerNotFoundException {
+    public Player get(@NonNull String id) throws PlayerRepository.PlayerNotFoundException {
+        log.info("Get player with id: [{}]", id);
         return playerRepo.getById(id);
     }
 
     @Override
-    public List<Player> get(List<String> playerIds) {
+    public List<Player> get(@NonNull List<String> playerIds) {
+        log.info("Get players with ids: [{}]", playerIds);
         return playerRepo.findAllById(playerIds);
     }
 }
