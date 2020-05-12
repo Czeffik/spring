@@ -9,14 +9,14 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameDto {
     private final String id;
-    private final String status;
+    private final Game.Status status;
     private final PlayerInGameDto currentPlayer;
     private final CroupierDto croupier;
 
     public static GameDto from(final Game game) {
         return new GameDto(
             game.getId(),
-            game.getStatus().name(),
+            game.getStatus(),
             PlayerInGameDto.from(game.getCurrentPlayer(), game.getPlayers()),
             CroupierDto.from(game.getCroupier(), game.getPlayers())
         );

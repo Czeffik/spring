@@ -5,6 +5,7 @@ import com.trzewik.spring.interfaces.rest.game.GameRequestSender
 import com.trzewik.spring.interfaces.rest.player.PlayerRequestSender
 import io.restassured.response.Response
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 
@@ -15,6 +16,8 @@ import org.springframework.test.context.ContextConfiguration
 )
 @ContextConfiguration(initializers = DbInitializer)
 class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender {
+    @LocalServerPort
+    int port
 
     def '''should create new game with croupier and deck
         and add new player to this game

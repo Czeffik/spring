@@ -10,13 +10,13 @@ import lombok.Getter;
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CardDto {
-    private final String suit;
-    private final String rank;
+    private final Card.Suit suit;
+    private final Card.Rank rank;
 
     public static CardDto from(Card card) {
         return new CardDto(
-            card.getSuit().name(),
-            card.getRank().name()
+            card.getSuit(),
+            card.getRank()
         );
     }
 }

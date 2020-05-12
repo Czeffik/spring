@@ -1,13 +1,14 @@
 package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.game.Game.Exception;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;
 import com.trzewik.spring.domain.game.Result;
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.domain.player.PlayerService;
+import com.trzewik.spring.interfaces.rest.common.ErrorDto;
+import com.trzewik.spring.interfaces.rest.common.ErrorEntityHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,17 +69,23 @@ public class GameController {
         return ResultsDto.from(results);
     }
 
-    @ExceptionHandler(value = {Game.Exception.class, Result.Exception.class})
-    public ResponseEntity<Object> handleBadRequest(Exception ex) {
-        String bodyOfResponse = ex.getMessage();
-        return new ResponseEntity<>(bodyOfResponse, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(value = Game.Exception.class)
+    public ResponseEntity<ErrorDto> handleBadRequest(Game.Exception ex) {
+        return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {
-        GameRepository.GameNotFoundException.class, PlayerRepository.PlayerNotFoundException.class
-    })
-    public ResponseEntity<Object> handleGameNotFound(Exception ex) {
-        String bodyOfResponse = ex.getMessage();
-        return new ResponseEntity<>(bodyOfResponse, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(value = Result.Exception.class)
+    public ResponseEntity<ErrorDto> handleBadRequest(Result.Exception ex) {
+        return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = GameRepository.GameNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleGameNotFound(GameRepository.GameNotFoundException ex) {
+        return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = PlayerRepository.PlayerNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleGameNotFound(PlayerRepository.PlayerNotFoundException ex) {
+        return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
     }
 }
