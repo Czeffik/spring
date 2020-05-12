@@ -15,12 +15,26 @@ trait GameCreation {
         )
     }
 
-    static class GameCreator implements PlayerCreation, PlayerInGameCreation {
+    static class GameCreator implements PlayerCreation, PlayerInGameCreation, CardCreation {
         String id = UUID.randomUUID().toString()
         Deck deck = new Deck()
         Map<Player, PlayerInGame> players = [(createPlayer(PlayerCreator.croupier())): createPlayerInGame(), (createPlayer()): createPlayerInGame()]
         Player croupier = createPlayer(PlayerCreator.croupier())
         Game.Status status = Game.Status.NOT_STARTED
+
+        GameCreator startedGame() {
+            return new GameCreator(
+                status: Game.Status.STARTED,
+                players: [
+                    (createPlayer(PlayerCreator.croupier())): createPlayerInGame(new PlayerInGameCreator(
+                        hand: [createCard(new CardCreator(rank: Card.Rank.QUEEN)), createCard(new CardCreator(rank: Card.Rank.JACK))] as Set,
+                    )),
+                    (createPlayer())                        : createPlayerInGame(new PlayerInGameCreator(
+                        hand: [createCard(), createCard(new CardCreator(rank: Card.Rank.KING))] as Set,
+                    ))]
+            )
+
+        }
 
         GameCreator() {}
 

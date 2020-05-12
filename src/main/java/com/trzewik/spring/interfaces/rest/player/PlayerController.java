@@ -34,17 +34,17 @@ public class PlayerController {
         return PlayerDto.from(service.get(playerId));
     }
 
-    @ExceptionHandler(value = {PlayerRepository.PlayerNotFoundException.class})
+    @ExceptionHandler(value = PlayerRepository.PlayerNotFoundException.class)
     public ResponseEntity<ErrorDto> handleNotFound(PlayerRepository.PlayerNotFoundException ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = {NullPointerException.class})
+    @ExceptionHandler(value = NullPointerException.class)
     public ResponseEntity<ErrorDto> handleBadRequest(NullPointerException ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {Exception.class})
+    @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ErrorDto> handleInternalServerError(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }

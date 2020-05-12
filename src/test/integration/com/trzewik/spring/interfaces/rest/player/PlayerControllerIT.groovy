@@ -3,14 +3,16 @@ package com.trzewik.spring.interfaces.rest.player
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository
 import com.trzewik.spring.domain.player.PlayerService
+import com.trzewik.spring.interfaces.rest.ErrorResponseValidator
 import com.trzewik.spring.interfaces.rest.RestConfiguration
 import com.trzewik.spring.interfaces.rest.TestRestConfig
 import groovy.json.JsonSlurper
-import io.restassured.response.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import spock.lang.Shared
 import spock.lang.Specification
 
 @ActiveProfiles(['test-rest', 'test'])
@@ -18,14 +20,14 @@ import spock.lang.Specification
     classes = [RestConfiguration.class, TestRestConfig.class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class PlayerControllerIT extends Specification implements PlayerRequestSender, PlayerCreation {
+class PlayerControllerIT extends Specification implements PlayerRequestSender, PlayerCreation,
+    PlayerResponseValidator, ErrorResponseValidator {
+    @Shared
+    JsonSlurper jsonSlurper = new JsonSlurper()
     @Autowired
     PlayerService service
-
     @LocalServerPort
     int port
-
-    JsonSlurper slurper = new JsonSlurper()
 
     def 'should create player successfully and return player object representation in response'() {
         given:
@@ -39,10 +41,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         and:
             response.statusCode() == 200
         and:
-            with(slurper.parseText(response.body().asString())) {
-                id == player.id
-                name == player.name
-            }
+            validatePlayerResponse(response, player)
     }
 
     def 'should get player by id successfully and return player representation in response'() {
@@ -55,59 +54,51 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         and:
             response.statusCode() == 200
         and:
-            with(slurper.parseText(response.body().asString())) {
-                id == player.id
-                name == player.name
-            }
+            validatePlayerResponse(response, player)
     }
 
     def 'should return NOT_FOUND with message when PlayerNotFoundException is thrown - get player'() {
         given:
-            String playerId = 'example-player-id'
+            def playerId = 'example-player-id'
         when:
-            Response response = getPlayerRequest(playerId)
+            def response = getPlayerRequest(playerId)
         then:
             1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
         and:
             response.statusCode() == 404
         and:
-            with(slurper.parseText(response.body().asString())) {
-                message == "Can not find player with id: [${playerId}] in repository."
-                code == 404
-                reason == 'Not Found'
-            }
+            validateErrorResponse(response, "Can not find player with id: [${playerId}] in repository.", HttpStatus.NOT_FOUND)
     }
 
     def 'should return BAD_REQUEST with message when NullPointerException is thrown - get player'() {
         given:
-            String playerId = 'example-player-id'
+            def playerId = 'example-player-id'
         when:
-            Response response = getPlayerRequest(playerId)
+            def response = getPlayerRequest(playerId)
         then:
             1 * service.get(playerId) >> { throw new NullPointerException(playerId) }
         and:
             response.statusCode() == 400
         and:
-            with(slurper.parseText(response.body().asString())) {
-                message == playerId
-                code == 400
-                reason == 'Bad Request'
-            }
+            validateErrorResponse(response, playerId, HttpStatus.BAD_REQUEST)
+
     }
 
     def 'should return INTERNAL_SERVER_ERROR with message when Exception is thrown - get player'() {
         given:
-            String playerId = 'example-player-id'
+            def playerId = 'example-player-id'
         when:
-            Response response = getPlayerRequest(playerId)
+            def response = getPlayerRequest(playerId)
         then:
             1 * service.get(playerId) >> { throw new Exception() }
         and:
             response.statusCode() == 500
         and:
-            with(slurper.parseText(response.body().asString())) {
-                code == 500
-                reason == 'Internal Server Error'
-            }
+            validateErrorResponse(response, null, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @Override
+    JsonSlurper getSlurper() {
+        return jsonSlurper
     }
 }

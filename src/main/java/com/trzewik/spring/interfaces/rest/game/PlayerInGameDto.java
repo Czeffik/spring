@@ -1,5 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game;
 
+import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.PlayerInGame;
 import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
@@ -15,7 +16,7 @@ public class PlayerInGameDto {
     private final String id;
     private final String name;
     private final HandDto hand;
-    private final String move;
+    private final Game.Move move;
 
     public static PlayerInGameDto from(Player player, Map<Player, PlayerInGame> players) {
         return Optional.ofNullable(player)
@@ -24,7 +25,7 @@ public class PlayerInGameDto {
                     p.getId(),
                     p.getName(),
                     HandDto.from(players.get(player)),
-                    players.get(player).getMove().name()))
+                    players.get(player).getMove()))
             .orElse(null);
     }
 }
