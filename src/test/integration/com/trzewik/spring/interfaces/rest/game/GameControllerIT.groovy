@@ -33,355 +33,355 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should create game successfully and return game object representation in response'() {
         given:
-        def game = createStartedGame()
-        def croup = createPlayer(new PlayerCreator(game.croupier))
+            def game = createStartedGame()
+            def croup = createPlayer(new PlayerCreator(game.croupier))
 
         when:
-        Response response = createGameRequest()
+            Response response = createGameRequest()
 
         then:
-        1 * playerService.getCroupier() >> croup
-        1 * gameService.create(croup) >> game
+            1 * playerService.getCroupier() >> croup
+            1 * gameService.create(croup) >> game
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == game.id
-            status == game.status.name()
-            with(currentPlayer) {
-                id == game.currentPlayerId
-                move == game.currentPlayer.move.name()
-                with(hand) {
-                    handValue == game.currentPlayer.handValue()
-                    cards.size() == game.currentPlayer.hand.size()
-                    validateHand(game.currentPlayer.hand, cards)
+            with(slurper.parseText(response.body().asString())) {
+                id == game.id
+                status == game.status.name()
+                with(currentPlayer) {
+                    id == game.currentPlayerId
+                    move == game.currentPlayer.move.name()
+                    with(hand) {
+                        handValue == game.currentPlayer.handValue()
+                        cards.size() == game.currentPlayer.hand.size()
+                        validateHand(game.currentPlayer.hand, cards)
+                    }
+                }
+                with(croupier) {
+                    id == game.croupierId
+                    with(card) {
+                        suit == game.croupier.hand.first().suit.name()
+                        rank == game.croupier.hand.first().rank.name()
+                    }
                 }
             }
-            with(croupier) {
-                id == game.croupierId
-                with(card) {
-                    suit == game.croupier.hand.first().suit.name()
-                    rank == game.croupier.hand.first().rank.name()
-                }
-            }
-        }
     }
 
     def 'should add player to game if found in player repository and return game representation'() {
         given:
-        def game = createStartedGame()
-        def currPlayer = createPlayer(new PlayerCreator(game.currentPlayer))
+            def game = createStartedGame()
+            def currPlayer = createPlayer(new PlayerCreator(game.currentPlayer))
 
         when:
-        Response response = addPlayerRequest(game.id, game.currentPlayerId)
+            Response response = addPlayerRequest(game.id, game.currentPlayerId)
 
         then:
-        1 * playerService.get(game.currentPlayerId) >> currPlayer
+            1 * playerService.get(game.currentPlayerId) >> currPlayer
 
         and:
-        1 * gameService.addPlayer(game.id, currPlayer) >> game
+            1 * gameService.addPlayer(game.id, currPlayer) >> game
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == game.id
-            status == game.status.name()
-            with(currentPlayer) {
-                id == game.currentPlayerId
-                move == game.currentPlayer.move.name()
-                with(hand) {
-                    handValue == game.currentPlayer.handValue()
-                    cards.size() == game.currentPlayer.hand.size()
-                    validateHand(game.currentPlayer.hand, cards)
+            with(slurper.parseText(response.body().asString())) {
+                id == game.id
+                status == game.status.name()
+                with(currentPlayer) {
+                    id == game.currentPlayerId
+                    move == game.currentPlayer.move.name()
+                    with(hand) {
+                        handValue == game.currentPlayer.handValue()
+                        cards.size() == game.currentPlayer.hand.size()
+                        validateHand(game.currentPlayer.hand, cards)
+                    }
+                }
+                with(croupier) {
+                    id == game.croupierId
+                    with(card) {
+                        suit == game.croupier.hand.first().suit.name()
+                        rank == game.croupier.hand.first().rank.name()
+                    }
                 }
             }
-            with(croupier) {
-                id == game.croupierId
-                with(card) {
-                    suit == game.croupier.hand.first().suit.name()
-                    rank == game.croupier.hand.first().rank.name()
-                }
-            }
-        }
     }
 
     def '''should return NOT_FOUND with message when PlayerNotFoundException is thrown - player not found in repository
         adding new player to game'''() {
         given:
-        def playerId = 'player-id'
-        def gameId = 'game-id'
+            def playerId = 'player-id'
+            def gameId = 'game-id'
 
         when:
-        Response response = addPlayerRequest(gameId, playerId)
+            Response response = addPlayerRequest(gameId, playerId)
 
         then:
-        1 * playerService.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+            1 * playerService.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
 
         and:
-        0 * gameService.addPlayer(_)
+            0 * gameService.addPlayer(_)
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Can not find player with id: [${playerId}] in repository."
+            response.body().asString() == "Can not find player with id: [${playerId}] in repository."
     }
 
     def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
         adding new player to game'''() {
         given:
-        def gameId = 'example-game-id'
-        def player = createPlayer(new PlayerCreator(id: 'player-id'))
+            def gameId = 'example-game-id'
+            def player = createPlayer(new PlayerCreator(id: 'player-id'))
 
         when:
-        Response response = addPlayerRequest(gameId, player.id)
+            Response response = addPlayerRequest(gameId, player.id)
 
         then:
-        1 * playerService.get(player.id) >> player
-        1 * gameService.addPlayer(gameId, player) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * playerService.get(player.id) >> player
+            1 * gameService.addPlayer(gameId, player) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: [${gameId}] not found."
+            response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - adding new player to game'() {
         given:
-        def gameId = 'example-game-id'
-        def player = createPlayer(new PlayerCreator(id: 'player-id'))
+            def gameId = 'example-game-id'
+            def player = createPlayer(new PlayerCreator(id: 'player-id'))
 
         and:
-        String exceptionMessage = 'exception message which should be returned by controller'
+            String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = addPlayerRequest(gameId, player.id)
+            Response response = addPlayerRequest(gameId, player.id)
 
         then:
-        1 * playerService.get(player.id) >> player
-        1 * gameService.addPlayer(gameId, player) >> { throw new Game.Exception(exceptionMessage) }
+            1 * playerService.get(player.id) >> player
+            1 * gameService.addPlayer(gameId, player) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
-        response.statusCode() == 400
+            response.statusCode() == 400
 
         and:
-        response.body().asString() == exceptionMessage
+            response.body().asString() == exceptionMessage
     }
 
     def 'should start game successfully and return game object representation in in response'() {
         given:
-        Game game = createStartedGame()
+            Game game = createStartedGame()
 
         when:
-        Response response = startGameRequest(game.id)
+            Response response = startGameRequest(game.id)
 
         then:
-        1 * gameService.start(game.id) >> game
+            1 * gameService.start(game.id) >> game
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == game.id
-            status == game.status.name()
-            with(currentPlayer) {
-                id == game.currentPlayerId
-                move == game.currentPlayer.move.name()
-                with(hand) {
-                    handValue == game.currentPlayer.handValue()
-                    cards.size() == game.currentPlayer.hand.size()
-                    validateHand(game.currentPlayer.hand, cards)
+            with(slurper.parseText(response.body().asString())) {
+                id == game.id
+                status == game.status.name()
+                with(currentPlayer) {
+                    id == game.currentPlayerId
+                    move == game.currentPlayer.move.name()
+                    with(hand) {
+                        handValue == game.currentPlayer.handValue()
+                        cards.size() == game.currentPlayer.hand.size()
+                        validateHand(game.currentPlayer.hand, cards)
+                    }
+                }
+                with(croupier) {
+                    id == game.croupierId
+                    with(card) {
+                        suit == game.croupier.hand.first().suit.name()
+                        rank == game.croupier.hand.first().rank.name()
+                    }
                 }
             }
-            with(croupier) {
-                id == game.croupierId
-                with(card) {
-                    suit == game.croupier.hand.first().suit.name()
-                    rank == game.croupier.hand.first().rank.name()
-                }
-            }
-        }
     }
 
     def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
         starting game'''() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         when:
-        Response response = startGameRequest(gameId)
+            Response response = startGameRequest(gameId)
 
         then:
-        1 * gameService.start(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.start(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: [${gameId}] not found."
+            response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - starting game'() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         and:
-        String exceptionMessage = 'exception message which should be returned by controller'
+            String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = startGameRequest(gameId)
+            Response response = startGameRequest(gameId)
 
         then:
-        1 * gameService.start(gameId) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.start(gameId) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
-        response.statusCode() == 400
+            response.statusCode() == 400
 
         and:
-        response.body().asString() == exceptionMessage
+            response.body().asString() == exceptionMessage
     }
 
     def 'should make move successfully and return game object representation in response'() {
         given:
-        def game = createStartedGame()
+            def game = createStartedGame()
 
         and:
-        def playerId = game.currentPlayerId
+            def playerId = game.currentPlayerId
 
         and:
-        Game.Move playerMove = Game.Move.STAND
+            Game.Move playerMove = Game.Move.STAND
 
         when:
-        Response response = makeMoveRequest(game.id, playerId, playerMove.name())
+            Response response = makeMoveRequest(game.id, playerId, playerMove.name())
 
         then:
-        1 * gameService.makeMove(game.id, playerId, playerMove) >> game
+            1 * gameService.makeMove(game.id, playerId, playerMove) >> game
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == game.id
-            status == game.status.name()
-            with(currentPlayer) {
-                id == game.currentPlayerId
-                move == game.currentPlayer.move.name()
-                with(hand) {
-                    handValue == game.currentPlayer.handValue()
-                    cards.size() == game.currentPlayer.hand.size()
-                    validateHand(game.currentPlayer.hand, cards)
+            with(slurper.parseText(response.body().asString())) {
+                id == game.id
+                status == game.status.name()
+                with(currentPlayer) {
+                    id == game.currentPlayerId
+                    move == game.currentPlayer.move.name()
+                    with(hand) {
+                        handValue == game.currentPlayer.handValue()
+                        cards.size() == game.currentPlayer.hand.size()
+                        validateHand(game.currentPlayer.hand, cards)
+                    }
+                }
+                with(croupier) {
+                    id == game.croupierId
+                    with(card) {
+                        suit == game.croupier.hand.first().suit.name()
+                        rank == game.croupier.hand.first().rank.name()
+                    }
                 }
             }
-            with(croupier) {
-                id == game.croupierId
-                with(card) {
-                    suit == game.croupier.hand.first().suit.name()
-                    rank == game.croupier.hand.first().rank.name()
-                }
-            }
-        }
     }
 
     def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
         player move'''() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         when:
-        Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
+            Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: [${gameId}] not found."
+            response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - player move'() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         and:
-        String exceptionMessage = 'exception message which should be returned by controller'
+            String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
+            Response response = makeMoveRequest(gameId, 'player-id', 'STAND')
 
         then:
-        1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.makeMove(gameId, 'player-id', Game.Move.STAND) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
-        response.statusCode() == 400
+            response.statusCode() == 400
 
         and:
-        response.body().asString() == exceptionMessage
+            response.body().asString() == exceptionMessage
     }
 
     def 'should get results successfully and return Result object representation in response'() {
         given:
-        def gameId = 'example-game-id'
+            def gameId = 'example-game-id'
 
         and:
-        def expectedResults = createResults(3)
+            def expectedResults = createResults(3)
 
         when:
-        Response response = getResultsRequest(gameId)
+            Response response = getResultsRequest(gameId)
 
         then:
-        1 * gameService.getResults(gameId) >> expectedResults
+            1 * gameService.getResults(gameId) >> expectedResults
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            results.size() == expectedResults.size()
-        }
-        //TODO add clever validation
+            with(slurper.parseText(response.body().asString())) {
+                results.size() == expectedResults.size()
+            }
+            //TODO add clever validation
     }
 
     def 'should return NOT_FOUND with message when GameNotFoundException is thrown - get results'() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         when:
-        Response response = getResultsRequest(gameId)
+            Response response = getResultsRequest(gameId)
 
         then:
-        1 * gameService.getResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.getResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Game with id: [${gameId}] not found."
+            response.body().asString() == "Game with id: [${gameId}] not found."
     }
 
     def 'should return BAD_REQUEST with message when GameException is thrown - get results'() {
         given:
-        String gameId = 'example-game-id'
+            String gameId = 'example-game-id'
 
         and:
-        String exceptionMessage = 'exception message which should be returned by controller'
+            String exceptionMessage = 'exception message which should be returned by controller'
 
         when:
-        Response response = getResultsRequest(gameId)
+            Response response = getResultsRequest(gameId)
 
         then:
-        1 * gameService.getResults(gameId) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.getResults(gameId) >> { throw new Game.Exception(exceptionMessage) }
 
         and:
-        response.statusCode() == 400
+            response.statusCode() == 400
 
         and:
-        response.body().asString() == exceptionMessage
+            response.body().asString() == exceptionMessage
     }
 
     boolean validateHand(Set<Card> hand, parsedCards) {

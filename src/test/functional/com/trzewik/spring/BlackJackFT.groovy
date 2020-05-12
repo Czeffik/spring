@@ -24,70 +24,70 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
         and should be possible get game results'''() {
 
         when:
-        Response createGameResponse = createGameRequest()
+            Response createGameResponse = createGameRequest()
 
         then:
-        createGameResponse.statusCode() == 200
+            createGameResponse.statusCode() == 200
 
         and:
-        helper.getAllGames().size() == 1
-        helper.getAllPlayers().size() == 1
-        helper.getAllGamesPlayers().size() == 1
+            helper.getAllGames().size() == 1
+            helper.getAllPlayers().size() == 1
+            helper.getAllGamesPlayers().size() == 1
 
         and:
-        String gameId = slurper.parseText(createGameResponse.body().asString()).id
+            String gameId = slurper.parseText(createGameResponse.body().asString()).id
 
         when:
-        Response createPlayerResponse = createPlayerRequest('Adam')
+            Response createPlayerResponse = createPlayerRequest('Adam')
 
         then:
-        createPlayerResponse.statusCode() == 200
+            createPlayerResponse.statusCode() == 200
 
         and:
-        helper.getAllGames().size() == 1
-        helper.getAllPlayers().size() == 2
-        helper.getAllGamesPlayers().size() == 1
+            helper.getAllGames().size() == 1
+            helper.getAllPlayers().size() == 2
+            helper.getAllGamesPlayers().size() == 1
 
         and:
-        String playerId = slurper.parseText(createPlayerResponse.body().asString()).id
+            String playerId = slurper.parseText(createPlayerResponse.body().asString()).id
 
         when:
-        Response addPlayerResponse = addPlayerRequest(gameId, playerId)
+            Response addPlayerResponse = addPlayerRequest(gameId, playerId)
 
         then:
-        addPlayerResponse.statusCode() == 200
+            addPlayerResponse.statusCode() == 200
 
         and:
-        helper.getAllPlayers().size() == 2
-        helper.getAllGamesPlayers().size() == 2
-        helper.getAllGames().size() == 1
+            helper.getAllPlayers().size() == 2
+            helper.getAllGamesPlayers().size() == 2
+            helper.getAllGames().size() == 1
 
         when:
-        Response startGameResponse = startGameRequest(gameId)
+            Response startGameResponse = startGameRequest(gameId)
 
         then:
-        startGameResponse.statusCode() == 200
+            startGameResponse.statusCode() == 200
 
         and:
-        helper.getAllGamesPlayers().each { assert slurper.parseText(it.hand.value).size() == 2 }
-        helper.getAllGames().first().status == 'STARTED'
+            helper.getAllGamesPlayers().each { assert slurper.parseText(it.hand.value).size() == 2 }
+            helper.getAllGames().first().status == 'STARTED'
 
         when:
-        Response playerMoveResponse = makeMoveRequest(gameId, playerId, 'STAND')
+            Response playerMoveResponse = makeMoveRequest(gameId, playerId, 'STAND')
 
         then:
-        playerMoveResponse.statusCode() == 200
+            playerMoveResponse.statusCode() == 200
 
         and:
-        helper.getAllGames().first().status == 'ENDED'
+            helper.getAllGames().first().status == 'ENDED'
 
         when:
-        Response resultsResponse = getResultsRequest(gameId)
+            Response resultsResponse = getResultsRequest(gameId)
 
         then:
-        resultsResponse.statusCode() == 200
+            resultsResponse.statusCode() == 200
 
         and:
-        slurper.parseText(resultsResponse.body().asString()).results.size() == 2
+            slurper.parseText(resultsResponse.body().asString()).results.size() == 2
     }
 }

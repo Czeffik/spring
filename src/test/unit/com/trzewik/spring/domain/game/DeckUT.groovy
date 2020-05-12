@@ -10,75 +10,75 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
 
     def 'should create deck with 52 cards'() {
         expect:
-        deck.cards.size() == 52
+            deck.cards.size() == 52
     }
 
     def 'should be possible to take one card from deck'() {
         when:
-        def takenCard = deck.take()
+            def takenCard = deck.take()
 
         then:
-        def cards = deck.cards
-        cards.size() == 51
+            def cards = deck.cards
+            cards.size() == 51
 
         and:
-        !cards.contains(takenCard)
+            !cards.contains(takenCard)
     }
 
     def 'should throw exception when cards are null'() {
         when:
-        new Deck(null)
+            new Deck(null)
 
         then:
-        NullPointerException ex = thrown()
-        ex.message == 'cards is marked non-null but is null'
+            NullPointerException ex = thrown()
+            ex.message == 'cards is marked non-null but is null'
     }
 
     def 'should create deck with given stack of cards'() {
         given:
-        def cards = [] as Stack
+            def cards = [] as Stack
 
         when:
-        def deck = new Deck(cards)
+            def deck = new Deck(cards)
 
         then:
-        deck.cards.is(cards)
+            deck.cards.is(cards)
     }
 
-    def 'should throw exception when taking card but stack with cards is empty'(){
+    def 'should throw exception when taking card but stack with cards is empty'() {
         given:
-        def cards = [] as Stack
+            def cards = [] as Stack
 
         and:
-        def deck = new Deck(cards)
+            def deck = new Deck(cards)
 
         when:
-        deck.take()
+            deck.take()
 
         then:
-        Deck.Exception ex = thrown()
-        ex.message == 'Deck has no more cards - deck is empty!'
+            Deck.Exception ex = thrown()
+            ex.message == 'Deck has no more cards - deck is empty!'
 
     }
 
     def 'should create shuffled deck with 52 cards with all cards combinations, and without duplicates'() {
         given:
-        def expectedCards = createCards(createDeckCreators())
+            def expectedCards = createCards(createDeckCreators())
 
         expect:
-        def cards = deck.cards
-        cards.size() == 52
-        cards.containsAll(expectedCards)
-        expectedCards.containsAll(cards)
+            def cards = deck.cards
+            cards.size() == 52
+            cards.containsAll(expectedCards)
+            expectedCards.containsAll(cards)
 
         and: 'cards with random order'
-        cards != expectedCards
+            cards != expectedCards
     }
 
     def 'deck to string method should print return string representation of all cards in deck'() {
         given:
-        def deckWithOrderedCards = createDeck()
+            def deckWithOrderedCards = createDeck()
         expect:
-        deckWithOrderedCards.toString().contains('Deck(cards=[')
+            deckWithOrderedCards.toString().contains('Deck(cards=[')
     }
 }
