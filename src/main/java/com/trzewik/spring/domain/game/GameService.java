@@ -12,15 +12,15 @@ public interface GameService {
 
     Game start(String gameId) throws GameRepository.GameNotFoundException, Game.Exception;
 
-    Game makeMove(String gameId, String playerId, Game.Move move)
+    Game makeMove(String gameId, MoveForm form)
         throws GameRepository.GameNotFoundException, Game.Exception;
 
     List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, Result.Exception;
 
     @Data
     class MoveForm {
-        private Game.Move move;
         private String playerId;
+        private Game.Move move;
     }
 
     @Data
