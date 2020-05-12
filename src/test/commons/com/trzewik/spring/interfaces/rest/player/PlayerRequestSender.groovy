@@ -5,7 +5,7 @@ import io.restassured.http.ContentType
 import io.restassured.response.Response
 import org.springframework.boot.web.server.LocalServerPort
 
-trait PlayerRequestSender extends RequestSender{
+trait PlayerRequestSender extends RequestSender {
     @LocalServerPort
     int port
 
@@ -14,7 +14,7 @@ trait PlayerRequestSender extends RequestSender{
             .body("""{"name": "${playerName}"}""").post().thenReturn()
     }
 
-    Response getPlayerRequest(String playerId){
+    Response getPlayerRequest(String playerId) {
         return request("/players/${playerId}").get().thenReturn()
     }
 

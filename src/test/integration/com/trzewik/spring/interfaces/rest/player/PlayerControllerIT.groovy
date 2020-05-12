@@ -28,58 +28,58 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
 
     def 'should create player successfully and return player object representation in response'() {
         given:
-        Player player = createPlayer()
+            Player player = createPlayer()
 
         when:
-        Response response = createPlayerRequest(player.name)
+            Response response = createPlayerRequest(player.name)
 
         then:
-        1 * service.create(player.name) >> player
+            1 * service.create(player.name) >> player
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == player.id
-            name == player.name
-        }
+            with(slurper.parseText(response.body().asString())) {
+                id == player.id
+                name == player.name
+            }
     }
 
     def 'should get player by id successfully and return prayer represntation in response'() {
         given:
-        Player player = createPlayer()
+            Player player = createPlayer()
 
         when:
-        Response response = getPlayerRequest(player.id)
+            Response response = getPlayerRequest(player.id)
 
         then:
-        1 * service.get(player.id) >> player
+            1 * service.get(player.id) >> player
 
         and:
-        response.statusCode() == 200
+            response.statusCode() == 200
 
         and:
-        with(slurper.parseText(response.body().asString())) {
-            id == player.id
-            name == player.name
-        }
+            with(slurper.parseText(response.body().asString())) {
+                id == player.id
+                name == player.name
+            }
     }
 
     def 'should return NOT_FOUND with message when PlayerNotFoundException is thrown - get player'() {
         given:
-        String playerId = 'example-player-id'
+            String playerId = 'example-player-id'
 
         when:
-        Response response = getPlayerRequest(playerId)
+            Response response = getPlayerRequest(playerId)
 
         then:
-        1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+            1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
 
         and:
-        response.statusCode() == 404
+            response.statusCode() == 404
 
         and:
-        response.body().asString() == "Can not find player with id: [${playerId}] in repository."
+            response.body().asString() == "Can not find player with id: [${playerId}] in repository."
     }
 }

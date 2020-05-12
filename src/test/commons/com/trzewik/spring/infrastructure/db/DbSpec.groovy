@@ -25,11 +25,11 @@ abstract class DbSpec extends Specification {
         helper = new DbHelper(container, DEFAULT_SCHEMA)
     }
 
-    def setup(){
+    def setup() {
         clearDb()
     }
 
-    def cleanup(){
+    def cleanup() {
         clearDb()
     }
 
@@ -44,7 +44,7 @@ abstract class DbSpec extends Specification {
         }
     }
 
-    private static void clearDb(){
+    private static void clearDb() {
         helper.deleteGamesPlayers()
         helper.deleteGames()
         helper.deletePlayers()
