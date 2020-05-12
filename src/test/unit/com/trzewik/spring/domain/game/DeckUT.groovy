@@ -45,6 +45,22 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
         deck.cards.is(cards)
     }
 
+    def 'should throw exception when taking card but stack with cards is empty'(){
+        given:
+        def cards = [] as Stack
+
+        and:
+        def deck = new Deck(cards)
+
+        when:
+        deck.take()
+
+        then:
+        Deck.Exception ex = thrown()
+        ex.message == 'Deck has no more cards - deck is empty!'
+
+    }
+
     def 'should create shuffled deck with 52 cards with all cards combinations, and without duplicates'() {
         given:
         def expectedCards = createCards(createDeckCreators())

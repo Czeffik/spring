@@ -6,11 +6,13 @@ import com.trzewik.spring.domain.player.Player;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Getter
 @EqualsAndHashCode
 public class Game {
@@ -105,7 +107,7 @@ public class Game {
     }
 
     private Map.Entry<Player, PlayerInGame> addCard(Map.Entry<Player, PlayerInGame> entry) {
-        return Maps.immutableEntry(entry.getKey(), entry.getValue().addCard(deck.take()));
+        return Maps.immutableEntry(entry.getKey(), entry.getValue().addCard(takeCard()));
     }
 
     Game auction(@NonNull String playerId, @NonNull Move move) throws Exception {
@@ -123,7 +125,7 @@ public class Game {
     private PlayerInGame makeMove(PlayerInGame currentPlayer, Move move) {
         PlayerInGame playerWithChangedMove = currentPlayer.changeMove(move);
         if (Move.isHit(move)) {
-            return playerWithChangedMove.addCard(deck.take());
+            return playerWithChangedMove.addCard(takeCard());
         }
         return playerWithChangedMove;
     }
@@ -151,9 +153,17 @@ public class Game {
 
     private PlayerInGame croupierDrawCards(PlayerInGame croupier) {
         if (croupier.handValue() < 17) {
-            return croupierDrawCards(croupier.addCard(deck.take()));
+            return croupierDrawCards(croupier.addCard(takeCard()));
         }
         return croupier;
+    }
+
+    private Card takeCard() {
+        try {
+            return deck.take();
+        } catch (Deck.Exception e) {
+            throw new NoCardsException(e);
+        }
     }
 
     private void validatePlayerAddition(Player player) throws Exception {
@@ -185,10 +195,6 @@ public class Game {
             throw new Exception(String.format("Waiting for move from player: [%s] instead of: [%s]",
                 getCurrentPlayer().getId(), playerId));
         }
-    }
-
-    private PlayerInGame getCurrentPlayerInGame() {
-        return getPlayerInGame(getCurrentPlayer());
     }
 
     private PlayerInGame getCroupierInGame() {
@@ -234,6 +240,12 @@ public class Game {
     public static class Exception extends java.lang.Exception {
         public Exception(String msg) {
             super(msg);
+        }
+    }
+
+    public static class NoCardsException extends RuntimeException {
+        public NoCardsException(Deck.Exception exception) {
+            super(exception);
         }
     }
 }

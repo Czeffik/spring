@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 @Getter
@@ -22,8 +23,18 @@ public class Deck {
         shuffle();
     }
 
-    Card take() {
-        return cards.pop();
+    /**
+     * Take single {@link com.trzewik.spring.domain.game.Card} from top of the deck
+     *
+     * @return {@link com.trzewik.spring.domain.game.Card} from top of the deck
+     * @throws Exception when no more cards in deck
+     */
+    Card take() throws Exception {
+        try {
+            return cards.pop();
+        } catch (EmptyStackException ex) {
+            throw new Exception();
+        }
     }
 
     private void shuffle() {
@@ -42,5 +53,11 @@ public class Deck {
                 }
             );
         return stack;
+    }
+
+    static class Exception extends java.lang.Exception {
+        Exception() {
+            super("Deck has no more cards - deck is empty!");
+        }
     }
 }
