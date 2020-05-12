@@ -28,7 +28,7 @@ public class PlayerController {
     }
 
     @GetMapping(value = "/players/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PlayerDto getResults(
+    public PlayerDto getPlayer(
         @PathVariable(value = "playerId") String playerId
     ) throws PlayerRepository.PlayerNotFoundException {
         return PlayerDto.from(service.get(playerId));

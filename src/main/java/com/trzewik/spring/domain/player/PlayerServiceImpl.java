@@ -9,7 +9,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 class PlayerServiceImpl implements PlayerService {
-    private final PlayerRepository playerRepo;
+    private final @NonNull PlayerRepository playerRepo;
 
     @Override
     public Player create(@NonNull PlayerService.CreateForm newPlayerForm) {

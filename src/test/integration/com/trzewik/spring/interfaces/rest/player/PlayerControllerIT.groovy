@@ -1,7 +1,5 @@
 package com.trzewik.spring.interfaces.rest.player
 
-
-import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository
 import com.trzewik.spring.domain.player.PlayerService
@@ -11,6 +9,7 @@ import groovy.json.JsonSlurper
 import io.restassured.response.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -23,22 +22,22 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
     @Autowired
     PlayerService service
 
-    JsonSlurper slurper = new JsonSlurper()
+    @LocalServerPort
+    int port
 
+    JsonSlurper slurper = new JsonSlurper()
 
     def 'should create player successfully and return player object representation in response'() {
         given:
-            Player player = createPlayer()
-
+            def player = createPlayer()
+        and:
+            def form = new PlayerService.CreateForm(name: player.name)
         when:
-            Response response = createPlayerRequest(player.name)
-
+            def response = createPlayerRequest(form)
         then:
-            1 * service.create(player.name) >> player
-
+            1 * service.create(form) >> player
         and:
             response.statusCode() == 200
-
         and:
             with(slurper.parseText(response.body().asString())) {
                 id == player.id
@@ -46,19 +45,15 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
             }
     }
 
-    def 'should get player by id successfully and return prayer represntation in response'() {
+    def 'should get player by id successfully and return player representation in response'() {
         given:
-            Player player = createPlayer()
-
+            def player = createPlayer()
         when:
-            Response response = getPlayerRequest(player.id)
-
+            def response = getPlayerRequest(player.id)
         then:
             1 * service.get(player.id) >> player
-
         and:
             response.statusCode() == 200
-
         and:
             with(slurper.parseText(response.body().asString())) {
                 id == player.id
@@ -69,17 +64,50 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
     def 'should return NOT_FOUND with message when PlayerNotFoundException is thrown - get player'() {
         given:
             String playerId = 'example-player-id'
-
         when:
             Response response = getPlayerRequest(playerId)
-
         then:
             1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
-
         and:
             response.statusCode() == 404
-
         and:
-            response.body().asString() == "Can not find player with id: [${playerId}] in repository."
+            with(slurper.parseText(response.body().asString())) {
+                message == "Can not find player with id: [${playerId}] in repository."
+                code == 404
+                reason == 'Not Found'
+            }
+    }
+
+    def 'should return BAD_REQUEST with message when NullPointerException is thrown - get player'() {
+        given:
+            String playerId = 'example-player-id'
+        when:
+            Response response = getPlayerRequest(playerId)
+        then:
+            1 * service.get(playerId) >> { throw new NullPointerException(playerId) }
+        and:
+            response.statusCode() == 400
+        and:
+            with(slurper.parseText(response.body().asString())) {
+                message == playerId
+                code == 400
+                reason == 'Bad Request'
+            }
+    }
+
+    def 'should return INTERNAL_SERVER_ERROR with message when Exception is thrown - get player'() {
+        given:
+            String playerId = 'example-player-id'
+        when:
+            Response response = getPlayerRequest(playerId)
+        then:
+            1 * service.get(playerId) >> { throw new Exception() }
+        and:
+            response.statusCode() == 500
+        and:
+            with(slurper.parseText(response.body().asString())) {
+                code == 500
+                reason == 'Internal Server Error'
+            }
     }
 }
