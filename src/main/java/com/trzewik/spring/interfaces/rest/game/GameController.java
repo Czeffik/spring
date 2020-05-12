@@ -57,7 +57,7 @@ public class GameController {
         @PathVariable(value = "gameId") String gameId,
         @NonNull @RequestBody GameService.MoveForm moveForm
     ) throws Game.Exception, GameRepository.GameNotFoundException {
-        return GameDto.from(gameService.makeMove(gameId, moveForm.getPlayerId(), moveForm.getMove()));
+        return GameDto.from(gameService.makeMove(gameId, moveForm));
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)

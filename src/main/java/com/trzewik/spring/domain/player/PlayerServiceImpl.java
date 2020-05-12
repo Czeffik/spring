@@ -26,7 +26,7 @@ class PlayerServiceImpl implements PlayerService {
     public Player getCroupier() {
         try {
             return get(Player.CROUPIER_ID);
-        } catch (PlayerRepository.PlayerNotFoundException e) {
+        } catch (PlayerRepository.PlayerNotFoundException ex) {
             log.error("Croupier not found in repository.");
 
             Player croupier = Player.createCroupier();

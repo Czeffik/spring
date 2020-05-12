@@ -161,8 +161,8 @@ public class Game {
     private Card takeCard() {
         try {
             return deck.take();
-        } catch (Deck.Exception e) {
-            throw new NoCardsException(e);
+        } catch (Deck.Exception ex) {
+            throw new NoCardsException(ex);
         }
     }
 
