@@ -38,12 +38,20 @@ trait GameCreation {
 
         GameCreator() {}
 
+        GameCreator(Game game, Map map) {
+            this.id = map.id ?: game.id
+            this.deck = map.deck as Deck ?: game.deck
+            this.players = map.players as Map<Player, PlayerInGame> ?: game.players
+            this.croupier = map.croupier as Player ?: game.croupier
+            this.status = map.status as Game.Status ?: game.status
+        }
+
         GameCreator(Game game) {
-            id = game.id
-            deck = game.deck
-            players = game.players
-            croupier = game.croupier
-            status = game.status
+            this.id = game.id
+            this.deck = game.deck
+            this.players = game.players
+            this.croupier = game.croupier
+            this.status = game.status
         }
     }
 }

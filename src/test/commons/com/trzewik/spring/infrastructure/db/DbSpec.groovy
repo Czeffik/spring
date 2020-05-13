@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db
 
-import groovy.json.JsonSlurper
 import org.flywaydb.core.Flyway
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
@@ -13,24 +12,13 @@ import spock.lang.Specification
 
 abstract class DbSpec extends Specification {
     static final String DEFAULT_SCHEMA = 'test'
-    private static PostgreSQLContainer container
     private static Flyway flyway
-    protected static DbHelper helper
-    protected JsonSlurper slurper = new JsonSlurper()
+    protected static PostgreSQLContainer container
 
     def setupSpec() {
         startContainer()
         setupFlyway()
         migrateDb()
-        helper = new DbHelper(container, DEFAULT_SCHEMA)
-    }
-
-    def setup() {
-        clearDb()
-    }
-
-    def cleanup() {
-        clearDb()
     }
 
     def cleanupSpec() {
@@ -42,12 +30,6 @@ abstract class DbSpec extends Specification {
             container = new PostgreSQLContainer()
             container.start()
         }
-    }
-
-    private static void clearDb() {
-        helper.deleteGamesPlayers()
-        helper.deleteGames()
-        helper.deletePlayers()
     }
 
     private static void migrateDb() {
@@ -79,7 +61,6 @@ abstract class DbSpec extends Specification {
                 .withProperty('db.url', container.jdbcUrl)
                 .withProperty('db.schema', DEFAULT_SCHEMA)
             propertySources.replace(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, mock)
-
         }
     }
 }

@@ -27,7 +27,7 @@ public class PlayerInGameDto {
             gameId,
             playerId,
             createHand(player.getHand()),
-            player.getMove().name()
+            player.getMove() == null ? null : player.getMove().name()
         );
     }
 
