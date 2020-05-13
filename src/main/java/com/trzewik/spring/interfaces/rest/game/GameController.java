@@ -69,23 +69,13 @@ public class GameController {
         return ResultsDto.from(results);
     }
 
-    @ExceptionHandler(value = Game.Exception.class)
-    public ResponseEntity<ErrorDto> handleBadRequest(Game.Exception ex) {
+    @ExceptionHandler(value = {Game.Exception.class, Result.Exception.class})
+    public ResponseEntity<ErrorDto> handleBadRequest(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = Result.Exception.class)
-    public ResponseEntity<ErrorDto> handleBadRequest(Result.Exception ex) {
-        return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(value = GameRepository.GameNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleGameNotFound(GameRepository.GameNotFoundException ex) {
-        return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(value = PlayerRepository.PlayerNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleGameNotFound(PlayerRepository.PlayerNotFoundException ex) {
+    @ExceptionHandler(value = {PlayerRepository.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class})
+    public ResponseEntity<ErrorDto> handleNotFound(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
     }
 }
