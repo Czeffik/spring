@@ -231,10 +231,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         and:
             response.statusCode() == 200
         and:
-            with(slurper.parseText(response.body().asString())) {
-                results.size() == expectedResults.size()
-            }
-            //TODO add clever validation
+            validateResults(response, expectedResults)
     }
 
     def 'should return NOT_FOUND with message when GameNotFoundException is thrown - get results'() {
