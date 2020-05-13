@@ -1,88 +1,104 @@
 package com.trzewik.spring.infrastructure.db
 
-import com.trzewik.spring.domain.game.Card
+
 import com.trzewik.spring.domain.game.CardCreation
-import com.trzewik.spring.domain.game.Deck
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
+import com.trzewik.spring.domain.game.PlayerInGameCreation
 import com.trzewik.spring.domain.player.PlayerCreation
+import com.trzewik.spring.infrastructure.db.game.GameTableInteraction
+import com.trzewik.spring.infrastructure.db.game.GameTableVerification
+import com.trzewik.spring.infrastructure.db.game.PlayerInGameTableInteraction
+import com.trzewik.spring.infrastructure.db.game.PlayerInGameTableVerification
+import com.trzewik.spring.infrastructure.db.player.PlayerTableInteraction
+import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
+import groovy.json.JsonSlurper
+import groovy.sql.Sql
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import spock.lang.Shared
 
+@Slf4j
 @ActiveProfiles(['test-db'])
 @ContextConfiguration(
     classes = [TestDbConfig],
     initializers = [DbInitializer]
 )
-class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation, CardCreation {
+class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreation, PlayerCreation, CardCreation,
+    GameTableInteraction, PlayerInGameTableInteraction, PlayerTableInteraction,
+    GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
 
     @Autowired
     GameRepository repository
 
+    @Shared
+    Sql sql
+    @Shared
+    JsonSlurper jsonSlurper = new JsonSlurper()
+
+    def setupSpec() {
+        sql = Sql.newInstance(
+            container.jdbcUrl,
+            container.username,
+            container.password
+        )
+    }
+
+    def setup() {
+        deleteAllPlayersInGame()
+        deleteAllPlayers()
+        deleteAllGames()
+    }
+
+    def cleanup() {
+        deleteAllPlayersInGame()
+        deleteAllPlayers()
+        deleteAllGames()
+    }
+
+    def cleanupSpec() {
+        sql.close()
+    }
+
     def 'should save game in database'() {
         given:
-            Game game = createStartedGame()
-
+            def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
-
+            game.players.each { player, playerInGame -> savePlayer(player) }
         when:
             repository.save(game)
-
         then:
-            def games = helper.getAllGames()
+            def games = getAllGames()
             games.size() == 1
-
         and:
-            with(games.first()) {
-                id == game.id
-                status == game.status.name()
-                current_player_id == game.currentPlayerId
-                croupier_id == game.croupierId
-            }
-            def parsedDeck = slurper.parseText(games.first().deck.value)
-            validateDeck(game.deck, parsedDeck)
-
+            validateGame(games, game)
         and:
-            def gamesPlayers = helper.getAllGamesPlayers()
-            gamesPlayers.size() == 2
-
+            def playersInGames = getAllPlayersInGame()
+            playersInGames.size() == 2
         and:
-            def gameCroupier = gamesPlayers.find { it.player_id == game.croupierId }
-            gameCroupier.move == game.croupier.move.name()
-            def parsedCroupierHand = slurper.parseText(gameCroupier.hand.value) as List
-            validateHand(game.croupier.hand, parsedCroupierHand)
-
+            validatePlayerInGame(playersInGames, game, game.croupier, game.players)
         and:
-            def gamePlayer = gamesPlayers.find { it.player_id == game.currentPlayerId }
-            gamePlayer.move == game.currentPlayer.move.name()
-            def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
-            validateHand(game.currentPlayer.hand, parsedPlayerHand)
+            validatePlayerInGame(playersInGames, game, game.currentPlayer, game.players)
     }
 
     def '''should return empty optional when can not find game with it
         and should return optional with game when can find game with id'''() {
         given:
-            Game game = createStartedGame()
-
+            def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
-
+            game.players.each { player, playerInGame -> savePlayer(player) }
         and:
-            helper.save(game)
-
+            saveGame(game)
         and:
-            game.players.each { helper.save(game.id, it) }
-
+            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
         expect:
             !repository.findById('other-id').isPresent()
-
         when:
-            Optional<Game> foundGame = repository.findById(game.id)
-
+            def foundGame = repository.findById(game.id)
         then:
             foundGame.present
             foundGame.get() == game
@@ -91,106 +107,75 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerCreation, C
     def '''should throw exception when can not get game by id (not present id repository)
         and should return game when game with id is present in repository'''() {
         given:
-            Game game = createStartedGame()
-
+            def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
-
+            game.players.each { player, playerInGame -> savePlayer(player) }
         and:
-            helper.save(game)
-
+            saveGame(game)
         and:
-            game.players.each { helper.save(game.id, it) }
-
+            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
         when:
             repository.getById('other-id')
-
         then:
             def ex = thrown(GameRepository.GameNotFoundException)
-
         and:
             ex.message == 'Game with id: [other-id] not found.'
-
         when:
-            Game foundGame = repository.getById(game.id)
-
+            def foundGame = repository.getById(game.id)
         then:
             foundGame == game
     }
 
     def 'should update game in database'() {
         given:
-            Game game = createStartedGame()
-
+            def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { helper.save(createPlayer(new PlayerCreator(id: it.id))) }
-
+            game.players.each { player, playerInGame -> savePlayer(player) }
         and:
-            helper.save(game)
-
+            saveGame(game)
         and:
-            game.players.each { helper.save(game.id, it) }
-
+            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
         and:
-            def playerId = game.currentPlayerId
-
-        and:
-            game.auction(playerId, Game.Move.STAND)
-
+            def updatedGame = createGame(new GameCreator(
+                game,
+                [
+                    status : Game.Status.ENDED,
+                    players: game.players.collectEntries { player, playerInGame ->
+                        [player, createPlayerInGame(new PlayerInGameCreator(playerInGame, [move: Game.Move.STAND]))]
+                    }
+                ]
+            ))
         when:
-            repository.update(game)
-
+            repository.update(updatedGame)
         then:
-            def games = helper.getAllGames()
+            def games = getAllGames()
             games.size() == 1
-
         and:
-            with(games.first()) {
-                id == game.id
-                status == game.status.name()
-                current_player_id == game.currentPlayerId
-                croupier_id == game.croupierId
-            }
-            def parsedDeck = slurper.parseText(games.first().deck.value)
-            validateDeck(game.deck, parsedDeck)
-
+            validateGame(games, updatedGame)
         and:
-            def gamesPlayers = helper.getAllGamesPlayers()
-            gamesPlayers.size() == 2
-
+            def playersInGames = getAllPlayersInGame()
+            playersInGames.size() == 2
         and:
-            def gameCroupier = gamesPlayers.find { it.player_id == game.croupierId }
-            gameCroupier.move == game.croupier.move.name()
-            def parsedCroupierHand = slurper.parseText(gameCroupier.hand.value) as List
-            validateHand(game.croupier.hand, parsedCroupierHand)
-
+            validatePlayerInGame(playersInGames, game, game.croupier, game.players)
         and:
-            def gamePlayer = gamesPlayers.find { it.player_id == playerId }
-            def player = game.players.find { it.id == playerId }
-            gamePlayer.move == player.move.name()
-            def parsedPlayerHand = slurper.parseText(gamePlayer.hand.value) as List
-            validateHand(player.hand, parsedPlayerHand)
+            validatePlayerInGame(playersInGames, game, game.currentPlayer, game.players)
     }
 
     def 'should throw exception when missing record in player table'() {
         when:
-            repository.save(createStartedGame())
-
+            repository.save(createGame(new GameCreator().startedGame()))
         then:
-            thrown(DataIntegrityViolationException)
+            DataIntegrityViolationException ex = thrown()
+            ex.message == ''
     }
 
-    void validateDeck(Deck deck, parsedDeck) {
-        parsedDeck.cards.each { parsedCard ->
-            assert deck.cards.any { it.equals(createCard(new CardCreator(parsedCard.suit, parsedCard.rank))) }
-        }
-        assert parsedDeck.cards.size() == deck.cards.size()
+    @Override
+    String getDefaultSchema() {
+        return DEFAULT_SCHEMA
     }
 
-    void validateHand(Set<Card> hand, List parsedHand) {
-        parsedHand.each { parsedCard ->
-            assert hand.any { it.equals(createCard(new CardCreator(parsedCard.suit, parsedCard.rank))) }
-        }
-        assert parsedHand.size() == hand.size()
+    @Override
+    JsonSlurper getSlurper() {
+        return jsonSlurper
     }
 }

@@ -20,8 +20,13 @@ trait PlayerCreation {
         PlayerCreator() {}
 
         PlayerCreator(Player player) {
-            id = player.id
-            name = player.name
+            this.id = player.id
+            this.name = player.name
+        }
+
+        PlayerCreator(Player player, Map map) {
+            this.id = map.id ?: player.id
+            this.name = map.name ?: player.name
         }
 
         static PlayerCreator croupier() {

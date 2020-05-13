@@ -74,7 +74,9 @@ public class GameController {
         return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {PlayerRepository.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class})
+    @ExceptionHandler(value =
+        {PlayerRepository.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class}
+    )
     public ResponseEntity<ErrorDto> handleNotFound(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
     }
