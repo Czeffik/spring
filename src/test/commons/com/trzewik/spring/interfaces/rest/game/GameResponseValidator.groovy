@@ -3,6 +3,7 @@ package com.trzewik.spring.interfaces.rest.game
 import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.PlayerInGame
+import com.trzewik.spring.domain.game.Result
 import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.interfaces.rest.ResponseValidator
 import io.restassured.response.Response
@@ -30,8 +31,14 @@ trait GameResponseValidator extends ResponseValidator {
     }
 
     boolean validatePlayerHand(parsedHand, PlayerInGame playerInGame) {
-        assert parsedHand.handValue == playerInGame.handValue()
+        assert validateHandValue(parsedHand.handValue, playerInGame.handValue())
         assert validateHand(parsedHand.cards, playerInGame.hand)
+
+        return true
+    }
+
+    boolean validateHandValue(parsedHandValue, handValue) {
+        assert parsedHandValue == handValue
 
         return true
     }
@@ -62,5 +69,18 @@ trait GameResponseValidator extends ResponseValidator {
     boolean isCard(parsedCard, Card card) {
         return parsedCard.suit == card.suit.name() &&
             parsedCard.rank == card.rank.name()
+    }
+
+    boolean validateResults(Response response, List<Result> results) {
+        def parsedResponse = parseResponse(response)
+        assert parsedResponse.results.size() == results.size()
+        (parsedResponse.results as List).eachWithIndex { parsedResult, index ->
+            assert parsedResult.place == results.get(index).place
+            assert parsedResult.name == results.get(index).name
+            assert validateHandValue(parsedResult.hand.handValue, results.get(index).handValue)
+            assert validateHand(parsedResult.hand.cards, results.get(index).hand)
+        }
+
+        return true
     }
 }
