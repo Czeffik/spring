@@ -3,7 +3,6 @@ CREATE TABLE games
     id                VARCHAR(36) PRIMARY KEY,
     deck              json,
     status            TEXT,
-    current_player_id VARCHAR(36),
     croupier_id       VARCHAR(36)
 );
 

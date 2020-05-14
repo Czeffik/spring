@@ -1,6 +1,5 @@
 package com.trzewik.spring.infrastructure.db
 
-
 import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
@@ -17,7 +16,7 @@ import groovy.json.JsonSlurper
 import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
@@ -156,17 +155,17 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
             def playersInGames = getAllPlayersInGame()
             playersInGames.size() == 2
         and:
-            validatePlayerInGame(playersInGames, game, game.croupier, game.players)
+            validatePlayerInGame(playersInGames, updatedGame, updatedGame.croupier, updatedGame.players)
         and:
-            validatePlayerInGame(playersInGames, game, game.currentPlayer, game.players)
+            validatePlayerInGame(playersInGames, updatedGame, updatedGame.players.keySet().find { it != updatedGame.croupier }, updatedGame.players)
     }
 
     def 'should throw exception when missing record in player table'() {
         when:
             repository.save(createGame(new GameCreator().startedGame()))
         then:
-            DataIntegrityViolationException ex = thrown()
-            ex.message == ''
+            JpaObjectRetrievalFailureException ex = thrown()
+            ex.message.matches('Unable to find.* with id.*')
     }
 
     @Override
