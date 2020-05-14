@@ -15,7 +15,7 @@ trait PlayerInGameTableVerification {
         def playerInGame = players.get(player)
 
         assert playerInGameFromDb
-        assert playerInGameFromDb.move == playerInGame.move.name()
+        assert playerInGameFromDb.move == playerInGame.move?.name()
         assert validateHand(slurper.parseText(playerInGameFromDb.hand.value), playerInGame.hand)
 
         return true

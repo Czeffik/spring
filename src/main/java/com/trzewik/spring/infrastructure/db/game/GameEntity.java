@@ -16,6 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -48,6 +49,7 @@ public class GameEntity implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private PlayerEntity croupier;
 
+    @MapKeyJoinColumn(name = "player_id")
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
     private Map<PlayerEntity, PlayerInGameEntity> players;
 

@@ -43,7 +43,7 @@ public class PlayerInGameDto {
     public static PlayerInGame to(PlayerInGameDto dto) {
         return new PlayerInGame(
             mapTo(dto.getHand()),
-            Game.Move.valueOf(dto.getMove())
+            dto.getMove() == null ? null : Game.Move.valueOf(dto.getMove())
         );
     }
 
