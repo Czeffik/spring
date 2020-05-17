@@ -3,6 +3,7 @@ package com.trzewik.spring.interfaces.rest.game
 import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameCreation
+import com.trzewik.spring.domain.game.GameFormCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
 import com.trzewik.spring.domain.game.Result
@@ -29,7 +30,7 @@ import spock.lang.Specification
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation,
-    CardCreation, GameCreation, ErrorResponseValidator, GameResponseValidator {
+    CardCreation, GameCreation, GameFormCreation, ErrorResponseValidator, GameResponseValidator {
     @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
 
@@ -171,7 +172,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         and:
             def player = game.currentPlayer
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.STAND)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
             def response = makeMoveRequest(game.id, form)
         then:
@@ -187,9 +188,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         given:
             String gameId = 'example-game-id'
         and:
-            def playerId = 'player-id'
-        and:
-            def form = new GameService.MoveForm(playerId: playerId, move: Game.Move.STAND)
+            def form = createMoveForm()
         when:
             def response = makeMoveRequest(gameId, form)
         then:
@@ -204,9 +203,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         given:
             String gameId = 'example-game-id'
         and:
-            def playerId = 'player-id'
-        and:
-            def form = new GameService.MoveForm(playerId: playerId, move: Game.Move.STAND)
+            def form = createMoveForm()
         and:
             String exceptionMessage = 'exception message which should be returned by controller'
         when:

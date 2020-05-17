@@ -1,7 +1,7 @@
 package com.trzewik.spring
 
-import com.trzewik.spring.domain.game.Game
-import com.trzewik.spring.domain.game.GameService
+
+import com.trzewik.spring.domain.game.GameFormCreation
 import com.trzewik.spring.domain.player.PlayerFormCreation
 import com.trzewik.spring.infrastructure.db.DbSpec
 import com.trzewik.spring.infrastructure.db.game.GameTableInteraction
@@ -28,7 +28,7 @@ import spock.lang.Shared
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ContextConfiguration(initializers = DbInitializer)
-class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender, PlayerFormCreation,
+class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender, PlayerFormCreation, GameFormCreation,
     GameTableInteraction, PlayerInGameTableInteraction, PlayerTableInteraction,
     GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
     @LocalServerPort
@@ -105,7 +105,7 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
             getAllPlayersInGame().each { assert slurper.parseText(it.hand.value).size() == 2 }
             getAllGames().first().status == 'STARTED'
         when:
-            def playerMoveResponse = makeMoveRequest(gameId, new GameService.MoveForm(playerId: playerId, move: Game.Move.STAND))
+            def playerMoveResponse = makeMoveRequest(gameId, createMoveForm(new MoveFormCreator(playerId: playerId)))
         then:
             playerMoveResponse.statusCode() == 200
         and:

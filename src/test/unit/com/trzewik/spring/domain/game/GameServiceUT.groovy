@@ -5,7 +5,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-class GameServiceUT extends Specification implements GameCreation, PlayerCreation, PlayerInGameCreation {
+class GameServiceUT extends Specification implements GameCreation, GameFormCreation, PlayerCreation, PlayerInGameCreation {
 
     def gameRepo = new GameRepositoryMock()
 
@@ -170,7 +170,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.HIT)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.HIT))
         when:
             Game gameAfterMove = service.makeMove(game.id, form)
         then:
@@ -207,7 +207,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def secondPlayer = game.players.keySet().find { it != game.croupier && it != player }
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.STAND)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
             Game gameAfterMove = service.makeMove(game.id, form)
         then:
@@ -248,7 +248,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def secondPlayer = game.players.keySet().find { it != game.croupier && it != player }
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.STAND)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
             Game gameAfterMove = service.makeMove(game.id, form)
         then:
@@ -277,7 +277,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         given:
             def game = putGameInRepo()
         and:
-            def form = new GameService.MoveForm(playerId: 'player-id', move: Game.Move.STAND)
+            def form = createMoveForm()
         and:
             def id = 'wrong-id'
         when:
@@ -295,7 +295,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.STAND)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
             service.makeMove(game.id, form)
         then:
@@ -311,7 +311,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def form = new GameService.MoveForm(playerId: player.id, move: Game.Move.STAND)
+            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
             service.makeMove(game.id, form)
         then:
@@ -327,7 +327,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def form = new GameService.MoveForm(playerId: game.croupier.id, move: Game.Move.HIT)
+            def form = createMoveForm(new MoveFormCreator(game.croupier, Game.Move.HIT))
         when:
             service.makeMove(game.id, form)
         then:
@@ -414,7 +414,7 @@ class GameServiceUT extends Specification implements GameCreation, PlayerCreatio
 
     def 'should throw null pointer exception when making move in game with null id'() {
         when:
-            service.makeMove(null, new GameService.MoveForm())
+            service.makeMove(null, createMoveForm())
         then:
             NullPointerException ex = thrown()
             ex.message == 'gameId is marked non-null but is null'
