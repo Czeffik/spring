@@ -2,7 +2,7 @@ package com.trzewik.spring
 
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.GameService
-import com.trzewik.spring.domain.player.PlayerService
+import com.trzewik.spring.domain.player.PlayerFormCreation
 import com.trzewik.spring.infrastructure.db.DbSpec
 import com.trzewik.spring.infrastructure.db.game.GameTableInteraction
 import com.trzewik.spring.infrastructure.db.game.GameTableVerification
@@ -28,7 +28,7 @@ import spock.lang.Shared
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ContextConfiguration(initializers = DbInitializer)
-class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender,
+class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender, PlayerFormCreation,
     GameTableInteraction, PlayerInGameTableInteraction, PlayerTableInteraction,
     GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
     @LocalServerPort
@@ -80,7 +80,7 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
         and:
             def gameId = slurper.parseText(createGameResponse.body().asString()).id
         when:
-            def createPlayerResponse = createPlayerRequest(new PlayerService.CreateForm(name: 'Adam'))
+            def createPlayerResponse = createPlayerRequest(createPlayerForm(new PlayerFormCreator(name: 'Adam')))
         then:
             createPlayerResponse.statusCode() == 200
         and:

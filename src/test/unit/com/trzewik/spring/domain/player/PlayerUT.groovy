@@ -41,7 +41,7 @@ class PlayerUT extends Specification implements PlayerFormCreation {
 
     def 'should throw exception when form is null one arg constructor'() {
         when:
-            new Player(null as PlayerService.CreateForm)
+            new Player(null)
 
         then:
             NullPointerException ex = thrown()

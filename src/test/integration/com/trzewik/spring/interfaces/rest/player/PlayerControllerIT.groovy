@@ -1,6 +1,7 @@
 package com.trzewik.spring.interfaces.rest.player
 
 import com.trzewik.spring.domain.player.PlayerCreation
+import com.trzewik.spring.domain.player.PlayerFormCreation
 import com.trzewik.spring.domain.player.PlayerRepository
 import com.trzewik.spring.domain.player.PlayerService
 import com.trzewik.spring.interfaces.rest.ErrorResponseValidator
@@ -20,7 +21,7 @@ import spock.lang.Specification
     classes = [RestConfiguration.class, TestRestConfig.class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class PlayerControllerIT extends Specification implements PlayerRequestSender, PlayerCreation,
+class PlayerControllerIT extends Specification implements PlayerRequestSender, PlayerCreation, PlayerFormCreation,
     PlayerResponseValidator, ErrorResponseValidator {
     @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
@@ -33,7 +34,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         given:
             def player = createPlayer()
         and:
-            def form = new PlayerService.CreateForm(name: player.name)
+            def form = createPlayerForm(new PlayerFormCreator(name: player.name))
         when:
             def response = createPlayerRequest(form)
         then:
