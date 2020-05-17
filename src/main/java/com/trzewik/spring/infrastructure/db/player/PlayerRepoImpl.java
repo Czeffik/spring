@@ -2,7 +2,7 @@ package com.trzewik.spring.infrastructure.db.player;
 
 import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.domain.player.PlayerRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 class PlayerRepoImpl implements PlayerRepository {
     private final PlayerJpaRepository jpaRepository;
 

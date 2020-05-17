@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+//TODO probably should be moved to result domain
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResultsHelper {
 

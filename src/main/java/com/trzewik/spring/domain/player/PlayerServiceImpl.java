@@ -13,7 +13,7 @@ class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player create(@NonNull PlayerService.CreateForm newPlayerForm) {
-        log.info("Created player from form: [{}]", newPlayerForm);
+        log.info("Create player from form: [{}]", newPlayerForm);
         Player player = new Player(newPlayerForm);
 
         log.info("Created player: [{}]", player);
