@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
+import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,6 +15,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -50,7 +53,8 @@ public class PlayerInGameEntity implements Serializable {
     private Set<CardDto> hand;
 
     @Column(name = "move")
-    private String move;
+    @Enumerated(EnumType.STRING)
+    private Game.Move move;
 
     public PlayerInGameEntity(PlayerInGameDto dto) {
         this.id = new PlayerInGameId(dto.getGameId(), dto.getPlayerId());

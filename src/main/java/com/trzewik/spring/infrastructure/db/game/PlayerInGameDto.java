@@ -20,14 +20,14 @@ public class PlayerInGameDto {
     private String gameId;
     private String playerId;
     private Set<CardDto> hand;
-    private String move;
+    private Game.Move move;
 
     public static PlayerInGameDto from(String gameId, String playerId, PlayerInGame player) {
         return new PlayerInGameDto(
             gameId,
             playerId,
             createHand(player.getHand()),
-            player.getMove() == null ? null : player.getMove().name()
+            player.getMove()
         );
     }
 
@@ -43,7 +43,7 @@ public class PlayerInGameDto {
     public static PlayerInGame toPlayerInGame(PlayerInGameDto dto) {
         return new PlayerInGame(
             toHand(dto.getHand()),
-            dto.getMove() == null ? null : Game.Move.valueOf(dto.getMove())
+            dto.getMove()
         );
     }
 

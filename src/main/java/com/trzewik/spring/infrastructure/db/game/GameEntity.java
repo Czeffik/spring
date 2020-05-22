@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
+import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
@@ -14,6 +15,8 @@ import org.hibernate.annotations.TypeDefs;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.MapKeyJoinColumn;
@@ -44,7 +47,8 @@ public class GameEntity implements Serializable {
     private DeckDto deck;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Game.Status status;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private PlayerEntity croupier;

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class GameDto {
     private String id;
     private DeckDto deck;
-    private String status;
+    private Game.Status status;
     private Map<PlayerDto, PlayerInGameDto> players;
     private PlayerDto croupier;
 
@@ -26,7 +26,7 @@ public class GameDto {
         return new GameDto(
             game.getId(),
             DeckDto.from(game.getDeck()),
-            game.getStatus().name(),
+            game.getStatus(),
             createPlayers(game),
             PlayerDto.from(game.getCroupier())
         );
@@ -63,7 +63,7 @@ public class GameDto {
                 e -> PlayerInGameDto.toPlayerInGame(e.getValue())
             )),
             PlayerDto.to(dto.getCroupier()),
-            Game.Status.valueOf(dto.getStatus())
+            dto.getStatus()
         );
     }
 }
