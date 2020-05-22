@@ -3,14 +3,12 @@ package com.trzewik.spring.infrastructure.db.game;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -33,17 +31,14 @@ import java.util.stream.Collectors;
 @Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
-@TypeDefs({
-    @TypeDef(name = "json", typeClass = JsonStringType.class),
-    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class GameEntity implements Serializable {
     @Id
     @Column(name = "id", length = 36)
     private String id;
 
     @Type(type = "jsonb")
-    @Column(name = "deck", columnDefinition = "json")
+    @Column(name = "deck", columnDefinition = "jsonb")
     private DeckDto deck;
 
     @Column(name = "status")
