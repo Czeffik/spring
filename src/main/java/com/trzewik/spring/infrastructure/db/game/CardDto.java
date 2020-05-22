@@ -22,7 +22,7 @@ public class CardDto {
         );
     }
 
-    public static Card to(CardDto dto) {
+    public static Card toCard(CardDto dto) {
         return new Card(dto.suit, dto.rank);
     }
 }

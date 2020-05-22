@@ -25,10 +25,10 @@ public class DeckDto {
         );
     }
 
-    public static Deck to(DeckDto dto) {
+    public static Deck toDeck(DeckDto dto) {
         return new Deck(
             dto.getCards().stream()
-                .map(CardDto::to)
+                .map(CardDto::toCard)
                 .collect(Collectors.toCollection(Stack::new))
         );
     }

@@ -28,7 +28,7 @@ class GameRepoImpl implements GameRepository {
     public Optional<Game> findById(String id) {
         log.info("Looking for game with id: [{}] in repository.", id);
         Optional<GameEntity> optional = jpaRepository.findById(id);
-        return optional.map(GameDto::from).map(GameDto::to);
+        return optional.map(GameDto::from).map(GameDto::toGame);
     }
 
     @Transactional

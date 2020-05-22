@@ -54,13 +54,13 @@ public class GameDto {
             ));
     }
 
-    public static Game to(GameDto dto) {
+    public static Game toGame(GameDto dto) {
         return new Game(
             dto.id,
-            DeckDto.to(dto.getDeck()),
+            DeckDto.toDeck(dto.getDeck()),
             dto.getPlayers().entrySet().stream().collect(Collectors.toMap(
                 e -> PlayerDto.to(e.getKey()),
-                e -> PlayerInGameDto.to(e.getValue())
+                e -> PlayerInGameDto.toPlayerInGame(e.getValue())
             )),
             PlayerDto.to(dto.getCroupier()),
             Game.Status.valueOf(dto.getStatus())

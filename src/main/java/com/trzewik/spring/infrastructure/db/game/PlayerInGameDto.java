@@ -40,16 +40,16 @@ public class PlayerInGameDto {
         );
     }
 
-    public static PlayerInGame to(PlayerInGameDto dto) {
+    public static PlayerInGame toPlayerInGame(PlayerInGameDto dto) {
         return new PlayerInGame(
-            mapTo(dto.getHand()),
+            toHand(dto.getHand()),
             dto.getMove() == null ? null : Game.Move.valueOf(dto.getMove())
         );
     }
 
-    private static Set<Card> mapTo(Set<CardDto> hand) {
+    private static Set<Card> toHand(Set<CardDto> hand) {
         return hand.stream()
-            .map(CardDto::to)
+            .map(CardDto::toCard)
             .collect(Collectors.toSet());
     }
 
