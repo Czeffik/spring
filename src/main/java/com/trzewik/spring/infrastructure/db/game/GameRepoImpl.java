@@ -18,6 +18,7 @@ class GameRepoImpl implements GameRepository {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    @Transactional
     @Override
     public void save(Game game) {
         log.info("Saving game: [{}] in repository.", game);
