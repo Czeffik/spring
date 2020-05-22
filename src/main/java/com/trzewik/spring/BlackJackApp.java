@@ -1,6 +1,6 @@
 package com.trzewik.spring;
 
-import com.trzewik.spring.infrastructure.db.DomainConfiguration;
+import com.trzewik.spring.infrastructure.DomainConfiguration;
 import com.trzewik.spring.infrastructure.db.DbConfiguration;
 import com.trzewik.spring.interfaces.rest.RestConfiguration;
 import org.springframework.boot.SpringApplication;
