@@ -18,22 +18,21 @@ class PlayerRepoImpl implements PlayerRepository {
     @Override
     public void save(Player player) {
         log.info("Saving player: [{}] in repository", player);
-        jpaRepository.save(new PlayerEntity(PlayerDto.from(player)));
+        jpaRepository.save(new PlayerEntity(player));
     }
 
     @Override
     public Optional<Player> findById(String id) {
         log.info("Looking for player with id: [{}] in repository", id);
         Optional<PlayerEntity> optional = jpaRepository.findById(id);
-        return optional.map(PlayerDto::from).map(PlayerDto::to);
+        return optional.map(PlayerEntity::toPlayer);
     }
 
     @Override
     public List<Player> findAllById(Collection<String> ids) {
         log.info("Looking for players with ids: [{}] in repository", ids);
         return jpaRepository.findAllById(ids).stream()
-            .map(PlayerDto::from)
-            .map(PlayerDto::to)
+            .map(PlayerEntity::toPlayer)
             .collect(Collectors.toList());
     }
 }

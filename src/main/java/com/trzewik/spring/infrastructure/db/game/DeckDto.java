@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DeckDto {
+class DeckDto {
     private Stack<CardDto> cards;
 
-    public static DeckDto from(Deck deck) {
+    static DeckDto from(Deck deck) {
         return new DeckDto(
             deck.getCards().stream()
                 .map(CardDto::from)
@@ -25,9 +25,9 @@ public class DeckDto {
         );
     }
 
-    public static Deck toDeck(DeckDto dto) {
+    Deck toDeck() {
         return new Deck(
-            dto.getCards().stream()
+            this.getCards().stream()
                 .map(CardDto::toCard)
                 .collect(Collectors.toCollection(Stack::new))
         );

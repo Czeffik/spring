@@ -11,18 +11,18 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CardDto {
+class CardDto {
     private Card.Suit suit;
     private Card.Rank rank;
 
-    public static CardDto from(Card card) {
+    static CardDto from(Card card) {
         return new CardDto(
             card.getSuit(),
             card.getRank()
         );
     }
 
-    public static Card toCard(CardDto dto) {
-        return new Card(dto.suit, dto.rank);
+    Card toCard() {
+        return new Card(this.suit, this.rank);
     }
 }

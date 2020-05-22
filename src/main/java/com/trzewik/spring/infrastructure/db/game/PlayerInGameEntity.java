@@ -1,6 +1,7 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
+import com.trzewik.spring.domain.game.PlayerInGame;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "games_players")
@@ -56,9 +58,16 @@ public class PlayerInGameEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private Game.Move move;
 
-    public PlayerInGameEntity(PlayerInGameDto dto) {
-        this.id = new PlayerInGameId(dto.getGameId(), dto.getPlayerId());
-        this.hand = dto.getHand();
-        this.move = dto.getMove();
+    public PlayerInGameEntity(String gameId, String playerId, PlayerInGame playerInGame) {
+        this.id = new PlayerInGameId(gameId, playerId);
+        this.hand = playerInGame.getHand().stream().map(CardDto::from).collect(Collectors.toSet());
+        this.move = playerInGame.getMove();
+    }
+
+    public PlayerInGame toPlayerInGame() {
+        return new PlayerInGame(
+            this.hand.stream().map(CardDto::toCard).collect(Collectors.toSet()),
+            this.move
+        );
     }
 }

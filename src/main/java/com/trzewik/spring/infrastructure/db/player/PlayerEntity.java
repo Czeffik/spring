@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db.player;
 
+import com.trzewik.spring.domain.player.Player;
 import com.trzewik.spring.infrastructure.db.game.PlayerInGameEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,8 +37,15 @@ public class PlayerEntity implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "player", cascade = CascadeType.ALL)
     private Set<PlayerInGameEntity> games;
 
-    public PlayerEntity(PlayerDto player) {
+    public PlayerEntity(Player player) {
         this.id = player.getId();
         this.name = player.getName();
+    }
+
+    public Player toPlayer() {
+        return new Player(
+            this.id,
+            this.name
+        );
     }
 }

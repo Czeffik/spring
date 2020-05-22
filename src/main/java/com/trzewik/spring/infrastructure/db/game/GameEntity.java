@@ -57,15 +57,28 @@ public class GameEntity implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
     private Map<PlayerEntity, PlayerInGameEntity> players;
 
-    public GameEntity(GameDto dto) {
-        this.id = dto.getId();
-        this.deck = dto.getDeck();
-        this.status = dto.getStatus();
-        this.croupier = new PlayerEntity(dto.getCroupier());
-        this.players = dto.getPlayers().entrySet().stream()
+    public GameEntity(Game game) {
+        this.id = game.getId();
+        this.deck = DeckDto.from(game.getDeck());
+        this.status = game.getStatus();
+        this.croupier = new PlayerEntity(game.getCroupier());
+        this.players = game.getPlayers().entrySet().stream()
             .collect(Collectors.toMap(
                 e -> new PlayerEntity(e.getKey()),
-                e -> new PlayerInGameEntity(e.getValue())
+                e -> new PlayerInGameEntity(id, e.getKey().getId(), e.getValue())
             ));
+    }
+
+    public Game toGame() {
+        return new Game(
+            this.id,
+            this.deck.toDeck(),
+            this.players.entrySet().stream().collect(Collectors.toMap(
+                e -> e.getKey().toPlayer(),
+                e -> e.getValue().toPlayerInGame()
+            )),
+            this.croupier.toPlayer(),
+            this.status
+        );
     }
 }

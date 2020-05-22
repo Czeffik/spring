@@ -21,21 +21,21 @@ class GameRepoImpl implements GameRepository {
     @Override
     public void save(Game game) {
         log.info("Saving game: [{}] in repository.", game);
-        jpaRepository.save(new GameEntity(GameDto.from(game)));
+        jpaRepository.save(new GameEntity(game));
     }
 
     @Override
     public Optional<Game> findById(String id) {
         log.info("Looking for game with id: [{}] in repository.", id);
         Optional<GameEntity> optional = jpaRepository.findById(id);
-        return optional.map(GameDto::from).map(GameDto::toGame);
+        return optional.map(GameEntity::toGame);
     }
 
     @Transactional
     @Override
     public void update(Game game) {
         log.info("Updating game: [{}] in repository.", game);
-        entityManager.merge(new GameEntity(GameDto.from(game)));
+        entityManager.merge(new GameEntity(game));
         entityManager.flush();
     }
 }
