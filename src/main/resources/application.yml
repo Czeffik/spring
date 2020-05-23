@@ -1,19 +1,16 @@
 spring:
-  profiles:
-    active: dev
   application:
     name: spring-app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:54320/
+    username: postgres
+    password: example
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: spring_db
 server:
   port: 8080
-db:
-  url: jdbc:postgresql://127.0.0.1:54320/
-  schema: spring_db
-  username: postgres
-  password: example
-  driver:
-    class: org.postgresql.Driver
-hibernate:
-  hbm2ddl:
-    auto: validate
-  default:
-    schema: ${db.schema}

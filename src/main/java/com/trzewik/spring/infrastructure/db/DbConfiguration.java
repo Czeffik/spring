@@ -18,7 +18,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -31,8 +30,8 @@ import java.util.Properties;
 })
 public class DbConfiguration {
     @Bean
-    GameRepository gameRepository(GameJpaRepository gameJpaRepository, EntityManager entityManager) {
-        return GameRepositoryFactory.create(gameJpaRepository, entityManager);
+    GameRepository gameRepository(GameJpaRepository gameJpaRepository) {
+        return GameRepositoryFactory.create(gameJpaRepository);
     }
 
     @Bean
@@ -70,10 +69,10 @@ public class DbConfiguration {
 
     @Bean
     public DataSource dataSource(
-        @Value("${db.driver.class}") String driverClass,
-        @Value("${db.username}") String username,
-        @Value("${db.password}") String password,
-        @Value("${db.url}") String url
+        @Value("${spring.datasource.driver-class-name}") String driverClass,
+        @Value("${spring.datasource.username}") String username,
+        @Value("${spring.datasource.password}") String password,
+        @Value("${spring.datasource.url}") String url
     ) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driverClass);
@@ -85,8 +84,8 @@ public class DbConfiguration {
 
     @Bean
     Properties hibernateProperties(
-        @Value("${hibernate.hbm2ddl.auto}") String hbm2ddl,
-        @Value("${db.schema}") String defaultSchema
+        @Value("${spring.jpa.hibernate.ddl-auto}") String hbm2ddl,
+        @Value("${spring.jpa.properties.hibernate.default_schema}") String defaultSchema
     ) {
         final Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);

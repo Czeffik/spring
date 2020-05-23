@@ -13,11 +13,6 @@ class GameRepositoryMock implements GameRepository, GameCreation {
         return Optional.ofNullable(repository.get(id))
     }
 
-    @Override
-    synchronized void update(Game game) {
-        repository.replace(game.getId(), createGame(new GameCreator(game)))
-    }
-
     synchronized Map<String, Game> getRepository() {
         return repository
     }

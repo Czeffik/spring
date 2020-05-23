@@ -1,6 +1,5 @@
 package com.trzewik.spring
 
-
 import com.trzewik.spring.domain.game.GameFormCreation
 import com.trzewik.spring.domain.player.PlayerFormCreation
 import com.trzewik.spring.infrastructure.db.DbSpec
@@ -13,7 +12,6 @@ import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
 import com.trzewik.spring.interfaces.rest.game.GameRequestSender
 import com.trzewik.spring.interfaces.rest.player.PlayerRequestSender
 import groovy.json.JsonSlurper
-import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -33,19 +31,8 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
     GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
     @LocalServerPort
     int port
-
-    @Shared
-    Sql sql
     @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
-
-    def setupSpec() {
-        sql = Sql.newInstance(
-            container.jdbcUrl,
-            container.username,
-            container.password
-        )
-    }
 
     def setup() {
         deleteAllPlayersInGame()
@@ -57,10 +44,6 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
         deleteAllPlayersInGame()
         deleteAllPlayers()
         deleteAllGames()
-    }
-
-    def cleanupSpec() {
-        sql.close()
     }
 
     def '''should create new game with croupier and deck
@@ -116,11 +99,6 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
             resultsResponse.statusCode() == 200
         and:
             slurper.parseText(resultsResponse.body().asString()).results.size() == 2
-    }
-
-    @Override
-    String getDefaultSchema() {
-        return DEFAULT_SCHEMA
     }
 
     @Override

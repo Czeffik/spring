@@ -13,7 +13,6 @@ import com.trzewik.spring.infrastructure.db.game.PlayerInGameTableVerification
 import com.trzewik.spring.infrastructure.db.player.PlayerTableInteraction
 import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
 import groovy.json.JsonSlurper
-import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
@@ -22,7 +21,7 @@ import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
 
 @Slf4j
-@ActiveProfiles(['test-db'])
+@ActiveProfiles(['test', 'test-db'])
 @ContextConfiguration(
     classes = [TestDbConfig],
     initializers = [DbInitializer]
@@ -35,17 +34,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
     GameRepository repository
 
     @Shared
-    Sql sql
-    @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
-
-    def setupSpec() {
-        sql = Sql.newInstance(
-            container.jdbcUrl,
-            container.username,
-            container.password
-        )
-    }
 
     def setup() {
         deleteAllPlayersInGame()
@@ -57,10 +46,6 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         deleteAllPlayersInGame()
         deleteAllPlayers()
         deleteAllGames()
-    }
-
-    def cleanupSpec() {
-        sql.close()
     }
 
     def 'should save game in database'() {
@@ -145,7 +130,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
                 ]
             ))
         when:
-            repository.update(updatedGame)
+            repository.save(updatedGame)
         then:
             def games = getAllGames()
             games.size() == 1
@@ -166,11 +151,6 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         then:
             JpaObjectRetrievalFailureException ex = thrown()
             ex.message.matches('Unable to find.* with id.*')
-    }
-
-    @Override
-    String getDefaultSchema() {
-        return DEFAULT_SCHEMA
     }
 
     @Override

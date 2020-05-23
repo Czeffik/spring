@@ -30,7 +30,7 @@ class GameServiceImpl implements GameService {
         Game game = gameRepo.getById(gameId).addPlayer(player);
 
         log.info("Added player to game: [{}].", game);
-        gameRepo.update(game);
+        gameRepo.save(game);
 
         return game;
     }
@@ -41,7 +41,7 @@ class GameServiceImpl implements GameService {
         Game game = gameRepo.getById(gameId).start();
 
         log.info("Started game: [{}].", game);
-        gameRepo.update(game);
+        gameRepo.save(game);
 
         return game;
     }
@@ -55,7 +55,7 @@ class GameServiceImpl implements GameService {
             .end();
 
         log.info("Move made in game: [{}].", game);
-        gameRepo.update(game);
+        gameRepo.save(game);
 
         return game;
     }

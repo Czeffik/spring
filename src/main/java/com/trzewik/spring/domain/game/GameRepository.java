@@ -11,8 +11,6 @@ public interface GameRepository {
         return findById(id).orElseThrow(() -> new GameNotFoundException(id));
     }
 
-    void update(Game game);
-
     class GameNotFoundException extends Exception {
         public GameNotFoundException(String id) {
             super(String.format("Game with id: [%s] not found.", id));

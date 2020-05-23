@@ -1,19 +1,16 @@
 package com.trzewik.spring.infrastructure.db
 
-
 import com.trzewik.spring.domain.player.PlayerCreation
 import com.trzewik.spring.domain.player.PlayerRepository
 import com.trzewik.spring.infrastructure.db.player.PlayerTableInteraction
 import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
-import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import spock.lang.Shared
 
 @Slf4j
-@ActiveProfiles(['test-db'])
+@ActiveProfiles(['test', 'test-db'])
 @ContextConfiguration(
     classes = [TestDbConfig],
     initializers = [DbInitializer]
@@ -21,16 +18,6 @@ import spock.lang.Shared
 class PlayerRepositoryIT extends DbSpec implements PlayerCreation, PlayerTableInteraction, PlayerTableVerification {
     @Autowired
     PlayerRepository repository
-    @Shared
-    Sql sql
-
-    def setupSpec() {
-        sql = Sql.newInstance(
-            container.jdbcUrl,
-            container.username,
-            container.password
-        )
-    }
 
     def setup() {
         deleteAllPlayers()
@@ -38,10 +25,6 @@ class PlayerRepositoryIT extends DbSpec implements PlayerCreation, PlayerTableIn
 
     def cleanup() {
         deleteAllPlayers()
-    }
-
-    def cleanupSpec() {
-        sql.close()
     }
 
     def 'should save player in database'() {
@@ -113,10 +96,5 @@ class PlayerRepositoryIT extends DbSpec implements PlayerCreation, PlayerTableIn
             !found.contains(additionalPlayer)
         and:
             found.containsAll(players)
-    }
-
-    @Override
-    String getDefaultSchema() {
-        return DEFAULT_SCHEMA
     }
 }

@@ -5,8 +5,6 @@ import com.trzewik.spring.domain.game.GameRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.Optional;
 
@@ -15,14 +13,11 @@ import java.util.Optional;
 class GameRepoImpl implements GameRepository {
     private final GameJpaRepository jpaRepository;
 
-    @PersistenceContext
-    private final EntityManager entityManager;
-
-    @Transactional
     @Override
+    @Transactional
     public void save(Game game) {
         log.info("Saving game: [{}] in repository.", game);
-        jpaRepository.save(new GameEntity(game));
+        jpaRepository.saveAndFlush(new GameEntity(game));
     }
 
     @Override
@@ -30,13 +25,5 @@ class GameRepoImpl implements GameRepository {
         log.info("Looking for game with id: [{}] in repository.", id);
         Optional<GameEntity> optional = jpaRepository.findById(id);
         return optional.map(GameEntity::toGame);
-    }
-
-    @Transactional
-    @Override
-    public void update(Game game) {
-        log.info("Updating game: [{}] in repository.", game);
-        entityManager.merge(new GameEntity(game));
-        entityManager.flush();
     }
 }
