@@ -20,9 +20,9 @@ trait GameTableInteraction extends DatabaseTableInteraction {
     }
 
     List<List<Object>> saveGame(Game game) {
-        String query = "INSERT INTO $gamesTable (id, deck, status, croupier_id) VALUES (?, CAST(? AS JSON), ?, ?)"
+        String query = "INSERT INTO $gamesTable (id, deck, status, croupier_id, maximum_players) VALUES (?, CAST(? AS JSON), ?, ?, ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.croupier.id])
+        sql.executeInsert(query.toString(), [game.id, convertDeck(game.deck), game.status.name(), game.croupier.id, game.properties.maximumPlayers])
     }
 
     String convertDeck(Deck deck) {

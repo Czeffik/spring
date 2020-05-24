@@ -15,7 +15,7 @@ class GameServiceImpl implements GameService {
     @Override
     public Game create(@NonNull Player croupier) {
         log.info("Create game with croupier: [{}].", croupier);
-        Game game = new Game(croupier);
+        Game game = new Game(croupier, new GameProperties());
 
         log.info("Game created: [{}].", game);
         gameRepo.save(game);
