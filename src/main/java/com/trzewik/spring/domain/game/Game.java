@@ -167,11 +167,7 @@ public class Game {
     }
 
     private Card takeCard() {
-        try {
-            return deck.take();
-        } catch (Deck.Exception ex) {
-            throw new NoCardsException(ex);
-        }
+        return deck.take();
     }
 
     private void validatePlayerAddition(Player player) throws Exception {
@@ -252,12 +248,6 @@ public class Game {
     public static class Exception extends java.lang.Exception {
         public Exception(String msg) {
             super(msg);
-        }
-    }
-
-    public static class NoCardsException extends RuntimeException {
-        public NoCardsException(Deck.Exception exception) {
-            super(exception);
         }
     }
 }

@@ -16,11 +16,9 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
     def 'should be possible to take one card from deck'() {
         when:
             def takenCard = deck.take()
-
         then:
             def cards = deck.cards
             cards.size() == 51
-
         and:
             !cards.contains(takenCard)
     }
@@ -28,7 +26,6 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
     def 'should throw exception when cards are null'() {
         when:
             new Deck(null)
-
         then:
             NullPointerException ex = thrown()
             ex.message == 'cards is marked non-null but is null'
@@ -37,10 +34,8 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
     def 'should create deck with given stack of cards'() {
         given:
             def cards = [] as Stack
-
         when:
             def deck = new Deck(cards)
-
         then:
             deck.cards.is(cards)
     }
@@ -48,29 +43,22 @@ class DeckUT extends Specification implements DeckCreation, CardCreation {
     def 'should throw exception when taking card but stack with cards is empty'() {
         given:
             def cards = [] as Stack
-
         and:
             def deck = new Deck(cards)
-
         when:
             deck.take()
-
         then:
-            Deck.Exception ex = thrown()
-            ex.message == 'Deck has no more cards - deck is empty!'
-
+            thrown(EmptyStackException)
     }
 
     def 'should create shuffled deck with 52 cards with all cards combinations, and without duplicates'() {
         given:
             def expectedCards = createCards(createDeckCreators())
-
         expect:
             def cards = deck.cards
             cards.size() == 52
             cards.containsAll(expectedCards)
             expectedCards.containsAll(cards)
-
         and: 'cards with random order'
             cards != expectedCards
     }
