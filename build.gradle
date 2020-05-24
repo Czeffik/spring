@@ -18,6 +18,7 @@ buildscript {
         //plugins
         pitestVersion = '1.4.6'
         flywayVersion = '6.4.1'
+        contractPublisherVersion = '1.0.9'
         repositories(repos)
     }
 }
@@ -29,7 +30,8 @@ plugins {
     id 'idea'
     id 'info.solidsoft.pitest' version "$pitestVersion"
     id 'checkstyle'
-    id "org.flywaydb.flyway" version "$flywayVersion"
+    id 'org.flywaydb.flyway' version "$flywayVersion"
+    id 'com.hltech.judged.contracts.publisher' version "$contractPublisherVersion"
 }
 
 apply from: 'gradle/test.gradle'

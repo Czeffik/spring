@@ -9,6 +9,7 @@ import com.trzewik.spring.infrastructure.db.game.PlayerInGameTableInteraction
 import com.trzewik.spring.infrastructure.db.game.PlayerInGameTableVerification
 import com.trzewik.spring.infrastructure.db.player.PlayerTableInteraction
 import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
+import com.trzewik.spring.interfaces.rest.SwaggerRequestSender
 import com.trzewik.spring.interfaces.rest.game.GameRequestSender
 import com.trzewik.spring.interfaces.rest.player.PlayerRequestSender
 import groovy.json.JsonSlurper
@@ -26,7 +27,8 @@ import spock.lang.Shared
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ContextConfiguration(initializers = DbInitializer)
-class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSender, PlayerFormCreation, GameFormCreation,
+class BlackJackFT extends DbSpec implements SwaggerRequestSender, FileOperator, GameRequestSender, PlayerRequestSender,
+    PlayerFormCreation, GameFormCreation,
     GameTableInteraction, PlayerInGameTableInteraction, PlayerTableInteraction,
     GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
     @LocalServerPort
@@ -99,6 +101,38 @@ class BlackJackFT extends DbSpec implements GameRequestSender, PlayerRequestSend
             resultsResponse.statusCode() == 200
         and:
             slurper.parseText(resultsResponse.body().asString()).results.size() == 2
+    }
+
+    def 'should return 200 and swagger json file on swagger api docs endpoint'() {
+        when:
+            def response = getApiDocsRequest()
+        then:
+            with(response) {
+                statusCode() == 200
+                contentType.contains('application/json')
+            }
+        when:
+            def body = response.body().asString()
+            def parsedBody = slurper.parseText(body)
+        then:
+            parsedBody.tags.size() == 2
+        and:
+            parsedBody.tags.collect { it.name }.containsAll([
+                'game-controller',
+                'player-controller'
+            ])
+        and:
+            saveFile(body)
+    }
+
+    def 'should return 200 and html on swagger ui endpoint'() {
+        when:
+            def response = getSwaggerUIRequest()
+        then:
+            with(response) {
+                statusCode() == 200
+                contentType.contains('text/html')
+            }
     }
 
     @Override
