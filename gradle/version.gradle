@@ -1,0 +1,19 @@
+project.ext.gitVersion = {
+    "1.${getRevision()}.${gitHash()}"
+}
+
+project.ext.getRevision = {
+    'git rev-list --count HEAD'.execute().text.trim()
+}
+
+project.ext.gitHash = {
+    'git rev-parse --short HEAD'.execute().text.trim()
+}
+
+tasks.register('print_version') {
+    doLast {
+        println "${project.group}.${project.name} version: ${project.version}"
+    }
+}
+
+build.finalizedBy print_version
