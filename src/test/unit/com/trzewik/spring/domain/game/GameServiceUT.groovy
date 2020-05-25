@@ -5,7 +5,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-class GameServiceUT extends Specification implements GameCreation, GamePropertiesCreation, GameFormCreation, PlayerCreation, PlayerInGameCreation {
+class GameServiceUT extends Specification implements GameCreation, GameFormCreation, PlayerCreation, PlayerInGameCreation {
 
     def gameRepo = new GameRepositoryMock()
 
@@ -110,11 +110,13 @@ class GameServiceUT extends Specification implements GameCreation, GamePropertie
     }
 
     def 'should NOT add player to game and throw exception when trying add player to full game'() {
-        given:
+        given: '4 players'
+            def players = (1..4).toList().collect { createPlayer() }.collectEntries { [(it): createPlayerInGame()] }
+        and: 'croupier'
+            players[croupier] = createPlayerInGame()
+        and: 'game'
             def game = putGameInRepo(new GameCreator(
-                properties: createGameProperties(
-                    new GamePropertiesCreator(maximumPlayers: 2)
-                )
+                players: players
             ))
         when:
             service.addPlayer(game.id, createPlayer())

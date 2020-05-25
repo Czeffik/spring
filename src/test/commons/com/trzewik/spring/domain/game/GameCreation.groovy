@@ -11,18 +11,16 @@ trait GameCreation {
             creator.deck,
             creator.players,
             creator.croupier,
-            creator.status,
-            creator.properties
+            creator.status
         )
     }
 
-    static class GameCreator implements GamePropertiesCreation, PlayerCreation, PlayerInGameCreation, CardCreation {
+    static class GameCreator implements PlayerCreation, PlayerInGameCreation, DeckCreation, CardCreation {
         String id = UUID.randomUUID().toString()
-        Deck deck = new Deck()
+        Deck deck = createDeck()
         Map<Player, PlayerInGame> players = [(createPlayer(PlayerCreator.croupier())): createPlayerInGame(), (createPlayer()): createPlayerInGame()]
         Player croupier = createPlayer(PlayerCreator.croupier())
         Game.Status status = Game.Status.NOT_STARTED
-        GameProperties properties = createGameProperties()
 
         GameCreator startedGame() {
             return new GameCreator(
@@ -46,7 +44,6 @@ trait GameCreation {
             this.players = map.players as Map<Player, PlayerInGame> ?: game.players
             this.croupier = map.croupier as Player ?: game.croupier
             this.status = map.status as Game.Status ?: game.status
-            this.properties = map.properites as GameProperties ?: game.properties
         }
 
         GameCreator(Game game) {
@@ -55,7 +52,6 @@ trait GameCreation {
             this.players = game.players
             this.croupier = game.croupier
             this.status = game.status
-            this.properties = game.properties
         }
     }
 }

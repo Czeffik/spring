@@ -1,7 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.domain.game.GameProperties;
 import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.EqualsAndHashCode;
@@ -53,9 +52,6 @@ public class GameEntity implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
     private Map<PlayerEntity, PlayerInGameEntity> players;
 
-    @Column(name = "maximum_players")
-    private int maximumPlayers;
-
     public GameEntity(Game game) {
         this.id = game.getId();
         this.deck = DeckDto.from(game.getDeck());
@@ -66,7 +62,6 @@ public class GameEntity implements Serializable {
                 e -> new PlayerEntity(e.getKey()),
                 e -> new PlayerInGameEntity(id, e.getKey().getId(), e.getValue())
             ));
-        this.maximumPlayers = game.getProperties().getMaximumPlayers();
     }
 
     public Game toGame() {
@@ -78,8 +73,7 @@ public class GameEntity implements Serializable {
                 e -> e.getValue().toPlayerInGame()
             )),
             this.croupier.toPlayer(),
-            this.status,
-            new GameProperties(this.maximumPlayers)
+            this.status
         );
     }
 }

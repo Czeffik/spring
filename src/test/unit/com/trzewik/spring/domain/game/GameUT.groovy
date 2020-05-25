@@ -1,18 +1,17 @@
 package com.trzewik.spring.domain.game
 
-
+import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class GameUT extends Specification implements GamePropertiesCreation, PlayerCreation, PlayerInGameCreation, DeckCreation, CardCreation, GameCreation {
+class GameUT extends Specification implements PlayerCreation, PlayerInGameCreation, DeckCreation, CardCreation, GameCreation {
 
     def croupier = createPlayer(PlayerCreator.croupier())
-    def properties = createGameProperties()
 
     @Subject
-    def game = new Game(croupier, properties)
+    def game = new Game(croupier)
 
     def 'should end game when all players made moves and game was started'() {
         given:
@@ -232,18 +231,23 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
             ex.message == "Player: [${croupier.toString()}] already added to game!"
     }
 
-    def 'should throw exception when game is full'() {
+    @Unroll
+    def 'should throw exception when game is full - #PLAYERS_NUMBER'() {
         given:
+            def players = (1..PLAYERS_NUMBER).toList().collect { createPlayer() }.collectEntries { [(it): createPlayerInGame()] }
+        and:
             def game = createGame(new GameCreator(
-                properties: createGameProperties(
-                    new GamePropertiesCreator(maximumPlayers: 2)
-                )
+                players: players
             ))
         when:
             game.addPlayer(createPlayer())
         then:
             Game.Exception ex = thrown()
-            ex.message == "Game is full with: [2] players. Can not add more players!"
+            ex.message == "Game is full with: [$PLAYERS_NUMBER] players. Can not add more players!"
+        where:
+            PLAYERS_NUMBER | _
+            5              | _
+            6              | _
     }
 
     def 'should create game with id, one player(croupier), croupier, deck, status set to NOT_STARTED'() {
@@ -262,10 +266,8 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
             def deck = createDeck()
             def players = [:] as Map
             def status = Game.Status.STARTED
-
         when:
-            def game = new Game(id, deck, players, croupier, status, properties)
-
+            def game = new Game(id, deck, players, croupier, status)
         then:
             game.id.is(id)
             game.deck.is(deck)
@@ -276,8 +278,7 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
 
     def 'should throw exception when id is null'() {
         when:
-            new Game(null, createDeck(), [:], croupier, Game.Status.NOT_STARTED, properties)
-
+            new Game(null, createDeck(), [:], croupier, Game.Status.NOT_STARTED)
         then:
             NullPointerException ex = thrown()
             ex.message == 'id is marked non-null but is null'
@@ -285,8 +286,7 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
 
     def 'should throw exception when deck is null'() {
         when:
-            new Game('', null, [:], croupier, Game.Status.NOT_STARTED, properties)
-
+            new Game('', null, [:], croupier, Game.Status.NOT_STARTED)
         then:
             NullPointerException ex = thrown()
             ex.message == 'deck is marked non-null but is null'
@@ -294,8 +294,7 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
 
     def 'should throw exception when players are null'() {
         when:
-            new Game('', createDeck(), null, croupier, Game.Status.NOT_STARTED, properties)
-
+            new Game('', createDeck(), null, croupier, Game.Status.NOT_STARTED)
         then:
             NullPointerException ex = thrown()
             ex.message == 'players is marked non-null but is null'
@@ -303,26 +302,15 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
 
     def 'should throw exception when croupier is null - all args constructor'() {
         when:
-            new Game('', createDeck(), [:], null, Game.Status.NOT_STARTED, properties)
-
+            new Game('', createDeck(), [:], null, Game.Status.NOT_STARTED)
         then:
             NullPointerException ex = thrown()
             ex.message == 'croupier is marked non-null but is null'
     }
 
-    def 'should throw exception when properties is null - all args constructor'() {
-        when:
-            new Game('', createDeck(), [:], croupier, Game.Status.NOT_STARTED, null)
-
-        then:
-            NullPointerException ex = thrown()
-            ex.message == 'gameProperties is marked non-null but is null'
-    }
-
     def 'should throw exception when status is null'() {
         when:
-            new Game('', createDeck(), [:], croupier, null, properties)
-
+            new Game('', createDeck(), [:], croupier, null)
         then:
             NullPointerException ex = thrown()
             ex.message == 'status is marked non-null but is null'
@@ -330,26 +318,15 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
 
     def 'should throw exception when croupier is null'() {
         when:
-            new Game(null, properties)
-
+            new Game(null as Player)
         then:
             NullPointerException ex = thrown()
             ex.message == 'null key in entry: null={hand=[], move=null}'
     }
 
-    def 'should throw exception when properties are null'() {
-        when:
-            new Game(croupier, null)
-
-        then:
-            NullPointerException ex = thrown()
-            ex.message == 'gameProperties is marked non-null but is null'
-    }
-
     def 'should throw exception when trying add null player to game'() {
         when:
             game.addPlayer(null)
-
         then:
             NullPointerException ex = thrown()
             ex.message == 'player is marked non-null but is null'
@@ -358,7 +335,6 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
     def 'should throw exception when trying auction with null playerId'() {
         when:
             game.auction(null, Game.Move.HIT)
-
         then:
             NullPointerException ex = thrown()
             ex.message == 'playerId is marked non-null but is null'
@@ -367,7 +343,6 @@ class GameUT extends Specification implements GamePropertiesCreation, PlayerCrea
     def 'should throw exception when trying auction with null player move'() {
         when:
             game.auction('', null)
-
         then:
             NullPointerException ex = thrown()
             ex.message == 'move is marked non-null but is null'

@@ -23,24 +23,21 @@ public class Game {
     private final @NonNull Map<Player, PlayerInGame> players;
     private final @NonNull Player croupier;
     private final @NonNull Status status;
-    private final @NonNull GameProperties properties;
 
     public Game(@NonNull String id,
                 @NonNull Deck deck,
                 @NonNull Map<Player, PlayerInGame> players,
                 @NonNull Player croupier,
-                @NonNull Status status,
-                @NonNull GameProperties gameProperties
+                @NonNull Status status
     ) {
         this.id = id;
         this.deck = deck;
         this.players = ImmutableMap.copyOf(players);
         this.croupier = croupier;
         this.status = status;
-        this.properties = gameProperties;
     }
 
-    Game(@NonNull Player croupier, @NonNull GameProperties gameProperties) {
+    Game(@NonNull Player croupier) {
         this(
             UUID.randomUUID().toString(),
             new Deck(),
@@ -48,8 +45,7 @@ public class Game {
                 .put(croupier, new PlayerInGame())
                 .build(),
             croupier,
-            Status.NOT_STARTED,
-            gameProperties
+            Status.NOT_STARTED
         );
     }
 
@@ -63,8 +59,7 @@ public class Game {
             game.getDeck(),
             game.getPlayers(),
             game.getCroupier(),
-            status,
-            game.getProperties()
+            status
         );
     }
 
@@ -74,8 +69,7 @@ public class Game {
             game.getDeck(),
             players,
             game.getCroupier(),
-            status,
-            game.getProperties()
+            status
         );
     }
 
@@ -177,7 +171,7 @@ public class Game {
         if (players.containsKey(player)) {
             throw new Exception(String.format("Player: [%s] already added to game!", player));
         }
-        if (properties.getMaximumPlayers() <= players.size()) {
+        if (GameProperties.MAXIMUM_PLAYERS <= players.size()) {
             throw new Exception(String.format("Game is full with: [%s] players. Can not add more players!",
                 players.size()));
         }
