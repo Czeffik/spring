@@ -27,7 +27,6 @@ everything which can give and order to application: REST Controllers, JMS queues
 
 
 ### TODO
-* add [archunit](https://www.archunit.org) for checking DDD rules
 * add [feign client](https://github.com/OpenFeign/feign) for example: checking player account balance
 * upgrade swagger - add descriptions for errors and fields
 * ...

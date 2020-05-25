@@ -5,6 +5,7 @@ buildscript {
         spockVersion = '1.3-groovy-2.5'
         restAssuredVersion = '4.2.0'
         testContainersPostgresVersion = '1.14.1'
+        archunitVersion = '0.14.1'
     }
     repositories (repos)
 }
@@ -30,6 +31,8 @@ dependencies {
 
     testImplementation "org.testcontainers:postgresql:${testContainersPostgresVersion}"
     testImplementation "org.flywaydb:flyway-core:${flywayVersion}"
+
+    testImplementation "com.tngtech.archunit:archunit:${archunitVersion}"
 }
 
 idea {
