@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 public interface PlayerService {
-    Player create(CreateForm form);
+    Player create(CreatePlayerCommand command);
 
     Player getCroupier();
 
@@ -14,7 +14,7 @@ public interface PlayerService {
     List<Player> get(List<String> playerIds);
 
     @Data
-    class CreateForm {
+    class CreatePlayerCommand {
         private String name;
     }
 }

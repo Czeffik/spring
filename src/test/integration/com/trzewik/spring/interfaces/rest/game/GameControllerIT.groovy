@@ -2,8 +2,8 @@ package com.trzewik.spring.interfaces.rest.game
 
 import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Game
+import com.trzewik.spring.domain.game.GameCommandCreation
 import com.trzewik.spring.domain.game.GameCreation
-import com.trzewik.spring.domain.game.GameFormCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
 import com.trzewik.spring.domain.game.Result
@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @ActiveProfiles(['test-rest', 'test'])
 @SpringBootTest(
@@ -30,7 +31,7 @@ import spock.lang.Specification
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation,
-    CardCreation, GameCreation, GameFormCreation, ErrorResponseValidator, GameResponseValidator {
+    CardCreation, GameCreation, GameCommandCreation, ErrorResponseValidator, GameResponseValidator {
     @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
 
@@ -44,13 +45,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
     def 'should create game successfully and return game object representation in response'() {
         given:
             def game = createGame(new GameCreator().startedGame())
-        and:
-            def croupier = game.croupier
         when:
             def response = createGameRequest()
         then:
-            1 * playerService.getCroupier() >> croupier
-            1 * gameService.create(croupier) >> game
+            1 * gameService.create() >> game
         and:
             response.statusCode() == 200
         and:
@@ -65,9 +63,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(game.id, currentPlayer.id)
         then:
-            1 * playerService.get(currentPlayer.id) >> currentPlayer
-        and:
-            1 * gameService.addPlayer(game.id, currentPlayer) >> game
+            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+                assert command.gameId == game.id
+                assert command.playerId == currentPlayer.id
+            }) >> game
         and:
             response.statusCode() == 200
         and:
@@ -82,9 +81,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, playerId)
         then:
-            1 * playerService.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
-        and:
-            0 * gameService.addPlayer(_)
+            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+                assert command.gameId == gameId
+                assert command.playerId == playerId
+            }) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
         and:
             response.statusCode() == 404
         and:
@@ -99,8 +99,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, player.id)
         then:
-            1 * playerService.get(player.id) >> player
-            1 * gameService.addPlayer(gameId, player) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+                assert command.gameId == gameId
+                assert command.playerId == player.id
+            }) >> { throw new GameRepository.GameNotFoundException(gameId) }
         and:
             response.statusCode() == 404
         and:
@@ -116,8 +118,10 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, player.id)
         then:
-            1 * playerService.get(player.id) >> player
-            1 * gameService.addPlayer(gameId, player) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+                assert command.gameId == gameId
+                assert command.playerId == player.id
+            }) >> { throw new Game.Exception(exceptionMessage) }
         and:
             response.statusCode() == 400
         and:
@@ -166,33 +170,68 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             validateErrorResponse(response, exceptionMessage, HttpStatus.BAD_REQUEST)
     }
 
-    def 'should make move successfully and return game object representation in response'() {
+    @Unroll
+    def 'should make move: #MOVE successfully and return game object representation in response'() {
         given:
             def game = createGame(new GameCreator().startedGame())
         and:
             def player = game.currentPlayer
-        and:
-            def form = createMoveForm(new MoveFormCreator(player, Game.Move.STAND))
         when:
-            def response = makeMoveRequest(game.id, form)
+            def response = makeMoveRequest(game.id, player.id, MOVE)
         then:
-            1 * gameService.makeMove(game.id, form) >> game
+            1 * gameService.makeMove({ GameService.MoveCommand command ->
+                assert command.playerId == player.id
+                assert command.gameId == game.id
+                assert command.move == MOVE_ENUM
+            }) >> game
         and:
             response.statusCode() == 200
         and:
             validateGameResponse(response, game)
+        where:
+            MOVE    || MOVE_ENUM
+            'HIT'   || Game.Move.HIT
+            'STAND' || Game.Move.STAND
+    }
+
+    @Unroll
+    def 'should return BAD_REQUEST when send request with move which can not be parsed as Game.Move enum: #MOVE'() {
+        given:
+            def game = createGame(new GameCreator().startedGame())
+        and:
+            def player = game.currentPlayer
+        when:
+            def response = makeMoveRequest(game.id, player.id, MOVE)
+        then:
+            0 * gameService.makeMove(_)
+        and:
+            response.statusCode() == 400
+        and:
+            validateErrorResponseMatch(
+                response,
+                'Failed to convert value of type.* to required type.*com\\.trzewik\\.spring\\.domain\\.game\\.Game\\$Move.*',
+                HttpStatus.BAD_REQUEST
+            )
+        where:
+            MOVE    | _
+            'hit'   | _
+            'stand' | _
+            '1'     | _
     }
 
     def '''should return NOT_FOUND with message when GameNotFoundException is thrown - game not found in repository
         player move'''() {
         given:
-            String gameId = 'example-game-id'
-        and:
-            def form = createMoveForm()
+            def gameId = 'example-game-id'
+            def playerId = 'example-id'
         when:
-            def response = makeMoveRequest(gameId, form)
+            def response = makeMoveRequest(gameId, playerId, 'HIT')
         then:
-            1 * gameService.makeMove(gameId, form) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.makeMove({ GameService.MoveCommand command ->
+                assert command.playerId == playerId
+                assert command.gameId == gameId
+                assert command.move == Game.Move.HIT
+            }) >> { throw new GameRepository.GameNotFoundException(gameId) }
         and:
             response.statusCode() == 404
         and:
@@ -201,15 +240,18 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
 
     def 'should return BAD_REQUEST with message when GameException is thrown - player move'() {
         given:
-            String gameId = 'example-game-id'
-        and:
-            def form = createMoveForm()
+            def gameId = 'example-game-id'
+            def playerId = 'example-id'
         and:
             String exceptionMessage = 'exception message which should be returned by controller'
         when:
-            Response response = makeMoveRequest(gameId, form)
+            def response = makeMoveRequest(gameId, playerId, 'HIT')
         then:
-            1 * gameService.makeMove(gameId, form) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.makeMove({ GameService.MoveCommand command ->
+                assert command.playerId == playerId
+                assert command.gameId == gameId
+                assert command.move == Game.Move.HIT
+            }) >> { throw new Game.Exception(exceptionMessage) }
         and:
             response.statusCode() == 400
         and:

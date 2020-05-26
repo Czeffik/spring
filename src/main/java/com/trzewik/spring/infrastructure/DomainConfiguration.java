@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DomainConfiguration {
     @Bean
-    GameService gameService(GameRepository gameRepository) {
-        return GameServiceFactory.create(gameRepository);
+    GameService gameService(GameRepository gameRepository, PlayerService playerService) {
+        return GameServiceFactory.create(gameRepository, playerService);
     }
 
     @Bean

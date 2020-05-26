@@ -2,8 +2,8 @@ package com.trzewik.spring.domain.player
 
 trait PlayerFormCreation {
 
-    PlayerService.CreateForm createPlayerForm(PlayerFormCreator creator = new PlayerFormCreator()) {
-        return new PlayerService.CreateForm(
+    PlayerService.CreatePlayerCommand createPlayerForm(PlayerFormCreator creator = new PlayerFormCreator()) {
+        return new PlayerService.CreatePlayerCommand(
             name: creator.name
         )
     }

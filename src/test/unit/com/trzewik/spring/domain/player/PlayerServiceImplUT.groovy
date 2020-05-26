@@ -116,7 +116,7 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation, Playe
 
         then:
             NullPointerException ex = thrown()
-            ex.message == 'newPlayerForm is marked non-null but is null'
+            ex.message == 'command is marked non-null but is null'
 
         and:
             repository.repository.isEmpty()

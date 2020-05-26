@@ -21,7 +21,7 @@ public class PlayerController {
     private final PlayerService service;
 
     @PostMapping(value = "/players", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PlayerDto createPlayer(@RequestBody PlayerService.CreateForm form) {
+    public PlayerDto createPlayer(@RequestBody PlayerService.CreatePlayerCommand form) {
         return PlayerDto.from(service.create(form));
     }
 

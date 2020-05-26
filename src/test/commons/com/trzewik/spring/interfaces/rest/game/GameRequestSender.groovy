@@ -13,10 +13,9 @@ trait GameRequestSender extends RequestSender {
             .thenReturn()
     }
 
-    Response makeMoveRequest(String gameId, GameService.MoveForm form) {
-        return request("/games/${gameId}/move")
+    Response makeMoveRequest(String gameId, String playerId, String move) {
+        return request("/games/${gameId}/players/${playerId}/${move}")
             .contentType(ContentType.JSON)
-            .body("""{"playerId": "${form.playerId}", "move": "${form.move.name()}"}""")
             .post()
             .thenReturn()
     }
@@ -35,9 +34,8 @@ trait GameRequestSender extends RequestSender {
     }
 
     Response addPlayerRequest(String gameId, String playerId) {
-        return request("/games/${gameId}/players")
+        return request("/games/${gameId}/players/${playerId}")
             .contentType(ContentType.JSON)
-            .body("""{"playerId": "${playerId}"}""")
             .post()
             .thenReturn()
     }
