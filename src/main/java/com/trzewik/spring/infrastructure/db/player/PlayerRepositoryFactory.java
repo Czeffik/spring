@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerRepositoryFactory {
-    public static PlayerRepository create(PlayerJpaRepository jpaRepository) {
+    public static PlayerRepository create(final PlayerJpaRepository jpaRepository) {
         return new PlayerRepoImpl(jpaRepository);
     }
 }

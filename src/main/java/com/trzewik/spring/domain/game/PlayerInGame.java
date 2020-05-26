@@ -13,7 +13,7 @@ public class PlayerInGame {
     private final @NonNull Set<Card> hand;
     private final Game.Move move;
 
-    public PlayerInGame(@NonNull Set<Card> hand, Game.Move move) {
+    public PlayerInGame(@NonNull final Set<Card> hand, final Game.Move move) {
         this.hand = ImmutableSet.copyOf(hand);
         this.move = move;
     }
@@ -28,8 +28,8 @@ public class PlayerInGame {
         return String.format("{hand=%s, move=%s}", hand, move);
     }
 
-    PlayerInGame addCard(@NonNull Card card) {
-        Set<Card> handWithNewCard = ImmutableSet.<Card>builder()
+    PlayerInGame addCard(@NonNull final Card card) {
+        final Set<Card> handWithNewCard = ImmutableSet.<Card>builder()
             .addAll(this.hand)
             .add(card)
             .build();
@@ -37,12 +37,12 @@ public class PlayerInGame {
         return new PlayerInGame(handWithNewCard, this.move);
     }
 
-    PlayerInGame changeMove(@NonNull Game.Move move) {
+    PlayerInGame changeMove(@NonNull final Game.Move move) {
         return new PlayerInGame(this.hand, move);
     }
 
     public int handValue() {
-        int sum = calculateHandValueWithoutAce();
+        final int sum = calculateHandValueWithoutAce();
 
         if (sum <= 11 && hasAceInHand()) {
             return sum + 10;

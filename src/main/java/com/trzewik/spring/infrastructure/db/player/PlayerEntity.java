@@ -37,7 +37,7 @@ public class PlayerEntity implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "player", cascade = CascadeType.ALL)
     private Set<PlayerInGameEntity> games;
 
-    public PlayerEntity(Player player) {
+    public PlayerEntity(final Player player) {
         this.id = player.getId();
         this.name = player.getName();
     }

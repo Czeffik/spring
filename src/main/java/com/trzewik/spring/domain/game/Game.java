@@ -24,11 +24,11 @@ public class Game {
     private final @NonNull Player croupier;
     private final @NonNull Status status;
 
-    public Game(@NonNull String id,
-                @NonNull Deck deck,
-                @NonNull Map<Player, PlayerInGame> players,
-                @NonNull Player croupier,
-                @NonNull Status status
+    public Game(@NonNull final String id,
+                @NonNull final Deck deck,
+                @NonNull final Map<Player, PlayerInGame> players,
+                @NonNull final Player croupier,
+                @NonNull final Status status
     ) {
         this.id = id;
         this.deck = deck;
@@ -37,7 +37,7 @@ public class Game {
         this.status = status;
     }
 
-    Game(@NonNull Player croupier) {
+    Game(@NonNull final Player croupier) {
         this(
             UUID.randomUUID().toString(),
             new Deck(),
@@ -49,11 +49,11 @@ public class Game {
         );
     }
 
-    private Game(@NonNull Game game) {
+    private Game(@NonNull final Game game) {
         this(game, game.getStatus());
     }
 
-    private Game(@NonNull Game game, @NonNull Status status) {
+    private Game(@NonNull final Game game, @NonNull final Status status) {
         this(
             game.getId(),
             game.getDeck(),
@@ -63,7 +63,11 @@ public class Game {
         );
     }
 
-    private Game(@NonNull Game game, @NonNull Map<Player, PlayerInGame> players, @NonNull Status status) {
+    private Game(
+        @NonNull final Game game,
+        @NonNull final Map<Player, PlayerInGame> players,
+        @NonNull final Status status
+    ) {
         this(
             game.getId(),
             game.getDeck(),
@@ -82,13 +86,13 @@ public class Game {
             .orElse(null);
     }
 
-    Game addPlayer(@NonNull Player player) throws Exception {
+    Game addPlayer(@NonNull final Player player) throws Exception {
         validatePlayerAddition(player);
 
         return new Game(this, createPlayersWith(player), this.getStatus());
     }
 
-    private Map<Player, PlayerInGame> createPlayersWith(Player player) {
+    private Map<Player, PlayerInGame> createPlayersWith(final Player player) {
         return ImmutableMap.<Player, PlayerInGame>builder()
             .putAll(this.players)
             .put(player, new PlayerInGame())
@@ -108,52 +112,52 @@ public class Game {
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Map.Entry<Player, PlayerInGame> addCard(Map.Entry<Player, PlayerInGame> entry) {
+    private Map.Entry<Player, PlayerInGame> addCard(final Map.Entry<Player, PlayerInGame> entry) {
         return Maps.immutableEntry(entry.getKey(), entry.getValue().addCard(takeCard()));
     }
 
-    Game auction(@NonNull String playerId, @NonNull Move move) throws Exception {
+    Game auction(@NonNull final String playerId, @NonNull final Move move) throws Exception {
         validateAuction(playerId);
 
         return makeMove(move);
     }
 
-    private Game makeMove(Move move) {
-        Player currentPlayer = getCurrentPlayer();
-        PlayerInGame playerAfterMove = makeMove(getPlayerInGame(currentPlayer), move);
+    private Game makeMove(final Move move) {
+        final Player currentPlayer = getCurrentPlayer();
+        final PlayerInGame playerAfterMove = makeMove(getPlayerInGame(currentPlayer), move);
         return new Game(this, updatePlayerInGame(currentPlayer, playerAfterMove), this.getStatus());
     }
 
-    private PlayerInGame makeMove(PlayerInGame currentPlayer, Move move) {
-        PlayerInGame playerWithChangedMove = currentPlayer.changeMove(move);
+    private PlayerInGame makeMove(final PlayerInGame currentPlayer, final Move move) {
+        final PlayerInGame playerWithChangedMove = currentPlayer.changeMove(move);
         if (Move.isHit(move)) {
             return playerWithChangedMove.addCard(takeCard());
         }
         return playerWithChangedMove;
     }
 
-    private Map<Player, PlayerInGame> updatePlayerInGame(Player player, PlayerInGame playerInGame) {
+    private Map<Player, PlayerInGame> updatePlayerInGame(final Player player, final PlayerInGame playerInGame) {
         return ImmutableMap.<Player, PlayerInGame>builder()
             .putAll(putPlayer(player, playerInGame))
             .build();
     }
 
-    private Map<Player, PlayerInGame> putPlayer(Player player, PlayerInGame playerInGame) {
-        Map<Player, PlayerInGame> copy = new LinkedHashMap<>(this.players);
+    private Map<Player, PlayerInGame> putPlayer(final Player player, final PlayerInGame playerInGame) {
+        final Map<Player, PlayerInGame> copy = new LinkedHashMap<>(this.players);
         copy.put(player, playerInGame);
         return copy;
     }
 
     Game end() {
         if (getCurrentPlayer() == null && status.started()) {
-            PlayerInGame croupierAfterDrawing = croupierDrawCards(getCroupierInGame()).changeMove(Move.STAND);
+            final PlayerInGame croupierAfterDrawing = croupierDrawCards(getCroupierInGame()).changeMove(Move.STAND);
 
             return new Game(this, updatePlayerInGame(croupier, croupierAfterDrawing), Status.ENDED);
         }
         return new Game(this);
     }
 
-    private PlayerInGame croupierDrawCards(PlayerInGame croupier) {
+    private PlayerInGame croupierDrawCards(final PlayerInGame croupier) {
         if (croupier.handValue() < 17) {
             return croupierDrawCards(croupier.addCard(takeCard()));
         }
@@ -164,7 +168,7 @@ public class Game {
         return deck.take();
     }
 
-    private void validatePlayerAddition(Player player) throws Exception {
+    private void validatePlayerAddition(final Player player) throws Exception {
         if (status.isStarted()) {
             throw new Exception("Game started, can not add new player");
         }
@@ -186,7 +190,7 @@ public class Game {
         }
     }
 
-    private void validateAuction(String playerId) throws Exception {
+    private void validateAuction(final String playerId) throws Exception {
         if (!status.isStarted()) {
             throw new Exception("Game NOT started, please start game before auction");
         }
@@ -203,22 +207,22 @@ public class Game {
         return getPlayerInGame(croupier);
     }
 
-    private PlayerInGame getPlayerInGame(Player player) {
+    private PlayerInGame getPlayerInGame(final Player player) {
         return players.get(player);
     }
 
-    private boolean isNotPlayerTurn(String playerId) {
+    private boolean isNotPlayerTurn(final String playerId) {
         return !playerId.equals(getCurrentPlayer().getId());
     }
 
     public enum Move {
         HIT, STAND;
 
-        static boolean isNotStand(Move move) {
+        static boolean isNotStand(final Move move) {
             return !STAND.equals(move);
         }
 
-        static boolean isHit(Move move) {
+        static boolean isHit(final Move move) {
             return HIT.equals(move);
         }
     }

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorEntityHelper {
-    public static ResponseEntity<ErrorDto> create(Exception exception, HttpStatus status) {
+    public static ResponseEntity<ErrorDto> create(final Exception exception, final HttpStatus status) {
         return new ResponseEntity<>(new ErrorDto(exception, status), status);
     }
 }

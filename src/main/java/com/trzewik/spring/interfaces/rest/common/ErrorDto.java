@@ -9,7 +9,7 @@ public class ErrorDto {
     private final int code;
     private final String reason;
 
-    public ErrorDto(Exception exception, HttpStatus status) {
+    public ErrorDto(final Exception exception, final HttpStatus status) {
         this.message = exception.getMessage();
         this.code = status.value();
         this.reason = status.getReasonPhrase();

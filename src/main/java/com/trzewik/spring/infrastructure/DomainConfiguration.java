@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DomainConfiguration {
     @Bean
-    GameService gameService(GameRepository gameRepository, PlayerService playerService) {
+    GameService gameService(final GameRepository gameRepository, final PlayerService playerService) {
         return GameServiceFactory.create(gameRepository, playerService);
     }
 
     @Bean
-    PlayerService playerService(PlayerRepository playerRepository) {
+    PlayerService playerService(final PlayerRepository playerRepository) {
         return PlayerServiceFactory.create(playerRepository);
     }
 }

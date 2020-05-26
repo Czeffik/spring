@@ -15,20 +15,20 @@ import java.util.stream.IntStream;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResultsHelper {
 
-    static List<Result> createResults(Game game) throws Result.Exception {
+    static List<Result> createResults(final Game game) throws Result.Exception {
         validateGameStatus(game);
         return generateResults(game.getPlayers());
     }
 
-    private static void validateGameStatus(Game game) throws Result.Exception {
+    private static void validateGameStatus(final Game game) throws Result.Exception {
         if (!game.getStatus().isEnded()) {
             throw new Result.Exception("Results are available only when game finished. Please continue auction.");
         }
     }
 
     //TODO what if players have exactly same hand value?
-    private static List<Result> generateResults(Map<Player, PlayerInGame> players) {
-        List<Player> sorted = getSortedPlayersByResults(players);
+    private static List<Result> generateResults(final Map<Player, PlayerInGame> players) {
+        final List<Player> sorted = getSortedPlayersByResults(players);
         return IntStream.range(0, sorted.size())
             .mapToObj(index -> {
                 Player player = sorted.get(index);
@@ -37,20 +37,20 @@ public class ResultsHelper {
             .collect(Collectors.toList());
     }
 
-    private static List<Player> getSortedPlayersByResults(Map<Player, PlayerInGame> players) {
-        List<Player> sorted = new ArrayList<>(getSortedWinners(players));
+    private static List<Player> getSortedPlayersByResults(final Map<Player, PlayerInGame> players) {
+        final List<Player> sorted = new ArrayList<>(getSortedWinners(players));
         sorted.addAll(getSortedLosers(players));
         return sorted;
     }
 
-    private static List<Player> getSortedWinners(Map<Player, PlayerInGame> players) {
+    private static List<Player> getSortedWinners(final Map<Player, PlayerInGame> players) {
         return players.keySet().stream()
             .filter(p -> !players.get(p).isLooser())
             .sorted(Comparator.comparing(p -> players.get(p).handValue()).reversed())
             .collect(Collectors.toList());
     }
 
-    private static List<Player> getSortedLosers(Map<Player, PlayerInGame> players) {
+    private static List<Player> getSortedLosers(final Map<Player, PlayerInGame> players) {
         return players.keySet().stream()
             .filter(p -> players.get(p).isLooser())
             .sorted(Comparator.comparing(p -> players.get(p).handValue()))

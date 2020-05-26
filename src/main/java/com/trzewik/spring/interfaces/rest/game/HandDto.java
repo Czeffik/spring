@@ -15,18 +15,18 @@ public class HandDto {
     private final Set<CardDto> cards;
     private final int handValue;
 
-    public static HandDto from(PlayerInGame player) {
+    public static HandDto from(final PlayerInGame player) {
         return from(player.getHand(), player.handValue());
     }
 
-    public static HandDto from(Set<Card> hand, int handValue) {
+    public static HandDto from(final Set<Card> hand, final int handValue) {
         return new HandDto(
             from(hand),
             handValue
         );
     }
 
-    private static Set<CardDto> from(Set<Card> cards) {
+    private static Set<CardDto> from(final Set<Card> cards) {
         return cards.stream()
             .map(CardDto::from)
             .collect(Collectors.toSet());

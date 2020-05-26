@@ -12,9 +12,9 @@ class PlayerServiceImpl implements PlayerService {
     private final @NonNull PlayerRepository playerRepo;
 
     @Override
-    public Player create(@NonNull PlayerService.CreatePlayerCommand createPlayerCommand) {
+    public Player create(@NonNull final PlayerService.CreatePlayerCommand createPlayerCommand) {
         log.info("Received create player command: [{}]", createPlayerCommand);
-        Player player = new Player(createPlayerCommand);
+        final Player player = new Player(createPlayerCommand);
 
         log.info("Created player: [{}]", player);
         playerRepo.save(player);
@@ -29,20 +29,20 @@ class PlayerServiceImpl implements PlayerService {
         } catch (PlayerRepository.PlayerNotFoundException ex) {
             log.error("Croupier not found in repository.");
 
-            Player croupier = Player.createCroupier();
+            final Player croupier = Player.createCroupier();
             playerRepo.save(croupier);
             return croupier;
         }
     }
 
     @Override
-    public Player get(@NonNull String id) throws PlayerRepository.PlayerNotFoundException {
+    public Player get(@NonNull final String id) throws PlayerRepository.PlayerNotFoundException {
         log.info("Get player with id: [{}]", id);
         return playerRepo.getById(id);
     }
 
     @Override
-    public List<Player> get(@NonNull List<String> playerIds) {
+    public List<Player> get(@NonNull final List<String> playerIds) {
         log.info("Get players with ids: [{}]", playerIds);
         return playerRepo.findAllById(playerIds);
     }

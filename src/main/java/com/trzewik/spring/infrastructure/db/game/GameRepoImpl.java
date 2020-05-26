@@ -15,15 +15,14 @@ class GameRepoImpl implements GameRepository {
 
     @Override
     @Transactional
-    public void save(Game game) {
+    public void save(final Game game) {
         log.info("Saving game: [{}] in repository.", game);
         jpaRepository.saveAndFlush(new GameEntity(game));
     }
 
     @Override
-    public Optional<Game> findById(String id) {
+    public Optional<Game> findById(final String id) {
         log.info("Looking for game with id: [{}] in repository.", id);
-        Optional<GameEntity> optional = jpaRepository.findById(id);
-        return optional.map(GameEntity::toGame);
+        return jpaRepository.findById(id).map(GameEntity::toGame);
     }
 }

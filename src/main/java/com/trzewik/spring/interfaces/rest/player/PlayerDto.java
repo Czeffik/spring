@@ -11,7 +11,7 @@ public class PlayerDto {
     private final String id;
     private final String name;
 
-    public static PlayerDto from(Player player) {
+    public static PlayerDto from(final Player player) {
         return new PlayerDto(player.getId(), player.getName());
     }
 }

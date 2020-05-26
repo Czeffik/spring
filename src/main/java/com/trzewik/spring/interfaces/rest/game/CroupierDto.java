@@ -17,7 +17,7 @@ public class CroupierDto {
     private final String name;
     private final CardDto card;
 
-    public static CroupierDto from(Player croupier, Map<Player, PlayerInGame> players) {
+    public static CroupierDto from(final Player croupier, final Map<Player, PlayerInGame> players) {
         return new CroupierDto(
             croupier.getId(),
             croupier.getName(),
@@ -25,7 +25,7 @@ public class CroupierDto {
         );
     }
 
-    private static CardDto getFirstCard(Set<Card> cards) {
+    private static CardDto getFirstCard(final Set<Card> cards) {
         if (cards.iterator().hasNext()) {
             return CardDto.from(cards.iterator().next());
         }

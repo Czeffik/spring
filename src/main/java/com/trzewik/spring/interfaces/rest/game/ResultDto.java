@@ -12,7 +12,7 @@ public class ResultDto {
     private final String name;
     private final HandDto hand;
 
-    public static ResultDto from(Result result) {
+    public static ResultDto from(final Result result) {
         return new ResultDto(
             result.getPlace(),
             result.getName(),

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class ResultsDto {
     private final List<ResultDto> results;
 
-    public static ResultsDto from(List<Result> results) {
+    public static ResultsDto from(final List<Result> results) {
         return new ResultsDto(
             results.stream()
                 .map(ResultDto::from)

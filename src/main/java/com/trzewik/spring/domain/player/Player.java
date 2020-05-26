@@ -16,7 +16,7 @@ public class Player {
     private final @NonNull String id;
     private final @NonNull String name;
 
-    Player(@NonNull PlayerService.CreatePlayerCommand command) {
+    Player(@NonNull final PlayerService.CreatePlayerCommand command) {
         this.id = UUID.randomUUID().toString();
         this.name = command.getName();
     }

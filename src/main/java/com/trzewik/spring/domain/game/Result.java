@@ -15,7 +15,7 @@ public class Result {
     private final @NonNull Set<Card> hand;
     private final int handValue;
 
-    Result(int place, @NonNull Player player, @NonNull PlayerInGame playerInGame) {
+    Result(final int place, @NonNull final Player player, @NonNull final PlayerInGame playerInGame) {
         this.place = place;
         this.name = player.getName();
         this.hand = playerInGame.getHand();

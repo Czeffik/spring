@@ -32,8 +32,8 @@ public class GameController {
 
     @PostMapping(value = "/games/{gameId}/players/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto addPlayer(
-        @PathVariable(value = "gameId") String gameId,
-        @PathVariable(value = "playerId") String playerId
+        @PathVariable(value = "gameId") final String gameId,
+        @PathVariable(value = "playerId") final String playerId
     ) throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
         final GameService.AddPlayerCommand form = new GameService.AddPlayerCommand(gameId, playerId);
         return GameDto.from(gameService.addPlayer(form));
@@ -41,16 +41,16 @@ public class GameController {
 
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto startGame(
-        @PathVariable(value = "gameId") String gameId
+        @PathVariable(value = "gameId") final String gameId
     ) throws Game.Exception, GameRepository.GameNotFoundException {
         return GameDto.from(gameService.start(gameId));
     }
 
     @PostMapping(value = "/games/{gameId}/players/{playerId}/{move}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto makeMove(
-        @PathVariable(value = "gameId") String gameId,
-        @PathVariable(value = "playerId") String playerId,
-        @PathVariable(value = "move") Game.Move move
+        @PathVariable(value = "gameId") final String gameId,
+        @PathVariable(value = "playerId") final String playerId,
+        @PathVariable(value = "move") final Game.Move move
     ) throws Game.Exception, GameRepository.GameNotFoundException {
         final GameService.MoveCommand moveForm = new GameService.MoveCommand(gameId, playerId, move);
         return GameDto.from(gameService.makeMove(moveForm));
@@ -58,9 +58,9 @@ public class GameController {
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultsDto getResults(
-        @PathVariable(value = "gameId") String gameId
+        @PathVariable(value = "gameId") final String gameId
     ) throws Result.Exception, GameRepository.GameNotFoundException {
-        List<Result> results = gameService.getResults(gameId);
+        final List<Result> results = gameService.getResults(gameId);
         return ResultsDto.from(results);
     }
 

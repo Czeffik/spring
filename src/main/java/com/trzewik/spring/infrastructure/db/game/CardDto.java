@@ -15,7 +15,7 @@ class CardDto {
     private Card.Suit suit;
     private Card.Rank rank;
 
-    static CardDto from(Card card) {
+    static CardDto from(final Card card) {
         return new CardDto(
             card.getSuit(),
             card.getRank()

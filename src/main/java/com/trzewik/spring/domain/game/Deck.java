@@ -31,7 +31,7 @@ public class Deck {
     }
 
     private Stack<Card> createCards() {
-        Stack<Card> stack = new Stack<>();
+        final Stack<Card> stack = new Stack<>();
         Arrays.stream(Card.Suit.values())
             .forEach(suit -> {
                     Arrays.stream(Card.Rank.values())

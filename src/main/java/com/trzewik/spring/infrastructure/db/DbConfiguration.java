@@ -31,12 +31,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 })
 public class DbConfiguration {
     @Bean
-    GameRepository gameRepository(GameJpaRepository gameJpaRepository) {
+    GameRepository gameRepository(final GameJpaRepository gameJpaRepository) {
         return GameRepositoryFactory.create(gameJpaRepository);
     }
 
     @Bean
-    PlayerRepository playerRepository(PlayerJpaRepository playerJpaRepository) {
+    PlayerRepository playerRepository(final PlayerJpaRepository playerJpaRepository) {
         return PlayerRepositoryFactory.create(playerJpaRepository);
     }
 }

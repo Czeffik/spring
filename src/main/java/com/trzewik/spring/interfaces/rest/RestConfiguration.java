@@ -22,17 +22,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class RestConfiguration implements WebMvcConfigurer {
     @Bean
-    GameController gameController(GameService gameService) {
+    GameController gameController(final GameService gameService) {
         return new GameController(gameService);
     }
 
     @Bean
-    PlayerController playerController(PlayerService playerService) {
+    PlayerController playerController(final PlayerService playerService) {
         return new PlayerController(playerService);
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html")
             .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")

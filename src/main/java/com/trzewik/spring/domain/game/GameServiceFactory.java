@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameServiceFactory {
-    public static GameService create(GameRepository gameRepository, PlayerService playerService) {
+    public static GameService create(final GameRepository gameRepository, final PlayerService playerService) {
         return new GameServiceImpl(gameRepository, playerService);
     }
 }

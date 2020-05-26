@@ -52,7 +52,7 @@ public class GameEntity implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
     private Map<PlayerEntity, PlayerInGameEntity> players;
 
-    public GameEntity(Game game) {
+    public GameEntity(final Game game) {
         this.id = game.getId();
         this.deck = DeckDto.from(game.getDeck());
         this.status = game.getStatus();

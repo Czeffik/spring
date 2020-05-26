@@ -18,7 +18,7 @@ public class PlayerInGameDto {
     private final HandDto hand;
     private final Game.Move move;
 
-    public static PlayerInGameDto from(Player player, Map<Player, PlayerInGame> players) {
+    public static PlayerInGameDto from(final Player player, final Map<Player, PlayerInGame> players) {
         return Optional.ofNullable(player)
             .map(p ->
                 new PlayerInGameDto(

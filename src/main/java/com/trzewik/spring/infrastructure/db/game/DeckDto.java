@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 class DeckDto {
     private Stack<CardDto> cards;
 
-    static DeckDto from(Deck deck) {
+    static DeckDto from(final Deck deck) {
         return new DeckDto(
             deck.getCards().stream()
                 .map(CardDto::from)
