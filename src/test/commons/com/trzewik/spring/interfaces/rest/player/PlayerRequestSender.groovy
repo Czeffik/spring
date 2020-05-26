@@ -1,15 +1,14 @@
 package com.trzewik.spring.interfaces.rest.player
 
-import com.trzewik.spring.domain.player.PlayerService.CreatePlayerCommand
 import com.trzewik.spring.interfaces.rest.RequestSender
 import io.restassured.http.ContentType
 import io.restassured.response.Response
 
 trait PlayerRequestSender extends RequestSender {
-    Response createPlayerRequest(CreatePlayerCommand form) {
+    Response createPlayerRequest(String name) {
         return request('/players')
             .contentType(ContentType.JSON)
-            .body("""{"name": "${form.name}"}""")
+            .body("""{"name": "${name}"}""")
             .post()
             .thenReturn()
     }

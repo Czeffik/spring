@@ -12,9 +12,9 @@ class PlayerServiceImpl implements PlayerService {
     private final @NonNull PlayerRepository playerRepo;
 
     @Override
-    public Player create(@NonNull PlayerService.CreatePlayerCommand command) {
-        log.info("Create player from form: [{}]", command);
-        Player player = new Player(command);
+    public Player create(@NonNull PlayerService.CreatePlayerCommand createPlayerCommand) {
+        log.info("Received create player command: [{}]", createPlayerCommand);
+        Player player = new Player(createPlayerCommand);
 
         log.info("Created player: [{}]", player);
         playerRepo.save(player);

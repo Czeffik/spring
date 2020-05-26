@@ -4,11 +4,11 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class PlayerUT extends Specification implements PlayerFormCreation {
+class PlayerUT extends Specification implements PlayerCommandCreation {
     static final String playerName = 'Adam'
 
     @Subject
-    Player player = new Player(createPlayerForm(new PlayerFormCreator(name: playerName)))
+    Player player = new Player(createPlayerCommand(new PlayerCommandCreator(name: playerName)))
 
     def 'should get player name'() {
         expect:
@@ -39,13 +39,13 @@ class PlayerUT extends Specification implements PlayerFormCreation {
             ex.message == 'name is marked non-null but is null'
     }
 
-    def 'should throw exception when form is null one arg constructor'() {
+    def 'should throw exception when form is command one arg constructor'() {
         when:
             new Player(null)
 
         then:
             NullPointerException ex = thrown()
-            ex.message == 'form is marked non-null but is null'
+            ex.message == 'command is marked non-null but is null'
     }
 
     def 'should return string representation of player with id and name'() {
@@ -55,7 +55,7 @@ class PlayerUT extends Specification implements PlayerFormCreation {
 
     def 'should create player from given form with generated id'() {
         given:
-            def form = createPlayerForm()
+            def form = createPlayerCommand()
 
         when:
             def player = new Player(form)

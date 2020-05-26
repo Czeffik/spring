@@ -3,7 +3,7 @@ package com.trzewik.spring.domain.player
 import spock.lang.Specification
 import spock.lang.Subject
 
-class PlayerServiceImplUT extends Specification implements PlayerCreation, PlayerFormCreation {
+class PlayerServiceImplUT extends Specification implements PlayerCreation, PlayerCommandCreation {
     PlayerRepository repository = new PlayerRepositoryMock()
 
     @Subject
@@ -11,7 +11,7 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation, Playe
 
     def 'should create new player with given name and save in repository'() {
         given:
-            def form = createPlayerForm()
+            def form = createPlayerCommand()
 
         when:
             def player = service.create(form)
@@ -110,13 +110,13 @@ class PlayerServiceImplUT extends Specification implements PlayerCreation, Playe
             found == players
     }
 
-    def 'should throw null pointer exception when form is null when trying create new player'() {
+    def 'should throw null pointer exception when createPlayerCommand is null'() {
         when:
             service.create(null)
 
         then:
             NullPointerException ex = thrown()
-            ex.message == 'command is marked non-null but is null'
+            ex.message == 'createPlayerCommand is marked non-null but is null'
 
         and:
             repository.repository.isEmpty()

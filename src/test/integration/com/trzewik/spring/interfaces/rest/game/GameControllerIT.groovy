@@ -1,8 +1,6 @@
 package com.trzewik.spring.interfaces.rest.game
 
-import com.trzewik.spring.domain.game.CardCreation
 import com.trzewik.spring.domain.game.Game
-import com.trzewik.spring.domain.game.GameCommandCreation
 import com.trzewik.spring.domain.game.GameCreation
 import com.trzewik.spring.domain.game.GameRepository
 import com.trzewik.spring.domain.game.GameService
@@ -31,7 +29,7 @@ import spock.lang.Unroll
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class GameControllerIT extends Specification implements GameRequestSender, ResultCreation, PlayerCreation,
-    CardCreation, GameCreation, GameCommandCreation, ErrorResponseValidator, GameResponseValidator {
+    GameCreation, ErrorResponseValidator, GameResponseValidator {
     @Shared
     JsonSlurper jsonSlurper = new JsonSlurper()
 

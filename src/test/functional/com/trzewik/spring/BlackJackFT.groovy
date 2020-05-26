@@ -1,7 +1,5 @@
 package com.trzewik.spring
 
-import com.trzewik.spring.domain.game.GameCommandCreation
-import com.trzewik.spring.domain.player.PlayerFormCreation
 import com.trzewik.spring.infrastructure.db.DbSpec
 import com.trzewik.spring.infrastructure.db.game.GameTableInteraction
 import com.trzewik.spring.infrastructure.db.game.GameTableVerification
@@ -28,7 +26,6 @@ import spock.lang.Shared
 )
 @ContextConfiguration(initializers = DbInitializer)
 class BlackJackFT extends DbSpec implements SwaggerRequestSender, FileOperator, GameRequestSender, PlayerRequestSender,
-    PlayerFormCreation, GameCommandCreation,
     GameTableInteraction, PlayerInGameTableInteraction, PlayerTableInteraction,
     GameTableVerification, PlayerInGameTableVerification, PlayerTableVerification {
     @LocalServerPort
@@ -65,7 +62,7 @@ class BlackJackFT extends DbSpec implements SwaggerRequestSender, FileOperator, 
         and:
             def gameId = slurper.parseText(createGameResponse.body().asString()).id
         when:
-            def createPlayerResponse = createPlayerRequest(createPlayerForm(new PlayerFormCreator(name: 'Adam')))
+            def createPlayerResponse = createPlayerRequest('Adam')
         then:
             createPlayerResponse.statusCode() == 200
         and:

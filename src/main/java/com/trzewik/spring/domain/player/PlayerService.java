@@ -1,6 +1,8 @@
 package com.trzewik.spring.domain.player;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -13,8 +15,10 @@ public interface PlayerService {
 
     List<Player> get(List<String> playerIds);
 
-    @Data
+    @Getter
+    @ToString
+    @RequiredArgsConstructor
     class CreatePlayerCommand {
-        private String name;
+        private final String name;
     }
 }

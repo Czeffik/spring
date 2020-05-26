@@ -5,6 +5,7 @@ import com.trzewik.spring.domain.player.PlayerService;
 import com.trzewik.spring.interfaces.rest.common.ErrorDto;
 import com.trzewik.spring.interfaces.rest.common.ErrorEntityHelper;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,9 @@ public class PlayerController {
     private final PlayerService service;
 
     @PostMapping(value = "/players", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PlayerDto createPlayer(@RequestBody PlayerService.CreatePlayerCommand form) {
-        return PlayerDto.from(service.create(form));
+    public PlayerDto createPlayer(@RequestBody CreatePlayerForm form) {
+        final PlayerService.CreatePlayerCommand command = form.toCommand();
+        return PlayerDto.from(service.create(command));
     }
 
     @GetMapping(value = "/players/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,5 +47,14 @@ public class PlayerController {
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ErrorDto> handleInternalServerError(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Data
+    static class CreatePlayerForm {
+        private String name;
+
+        PlayerService.CreatePlayerCommand toCommand() {
+            return new PlayerService.CreatePlayerCommand(this.name);
+        }
     }
 }
