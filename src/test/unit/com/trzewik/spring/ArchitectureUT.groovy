@@ -8,10 +8,14 @@ import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.Priority
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RestController
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import javax.persistence.Embeddable
+import javax.persistence.Entity
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.constructors
@@ -22,14 +26,18 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.priority
 class ArchitectureUT extends Specification {
     static final String BASE_PACKAGE = 'com.trzewik.spring'
     static final String DOMAIN_PACKAGE = "${BASE_PACKAGE}.domain"
+    static final String INFRASTRUCTURE_PACKAGE = "${BASE_PACKAGE}.infrastructure"
+    static final String INTERFACES_PACKAGE = "${BASE_PACKAGE}.interfaces"
 
     static final String[] PACKAGES_ALLOWED_IN_DOMAIN = [
-        'org.slf4j..',
-        'lombok..',
-        'com.google.common..',
-        'java..',
-        "${DOMAIN_PACKAGE}.."
+        'org.slf4j',
+        'lombok',
+        'com.google.common',
+        'java',
+        DOMAIN_PACKAGE
     ]
+
+    static final String[] PACKAGES_ALLOWED_IN_DOMAIN_MATCHER = PACKAGES_ALLOWED_IN_DOMAIN.collect { "${it}.." }
 
     @Shared
     ClassFileImporter importer = new ClassFileImporter().withImportOption(new ImportOption.DoNotIncludeTests())
@@ -37,29 +45,74 @@ class ArchitectureUT extends Specification {
     JavaClasses allClasses = importer.importPackages(BASE_PACKAGE).as('ALL')
     @Shared
     JavaClasses domainClasses = importer.importPackages(DOMAIN_PACKAGE).as('DOMAIN')
+    @Shared
+    JavaClasses infrastructureClasses = importer.importPackages(INFRASTRUCTURE_PACKAGE).as('INFRASTRUCTURE')
 
     def 'in domain are allowed only classes from: java, common libraries and lombok'() {
         given:
             def rule = priority(Priority.HIGH).noClasses()
-                .should().dependOnClassesThat().resideOutsideOfPackages(PACKAGES_ALLOWED_IN_DOMAIN)
+                .should().dependOnClassesThat().resideOutsideOfPackages(PACKAGES_ALLOWED_IN_DOMAIN_MATCHER)
         expect:
             rule.check(domainClasses)
     }
 
-    @Unroll
-    def 'in domain are not allowed #DESCRIPTION'() {
+    def 'in domain are only allowed annotations from: java, common libraries and lombok'() {
         given:
             def rule = classes().should()
-                .notBeAnnotatedWith(getAnnotations(DESCRIPTION, PACKAGE_NAME))
+                .notBeAnnotatedWith(
+                    getOtherAnnotations(
+                        "annotations from packages other than: $PACKAGES_ALLOWED_IN_DOMAIN",
+                        PACKAGES_ALLOWED_IN_DOMAIN
+                    )
+                )
         expect:
             rule.check(domainClasses)
-        where:
-            PACKAGE_NAME          | DESCRIPTION
-            'org.springframework' | 'Spring annotations'
-            'com.fasterxml'       | 'FasterXML annotations'
-            'javax'               | 'JavaX annotations'
-            'org.hibernate'       | 'Hibernate annotations'
-            'com.vladmihalcea'    | 'Vladmihalcea annotations'
+    }
+
+    def 'domain fields should be final'() {
+        given:
+            def rule = fields().should().beFinal()
+        expect:
+            rule.check(domainClasses)
+    }
+
+    def 'all fields should be private'() {
+        given:
+            def rule = fields()
+                .that().areDeclaredInClassesThat().areNotEnums()    //ENUM values are treated as fields
+                .should().bePrivate()
+        expect:
+            rule.check(allClasses)
+    }
+
+    def 'all fields in entities should NOT be final'() {
+        given:
+            def rule = fields()
+                .that().areDeclaredInClassesThat().areAnnotatedWith(Entity.class)
+                .or().areDeclaredInClassesThat().areAnnotatedWith(Embeddable.class)
+                .should().notBeFinal()
+        expect:
+            rule.check(allClasses)
+    }
+
+    def 'persistence classes should be in infrastructure.db package'() {
+        given:
+            def rule = classes()
+                .that().areAnnotatedWith(Entity.class)
+                .or().areAnnotatedWith(Embeddable.class)
+                .should().resideInAPackage("${INFRASTRUCTURE_PACKAGE}.db..")
+        expect:
+            rule.check(allClasses)
+    }
+
+    def 'controllers should be in interfaces.rest package'() {
+        given:
+            def rule = classes()
+                .that().areAnnotatedWith(RestController.class)
+                .or().areAnnotatedWith(Controller.class)
+                .should().resideInAPackage("${INTERFACES_PACKAGE}.rest..")
+        expect:
+            rule.check(allClasses)
     }
 
     def 'configuration classes should end with Configuration'() {
@@ -99,6 +152,15 @@ class ArchitectureUT extends Specification {
             @Override
             boolean apply(JavaAnnotation input) {
                 return input.rawType.packageName.startsWith(packageName)
+            }
+        }
+    }
+
+    DescribedPredicate<JavaAnnotation> getOtherAnnotations(String description, String[] packageNames) {
+        return new DescribedPredicate<JavaAnnotation>(description) {
+            @Override
+            boolean apply(JavaAnnotation input) {
+                return packageNames.any { packageName -> !input.rawType.packageName.startsWith(packageName) }
             }
         }
     }
