@@ -18,6 +18,7 @@ import java.util.UUID;
 @ToString
 @EqualsAndHashCode
 public class Game {
+    private static final int MAXIMUM_PLAYERS = 5;
     private final @NonNull String id;
     private final @NonNull Deck deck;
     private final @NonNull Map<Player, PlayerInGame> players;
@@ -175,7 +176,7 @@ public class Game {
         if (players.containsKey(player)) {
             throw new Exception(String.format("Player: [%s] already added to game!", player));
         }
-        if (GameProperties.MAXIMUM_PLAYERS <= players.size()) {
+        if (players.size() >= MAXIMUM_PLAYERS) {
             throw new Exception(String.format("Game is full with: [%s] players. Can not add more players!",
                 players.size()));
         }
