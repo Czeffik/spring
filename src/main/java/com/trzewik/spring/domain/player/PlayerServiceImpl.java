@@ -24,12 +24,11 @@ class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player getCroupier() {
+        final Player croupier = Player.createCroupier();
         try {
-            return get(Player.CROUPIER_ID);
+            return get(croupier.getId());
         } catch (PlayerRepository.PlayerNotFoundException ex) {
             log.error("Croupier not found in repository.");
-
-            final Player croupier = Player.createCroupier();
             playerRepo.save(croupier);
             return croupier;
         }

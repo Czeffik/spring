@@ -11,8 +11,8 @@ import java.util.UUID;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class Player {
-    public static final String CROUPIER_ID = "CROUPIER-ID";
-    public static final String CROUPIER_NAME = "CROUPIER";
+    private static final String CROUPIER_ID = "CROUPIER-ID";
+    private static final String CROUPIER_NAME = "CROUPIER";
     private final @NonNull String id;
     private final @NonNull String name;
 
