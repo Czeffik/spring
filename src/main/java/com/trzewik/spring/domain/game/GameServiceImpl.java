@@ -16,7 +16,8 @@ class GameServiceImpl implements GameService {
     private final @NonNull PlayerService playerService;
 
     @Override
-    public Game create() {
+    public Game create(@NonNull final CreateGameCommand createGameCommand) {
+        log.info("Received create game command: [{}].", createGameCommand);
         final Player croupier = playerService.getCroupier();
         log.info("Create game with croupier: [{}].", croupier);
         final Game game = new Game(croupier);
@@ -28,12 +29,12 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game addPlayer(@NonNull final GameService.AddPlayerCommand addPlayerCommand)
+    public Game addPlayer(@NonNull final GameService.AddPlayerToGameCommand addPlayerToGameCommand)
         throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
-        log.info("Received add player command: [{}].", addPlayerCommand);
+        log.info("Received add player to game command: [{}].", addPlayerToGameCommand);
 
-        final Player player = playerService.get(addPlayerCommand.getPlayerId());
-        final Game game = gameRepo.getById(addPlayerCommand.getGameId()).addPlayer(player);
+        final Player player = playerService.get(addPlayerToGameCommand.getPlayerId());
+        final Game game = gameRepo.getById(addPlayerToGameCommand.getGameId()).addPlayer(player);
 
         log.info("Added player to game: [{}].", game);
         gameRepo.save(game);
@@ -42,9 +43,10 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game start(@NonNull final String gameId) throws GameRepository.GameNotFoundException, Game.Exception {
-        log.info("Start game with id: [{}].", gameId);
-        final Game game = gameRepo.getById(gameId).start();
+    public Game start(@NonNull final StartGameCommand startGameCommand)
+        throws GameRepository.GameNotFoundException, Game.Exception {
+        log.info("Received start game command: [{}].", startGameCommand);
+        final Game game = gameRepo.getById(startGameCommand.getGameId()).start();
 
         log.info("Started game: [{}].", game);
         gameRepo.save(game);
@@ -53,12 +55,12 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game makeMove(@NonNull final GameService.MoveCommand moveCommand)
+    public Game makeMove(@NonNull final GameService.MakeGameMoveCommand makeGameMoveCommand)
         throws GameRepository.GameNotFoundException, Game.Exception {
-        log.info("Received move command: [{}].", moveCommand);
+        log.info("Received make game move command: [{}].", makeGameMoveCommand);
 
-        final Game game = gameRepo.getById(moveCommand.getGameId())
-            .auction(moveCommand.getPlayerId(), moveCommand.getMove())
+        final Game game = gameRepo.getById(makeGameMoveCommand.getGameId())
+            .auction(makeGameMoveCommand.getPlayerId(), makeGameMoveCommand.getMove())
             .end();
 
         log.info("Move made in game: [{}].", game);
@@ -68,10 +70,10 @@ class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<Result> getResults(@NonNull final String gameId)
+    public List<Result> getResults(@NonNull final GetGameResultsCommand getGameResultsCommand)
         throws GameRepository.GameNotFoundException, Result.Exception {
-        log.info("Get results for game with id: [{}].", gameId);
-        final Game game = gameRepo.getById(gameId);
+        log.info("Received get game results command: [{}].", getGameResultsCommand);
+        final Game game = gameRepo.getById(getGameResultsCommand.getGameId());
         return ResultsHelper.createResults(game);
     }
 }

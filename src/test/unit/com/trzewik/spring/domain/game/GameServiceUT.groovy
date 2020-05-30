@@ -19,8 +19,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     GameService service = GameServiceFactory.create(gameRepo, playerService)
 
     def 'should create game with croupier and deck and save in repository'() {
+        given:
+            def command = createCreateGameCommand()
         when:
-            def game = service.create()
+            def game = service.create(command)
         then:
             1 * playerService.getCroupier() >> this.croupier
         and:
@@ -50,7 +52,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = createPlayer()
         and:
-            def command = createAddPlayerCommand(new AddPlayerCommandCreator(game, player))
+            def command = createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(game, player))
         when:
             def gameWithPlayer = service.addPlayer(command)
         then:
@@ -76,7 +78,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         given:
             def game = putGameInRepo()
         and:
-            def command = createAddPlayerCommand()
+            def command = createAddPlayerToGameCommand()
         when:
             service.addPlayer(command)
         then:
@@ -94,7 +96,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         given:
             def game = putGameInRepo()
         and:
-            def command = createAddPlayerCommand()
+            def command = createAddPlayerToGameCommand()
         when:
             service.addPlayer(command)
         then:
@@ -114,7 +116,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = createPlayer()
         and:
-            def command = createAddPlayerCommand(new AddPlayerCommandCreator(game, player))
+            def command = createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(game, player))
         when:
             service.addPlayer(command)
         then:
@@ -134,7 +136,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = game.players.keySet().first()
         and:
-            def command = createAddPlayerCommand(new AddPlayerCommandCreator(game, player))
+            def command = createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(game, player))
         when:
             service.addPlayer(command)
         then:
@@ -160,7 +162,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = createPlayer()
         and:
-            def command = createAddPlayerCommand(new AddPlayerCommandCreator(game, player))
+            def command = createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(game, player))
         when:
             service.addPlayer(command)
         then:
@@ -178,8 +180,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
            deal cards - two cards for each player, and set game status to STARTED '''() {
         given:
             def game = putGameInRepo()
+        and:
+            def command = createStartGameCommand(new StartGameCommandCreator(gameId: game.id))
         when:
-            def startedGame = service.start(game.id)
+            def startedGame = service.start(command)
         then:
             gameRepo.repository.size() == 1
         and:
@@ -197,8 +201,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     def 'should NOT start game and throw exception when can not find game with gameId'() {
         given:
             def game = putGameInRepo()
+        and:
+            def command = createStartGameCommand(new StartGameCommandCreator(gameId: 'wrong-game-id'))
         when:
-            service.start('wrong-game-id')
+            service.start(command)
         then:
             GameRepository.GameNotFoundException ex = thrown()
             ex.message == 'Game with id: [wrong-game-id] not found.'
@@ -211,8 +217,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     def 'should NOT start game when no players added to game and throw exception'() {
         given:
             def game = putGameInRepo(new GameCreator(players: [(createPlayer(PlayerCreator.croupier())): createPlayerInGame()]))
+        and:
+            def command = createStartGameCommand(new StartGameCommandCreator(gameId: game.id))
         when:
-            service.start(game.id)
+            service.start(command)
         then:
             Game.Exception ex = thrown()
             ex.message == 'Please add at least one player before start.'
@@ -223,8 +231,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     def 'should throw exception when trying start game which is already started'() {
         given:
             def game = putGameInRepo(new GameCreator(status: Game.Status.STARTED))
+        and:
+            def command = createStartGameCommand(new StartGameCommandCreator(gameId: game.id))
         when:
-            service.start(game.id)
+            service.start(command)
         then:
             Game.Exception ex = thrown()
             ex.message == 'Game started, can not start again'
@@ -239,7 +249,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, player, Game.Move.HIT))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, player, Game.Move.HIT))
         when:
             Game gameAfterMove = service.makeMove(command)
         then:
@@ -276,7 +286,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def secondPlayer = game.players.keySet().find { it != game.croupier && it != player }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, player, Game.Move.STAND))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, player, Game.Move.STAND))
         when:
             Game gameAfterMove = service.makeMove(command)
         then:
@@ -317,7 +327,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def secondPlayer = game.players.keySet().find { it != game.croupier && it != player }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, player, Game.Move.STAND))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, player, Game.Move.STAND))
         when:
             Game gameAfterMove = service.makeMove(command)
         then:
@@ -346,7 +356,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         given:
             def game = putGameInRepo()
         and:
-            def command = createMoveCommand()
+            def command = createMakeGameMoveCommand()
         when:
             service.makeMove(command)
         then:
@@ -362,7 +372,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, player, Game.Move.STAND))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, player, Game.Move.STAND))
         when:
             service.makeMove(command)
         then:
@@ -378,7 +388,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, player, Game.Move.STAND))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, player, Game.Move.STAND))
         when:
             service.makeMove(command)
         then:
@@ -394,7 +404,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         and:
             def player = game.players.keySet().find { it != game.croupier }
         and:
-            def command = createMoveCommand(new MoveCommandCreator(game, game.croupier, Game.Move.HIT))
+            def command = createMakeGameMoveCommand(new MakeGameMoveCommandCreator(game, game.croupier, Game.Move.HIT))
         when:
             service.makeMove(command)
         then:
@@ -407,8 +417,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     def 'should find game in repository and return game results when game is ended'() {
         given:
             def game = putGameInRepo(new GameCreator(status: Game.Status.ENDED))
+        and:
+            def command = createGetGameResultsCommand(new GetGameResultsCommandCreator(gameId: game.id))
         when:
-            List<Result> results = service.getResults(game.id)
+            List<Result> results = service.getResults(command)
         then:
             results.size() == 2
     }
@@ -417,12 +429,12 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         given:
             def game = putGameInRepo(new GameCreator(status: Game.Status.ENDED))
         and:
-            def id = 'wrong-game-id'
+            def command = createGetGameResultsCommand(new GetGameResultsCommandCreator(gameId: 'wrong-game-id'))
         when:
-            service.getResults(id)
+            service.getResults(command)
         then:
             GameRepository.GameNotFoundException ex = thrown()
-            ex.message == "Game with id: [$id] not found."
+            ex.message == "Game with id: [${command.gameId}] not found."
         and:
             gameRepo.repository.get(game.id) == game
     }
@@ -430,8 +442,10 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
     def 'should not be possible get results from game which is not ended'() {
         given:
             def game = putGameInRepo()
+        and:
+            def command = createGetGameResultsCommand(new GetGameResultsCommandCreator(gameId: game.id))
         when:
-            service.getResults(game.id)
+            service.getResults(command)
         then:
             Result.Exception ex = thrown()
             ex.message == 'Results are available only when game finished. Please continue auction.'
@@ -460,15 +474,23 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
             service.addPlayer(null)
         then:
             NullPointerException ex = thrown()
-            ex.message == 'addPlayerCommand is marked non-null but is null'
+            ex.message == 'addPlayerToGameCommand is marked non-null but is null'
     }
 
-    def 'should throw null pointer exception when starting game with null id'() {
+    def 'should throw null pointer exception when create game command is null'() {
+        when:
+            service.create(null)
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'createGameCommand is marked non-null but is null'
+    }
+
+    def 'should throw null pointer exception when starting game with null command'() {
         when:
             service.start(null)
         then:
             NullPointerException ex = thrown()
-            ex.message == 'gameId is marked non-null but is null'
+            ex.message == 'startGameCommand is marked non-null but is null'
     }
 
     def 'should throw null pointer exception when move command is null'() {
@@ -476,20 +498,20 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
             service.makeMove(null)
         then:
             NullPointerException ex = thrown()
-            ex.message == 'moveCommand is marked non-null but is null'
+            ex.message == 'makeGameMoveCommand is marked non-null but is null'
     }
 
-    def 'should throw null pointer exception when getting results for game with null id'() {
+    def 'should throw null pointer exception when get game results command is null'() {
         when:
             service.getResults(null)
         then:
             NullPointerException ex = thrown()
-            ex.message == 'gameId is marked non-null but is null'
+            ex.message == 'getGameResultsCommand is marked non-null but is null'
     }
 
     def 'should throw null pointer exception when creating move command with null gameId'() {
         when:
-            createMoveCommand(new MoveCommandCreator(gameId: null))
+            createMakeGameMoveCommand(new MakeGameMoveCommandCreator(gameId: null))
         then:
             NullPointerException ex = thrown()
             ex.message == 'gameId is marked non-null but is null'
@@ -497,7 +519,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
 
     def 'should throw null pointer exception when creating move command with null playerId'() {
         when:
-            createMoveCommand(new MoveCommandCreator(playerId: null))
+            createMakeGameMoveCommand(new MakeGameMoveCommandCreator(playerId: null))
         then:
             NullPointerException ex = thrown()
             ex.message == 'playerId is marked non-null but is null'
@@ -505,7 +527,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
 
     def 'should throw null pointer exception when creating move command with null move'() {
         when:
-            createMoveCommand(new MoveCommandCreator(move: null))
+            createMakeGameMoveCommand(new MakeGameMoveCommandCreator(move: null))
         then:
             NullPointerException ex = thrown()
             ex.message == 'move is marked non-null but is null'
@@ -513,7 +535,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
 
     def 'should throw null pointer exception when creating add player command with null gameId'() {
         when:
-            createAddPlayerCommand(new AddPlayerCommandCreator(gameId: null))
+            createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(gameId: null))
         then:
             NullPointerException ex = thrown()
             ex.message == 'gameId is marked non-null but is null'
@@ -521,10 +543,26 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
 
     def 'should throw null pointer exception when creating add player command with null playerId'() {
         when:
-            createAddPlayerCommand(new AddPlayerCommandCreator(playerId: null))
+            createAddPlayerToGameCommand(new AddPlayerToGameCommandCreator(playerId: null))
         then:
             NullPointerException ex = thrown()
             ex.message == 'playerId is marked non-null but is null'
+    }
+
+    def 'should throw null pointer exception when creating start game command with null gameId'() {
+        when:
+            createStartGameCommand(new StartGameCommandCreator(gameId: null))
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'gameId is marked non-null but is null'
+    }
+
+    def 'should throw null pointer exception when creating get game results command with null gameId'() {
+        when:
+            createGetGameResultsCommand(new GetGameResultsCommandCreator(gameId: null))
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'gameId is marked non-null but is null'
     }
 
     def putGameInRepo(GameCreator creator = new GameCreator()) {

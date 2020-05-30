@@ -46,7 +46,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = createGameRequest()
         then:
-            1 * gameService.create() >> game
+            1 * gameService.create(_ as GameService.CreateGameCommand) >> game
         and:
             response.statusCode() == 200
         and:
@@ -61,7 +61,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(game.id, currentPlayer.id)
         then:
-            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+            1 * gameService.addPlayer({ GameService.AddPlayerToGameCommand command ->
                 assert command.gameId == game.id
                 assert command.playerId == currentPlayer.id
             }) >> game
@@ -79,7 +79,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, playerId)
         then:
-            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+            1 * gameService.addPlayer({ GameService.AddPlayerToGameCommand command ->
                 assert command.gameId == gameId
                 assert command.playerId == playerId
             }) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
@@ -97,7 +97,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, player.id)
         then:
-            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+            1 * gameService.addPlayer({ GameService.AddPlayerToGameCommand command ->
                 assert command.gameId == gameId
                 assert command.playerId == player.id
             }) >> { throw new GameRepository.GameNotFoundException(gameId) }
@@ -116,7 +116,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = addPlayerRequest(gameId, player.id)
         then:
-            1 * gameService.addPlayer({ GameService.AddPlayerCommand command ->
+            1 * gameService.addPlayer({ GameService.AddPlayerToGameCommand command ->
                 assert command.gameId == gameId
                 assert command.playerId == player.id
             }) >> { throw new Game.Exception(exceptionMessage) }
@@ -132,7 +132,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = startGameRequest(game.id)
         then:
-            1 * gameService.start(game.id) >> game
+            1 * gameService.start({ GameService.StartGameCommand command ->
+                assert command.gameId == game.id
+            }) >> game
         and:
             response.statusCode() == 200
         and:
@@ -146,7 +148,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = startGameRequest(gameId)
         then:
-            1 * gameService.start(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.start({ GameService.StartGameCommand command ->
+                assert command.gameId == gameId
+            }) >> { throw new GameRepository.GameNotFoundException(gameId) }
         and:
             response.statusCode() == 404
         and:
@@ -161,7 +165,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = startGameRequest(gameId)
         then:
-            1 * gameService.start(gameId) >> { throw new Game.Exception(exceptionMessage) }
+            1 * gameService.start({ GameService.StartGameCommand command ->
+                assert command.gameId == gameId
+            }) >> { throw new Game.Exception(exceptionMessage) }
         and:
             response.statusCode() == 400
         and:
@@ -177,7 +183,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = makeMoveRequest(game.id, player.id, MOVE)
         then:
-            1 * gameService.makeMove({ GameService.MoveCommand command ->
+            1 * gameService.makeMove({ GameService.MakeGameMoveCommand command ->
                 assert command.playerId == player.id
                 assert command.gameId == game.id
                 assert command.move == MOVE_ENUM
@@ -225,7 +231,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = makeMoveRequest(gameId, playerId, 'HIT')
         then:
-            1 * gameService.makeMove({ GameService.MoveCommand command ->
+            1 * gameService.makeMove({ GameService.MakeGameMoveCommand command ->
                 assert command.playerId == playerId
                 assert command.gameId == gameId
                 assert command.move == Game.Move.HIT
@@ -245,7 +251,7 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             def response = makeMoveRequest(gameId, playerId, 'HIT')
         then:
-            1 * gameService.makeMove({ GameService.MoveCommand command ->
+            1 * gameService.makeMove({ GameService.MakeGameMoveCommand command ->
                 assert command.playerId == playerId
                 assert command.gameId == gameId
                 assert command.move == Game.Move.HIT
@@ -264,7 +270,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             Response response = getResultsRequest(gameId)
         then:
-            1 * gameService.getResults(gameId) >> expectedResults
+            1 * gameService.getResults({ GameService.GetGameResultsCommand command ->
+                assert command.gameId == gameId
+            }) >> expectedResults
         and:
             response.statusCode() == 200
         and:
@@ -277,7 +285,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             Response response = getResultsRequest(gameId)
         then:
-            1 * gameService.getResults(gameId) >> { throw new GameRepository.GameNotFoundException(gameId) }
+            1 * gameService.getResults({ GameService.GetGameResultsCommand command ->
+                assert command.gameId == gameId
+            }) >> { throw new GameRepository.GameNotFoundException(gameId) }
         and:
             response.statusCode() == 404
         and:
@@ -292,7 +302,9 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
         when:
             Response response = getResultsRequest(gameId)
         then:
-            1 * gameService.getResults(gameId) >> { throw new Result.Exception(exceptionMessage) }
+            1 * gameService.getResults({ GameService.GetGameResultsCommand command ->
+                assert command.gameId == gameId
+            }) >> { throw new Result.Exception(exceptionMessage) }
         and:
             response.statusCode() == 400
         and:

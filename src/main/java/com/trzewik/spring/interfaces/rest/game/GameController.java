@@ -7,7 +7,7 @@ import com.trzewik.spring.domain.game.Result;
 import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.interfaces.rest.common.ErrorDto;
 import com.trzewik.spring.interfaces.rest.common.ErrorEntityHelper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GameController {
     private final GameService gameService;
 
     @PostMapping(value = "/games", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto createGame() {
-        return GameDto.from(gameService.create());
+        final GameService.CreateGameCommand command = new GameService.CreateGameCommand();
+        return GameDto.from(gameService.create(command));
     }
 
     @PostMapping(value = "/games/{gameId}/players/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -35,15 +36,16 @@ public class GameController {
         @PathVariable(value = "gameId") final String gameId,
         @PathVariable(value = "playerId") final String playerId
     ) throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
-        final GameService.AddPlayerCommand form = new GameService.AddPlayerCommand(gameId, playerId);
-        return GameDto.from(gameService.addPlayer(form));
+        final GameService.AddPlayerToGameCommand command = new GameService.AddPlayerToGameCommand(gameId, playerId);
+        return GameDto.from(gameService.addPlayer(command));
     }
 
     @PostMapping(value = "/games/{gameId}/startGame", produces = MediaType.APPLICATION_JSON_VALUE)
     public GameDto startGame(
         @PathVariable(value = "gameId") final String gameId
     ) throws Game.Exception, GameRepository.GameNotFoundException {
-        return GameDto.from(gameService.start(gameId));
+        final GameService.StartGameCommand command = new GameService.StartGameCommand(gameId);
+        return GameDto.from(gameService.start(command));
     }
 
     @PostMapping(value = "/games/{gameId}/players/{playerId}/{move}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -52,15 +54,16 @@ public class GameController {
         @PathVariable(value = "playerId") final String playerId,
         @PathVariable(value = "move") final Game.Move move
     ) throws Game.Exception, GameRepository.GameNotFoundException {
-        final GameService.MoveCommand moveForm = new GameService.MoveCommand(gameId, playerId, move);
-        return GameDto.from(gameService.makeMove(moveForm));
+        final GameService.MakeGameMoveCommand command = new GameService.MakeGameMoveCommand(gameId, playerId, move);
+        return GameDto.from(gameService.makeMove(command));
     }
 
     @GetMapping(value = "/games/{gameId}/results", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultsDto getResults(
         @PathVariable(value = "gameId") final String gameId
     ) throws Result.Exception, GameRepository.GameNotFoundException {
-        final List<Result> results = gameService.getResults(gameId);
+        final GameService.GetGameResultsCommand command = new GameService.GetGameResultsCommand(gameId);
+        final List<Result> results = gameService.getResults(command);
         return ResultsDto.from(results);
     }
 

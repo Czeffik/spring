@@ -9,22 +9,26 @@ import lombok.ToString;
 import java.util.List;
 
 public interface GameService {
-    Game create();
+    Game create(CreateGameCommand createGameCommand);
 
-    Game addPlayer(AddPlayerCommand addPlayerCommand)
+    Game addPlayer(AddPlayerToGameCommand addPlayerToGameCommand)
         throws GameRepository.GameNotFoundException, Game.Exception, PlayerRepository.PlayerNotFoundException;
 
-    Game start(String gameId) throws GameRepository.GameNotFoundException, Game.Exception;
+    Game start(StartGameCommand startGameCommand) throws GameRepository.GameNotFoundException, Game.Exception;
 
-    Game makeMove(MoveCommand moveCommand)
+    Game makeMove(MakeGameMoveCommand makeGameMoveCommand)
         throws GameRepository.GameNotFoundException, Game.Exception;
 
-    List<Result> getResults(String gameId) throws GameRepository.GameNotFoundException, Result.Exception;
+    List<Result> getResults(GetGameResultsCommand getGameResultsCommand)
+        throws GameRepository.GameNotFoundException, Result.Exception;
+
+    interface Command {
+    }
 
     @Getter
     @ToString
     @RequiredArgsConstructor
-    class MoveCommand {
+    class MakeGameMoveCommand implements Command {
         private final @NonNull String gameId;
         private final @NonNull String playerId;
         private final @NonNull Game.Move move;
@@ -33,8 +37,28 @@ public interface GameService {
     @Getter
     @ToString
     @RequiredArgsConstructor
-    class AddPlayerCommand {
+    class AddPlayerToGameCommand implements Command {
         private final @NonNull String gameId;
         private final @NonNull String playerId;
+    }
+
+    @Getter
+    @ToString
+    @RequiredArgsConstructor
+    class CreateGameCommand implements Command {
+    }
+
+    @Getter
+    @ToString
+    @RequiredArgsConstructor
+    class StartGameCommand implements Command {
+        private final @NonNull String gameId;
+    }
+
+    @Getter
+    @ToString
+    @RequiredArgsConstructor
+    class GetGameResultsCommand implements Command {
+        private final @NonNull String gameId;
     }
 }
