@@ -4,8 +4,8 @@ import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.domain.player.PlayerService;
 import com.trzewik.spring.interfaces.rest.common.ErrorDto;
 import com.trzewik.spring.interfaces.rest.common.ErrorEntityHelper;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PlayerController {
     private final PlayerService service;
 
     @PostMapping(value = "/players", produces = MediaType.APPLICATION_JSON_VALUE)
     public PlayerDto createPlayer(@RequestBody final CreatePlayerForm form) {
-        final PlayerService.CreatePlayerCommand command = form.toCommand();
+        final PlayerService.CreatePlayerCommand command = form.toCreatePlayerCommand();
         return PlayerDto.from(service.create(command));
     }
 
@@ -31,7 +31,8 @@ public class PlayerController {
     public PlayerDto getPlayer(
         @PathVariable(value = "playerId") final String playerId
     ) throws PlayerRepository.PlayerNotFoundException {
-        return PlayerDto.from(service.get(playerId));
+        final PlayerService.GetPlayerCommand command = new PlayerService.GetPlayerCommand(playerId);
+        return PlayerDto.from(service.get(command));
     }
 
     @ExceptionHandler(value = PlayerRepository.PlayerNotFoundException.class)
@@ -53,7 +54,7 @@ public class PlayerController {
     static class CreatePlayerForm {
         private String name;
 
-        PlayerService.CreatePlayerCommand toCommand() {
+        PlayerService.CreatePlayerCommand toCreatePlayerCommand() {
             return new PlayerService.CreatePlayerCommand(this.name);
         }
     }

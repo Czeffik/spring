@@ -8,7 +8,7 @@ class PlayerUT extends Specification implements PlayerCommandCreation {
     static final String playerName = 'Adam'
 
     @Subject
-    Player player = new Player(createPlayerCommand(new PlayerCommandCreator(name: playerName)))
+    Player player = new Player(createCreatePlayerCommand(new CreatePlayerCommandCreator(name: playerName)))
 
     def 'should get player name'() {
         expect:
@@ -55,7 +55,7 @@ class PlayerUT extends Specification implements PlayerCommandCreation {
 
     def 'should create player from given form with generated id'() {
         given:
-            def form = createPlayerCommand()
+            def form = createCreatePlayerCommand()
 
         when:
             def player = new Player(form)

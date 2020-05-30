@@ -18,7 +18,8 @@ class GameServiceImpl implements GameService {
     @Override
     public Game create(@NonNull final CreateGameCommand createGameCommand) {
         log.info("Received create game command: [{}].", createGameCommand);
-        final Player croupier = playerService.getCroupier();
+        final PlayerService.GetCroupierCommand command = new PlayerService.GetCroupierCommand();
+        final Player croupier = playerService.getCroupier(command);
         log.info("Create game with croupier: [{}].", croupier);
         final Game game = new Game(croupier);
 
@@ -33,7 +34,9 @@ class GameServiceImpl implements GameService {
         throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
         log.info("Received add player to game command: [{}].", addPlayerToGameCommand);
 
-        final Player player = playerService.get(addPlayerToGameCommand.getPlayerId());
+        final PlayerService.GetPlayerCommand command =
+            new PlayerService.GetPlayerCommand(addPlayerToGameCommand.getPlayerId());
+        final Player player = playerService.get(command);
         final Game game = gameRepo.getById(addPlayerToGameCommand.getGameId()).addPlayer(player);
 
         log.info("Added player to game: [{}].", game);

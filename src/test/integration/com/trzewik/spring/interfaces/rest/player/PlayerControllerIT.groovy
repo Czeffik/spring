@@ -50,7 +50,9 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         when:
             def response = getPlayerRequest(player.id)
         then:
-            1 * service.get(player.id) >> player
+            1 * service.get({ PlayerService.GetPlayerCommand command ->
+                assert command.playerId == player.id
+            }) >> player
         and:
             response.statusCode() == 200
         and:
@@ -63,7 +65,9 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         when:
             def response = getPlayerRequest(playerId)
         then:
-            1 * service.get(playerId) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
+            1 * service.get({ PlayerService.GetPlayerCommand command ->
+                assert command.playerId == playerId
+            }) >> { throw new PlayerRepository.PlayerNotFoundException(playerId) }
         and:
             response.statusCode() == 404
         and:
@@ -76,7 +80,9 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         when:
             def response = getPlayerRequest(playerId)
         then:
-            1 * service.get(playerId) >> { throw new NullPointerException(playerId) }
+            1 * service.get({ PlayerService.GetPlayerCommand command ->
+                assert command.playerId == playerId
+            }) >> { throw new NullPointerException(playerId) }
         and:
             response.statusCode() == 400
         and:
@@ -90,7 +96,9 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         when:
             def response = getPlayerRequest(playerId)
         then:
-            1 * service.get(playerId) >> { throw new Exception() }
+            1 * service.get({ PlayerService.GetPlayerCommand command ->
+                assert command.playerId == playerId
+            }) >> { throw new Exception() }
         and:
             response.statusCode() == 500
         and:

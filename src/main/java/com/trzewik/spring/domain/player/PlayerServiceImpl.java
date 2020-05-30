@@ -23,10 +23,11 @@ class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player getCroupier() {
+    public Player getCroupier(@NonNull final GetCroupierCommand getCroupierCommand) {
+        log.info("Received get croupier command: [{}]", getCroupierCommand);
         final Player croupier = Player.createCroupier();
         try {
-            return get(croupier.getId());
+            return get(new GetPlayerCommand(croupier.getId()));
         } catch (PlayerRepository.PlayerNotFoundException ex) {
             log.error("Croupier not found in repository.");
             playerRepo.save(croupier);
@@ -35,14 +36,15 @@ class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player get(@NonNull final String id) throws PlayerRepository.PlayerNotFoundException {
-        log.info("Get player with id: [{}]", id);
-        return playerRepo.getById(id);
+    public Player get(@NonNull final GetPlayerCommand getPlayerCommand)
+        throws PlayerRepository.PlayerNotFoundException {
+        log.info("Received get player command: [{}]", getPlayerCommand);
+        return playerRepo.getById(getPlayerCommand.getPlayerId());
     }
 
     @Override
-    public List<Player> get(@NonNull final List<String> playerIds) {
-        log.info("Get players with ids: [{}]", playerIds);
-        return playerRepo.findAllById(playerIds);
+    public List<Player> get(@NonNull final GetPlayersCommand getPlayersCommand) {
+        log.info("Received get players command: [{}]", getPlayersCommand);
+        return playerRepo.findAllById(getPlayersCommand.getPlayerIds());
     }
 }

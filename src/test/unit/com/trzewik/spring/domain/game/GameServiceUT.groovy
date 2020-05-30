@@ -24,7 +24,7 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             def game = service.create(command)
         then:
-            1 * playerService.getCroupier() >> this.croupier
+            1 * playerService.getCroupier(_ as PlayerService.GetCroupierCommand) >> this.croupier
         and:
             gameRepo.repository.size() == 1
         and:
@@ -56,7 +56,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             def gameWithPlayer = service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> player
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> player
         and:
             gameRepo.repository.size() == 1
         and:
@@ -82,7 +84,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> createPlayer()
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> createPlayer()
         and:
             GameRepository.GameNotFoundException ex = thrown()
             ex.message == "Game with id: [$command.gameId] not found."
@@ -100,7 +104,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> { throw new PlayerRepository.PlayerNotFoundException(command.playerId) }
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> { throw new PlayerRepository.PlayerNotFoundException(command.playerId) }
         and:
             PlayerRepository.PlayerNotFoundException ex = thrown()
             ex.message == "Can not find player with id: [${command.playerId}] in repository."
@@ -120,7 +126,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> player
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> player
         and:
             Game.Exception ex = thrown()
             ex.message == 'Game started, can not add new player'
@@ -140,7 +148,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> player
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> player
         and:
             Game.Exception ex = thrown()
             ex.message == "Player: [$player] already added to game!"
@@ -166,7 +176,9 @@ class GameServiceUT extends Specification implements GameCreation, GameCommandCr
         when:
             service.addPlayer(command)
         then:
-            1 * playerService.get(command.playerId) >> player
+            1 * playerService.get({ PlayerService.GetPlayerCommand getPlayerCommand ->
+                assert getPlayerCommand.playerId == command.playerId
+            }) >> player
         and:
             Game.Exception ex = thrown()
             ex.message == "Game is full with: [${game.players.size()}] players. Can not add more players!"
