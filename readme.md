@@ -15,7 +15,10 @@ everything which can give and order to application: REST Controllers, JMS queues
 
 * `docker-compose up` - setup container with database for local development
 * `gradlew flywayMigrate -i` - run db migrations
-* run application: `com.trzewik.spring.BlackJackApp`
+* run application:
+    * `com.trzewik.spring.BlackJackApp` - run main class from intellij
+    * `gradlew bootRun`- run from console
+    * `gradlew clean build` and execute: `java -jar build/libs/spring-*.jar`
 * as default app start on `http://localhost:8080` and has configured [swagger-ui](http://localhost:8080/swagger-ui.html)
 
 ## Build

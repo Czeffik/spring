@@ -19,6 +19,9 @@ buildscript {
         pitestVersion = '1.4.6'
         flywayVersion = '6.4.1'
         contractPublisherVersion = '1.0.9'
+
+        //main class
+        mainClass = 'com.trzewik.spring.BlackJackApp'
         repositories(repos)
     }
 }
@@ -32,6 +35,7 @@ plugins {
     id 'checkstyle'
     id 'org.flywaydb.flyway' version "$flywayVersion"
     id 'com.hltech.judged.contracts.publisher' version "$contractPublisherVersion"
+    id 'org.springframework.boot' version "$springBootVersion"
 }
 
 apply from: 'gradle/test.gradle'
@@ -75,4 +79,16 @@ flyway {
     password = 'example'
     schemas = ['spring_db']
     defaultSchema = 'spring_db'
+}
+
+bootJar {
+    mainClassName = "$mainClass"
+    manifest {
+        attributes 'Start-Class': "$mainClass"
+    }
+    launchScript()
+}
+
+bootRun {
+    main = "$mainClass"
 }
