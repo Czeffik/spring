@@ -33,8 +33,7 @@ class ArchitectureUT extends Specification {
         'org.slf4j',
         'lombok',
         'com.google.common',
-        'java',
-        DOMAIN_PACKAGE
+        'java'
     ]
 
     static final String[] PACKAGES_ALLOWED_IN_DOMAIN_MATCHER = PACKAGES_ALLOWED_IN_DOMAIN.collect { "${it}.." }
@@ -46,12 +45,20 @@ class ArchitectureUT extends Specification {
     @Shared
     JavaClasses domainClasses = importer.importPackages(DOMAIN_PACKAGE).as('DOMAIN')
 
-    def 'in domain are allowed only classes from: java, common libraries and lombok'() {
+    @Unroll
+    def '#DOMAIN domain should use classes from allowed packages and #DOMAIN package'() {
         given:
+            def domainPackage = "${DOMAIN_PACKAGE}.${DOMAIN}.."
+        and:
             def rule = priority(Priority.HIGH).noClasses()
-                .should().dependOnClassesThat().resideOutsideOfPackages(PACKAGES_ALLOWED_IN_DOMAIN_MATCHER)
+                .that().resideInAPackage(domainPackage)
+                .should().dependOnClassesThat().resideOutsideOfPackages(getAllowedPackages(domainPackage))
         expect:
             rule.check(domainClasses)
+        where:
+            DOMAIN   | _
+            'game'   | _
+            'player' | _
     }
 
     def 'in domain are only allowed annotations from: java, common libraries and lombok'() {
@@ -161,6 +168,13 @@ class ArchitectureUT extends Specification {
                 return packageNames.any { packageName -> !input.rawType.packageName.startsWith(packageName) }
             }
         }
+    }
+
+    private static String[] getAllowedPackages(String domainPackage) {
+        def copy = []
+        copy.addAll(PACKAGES_ALLOWED_IN_DOMAIN_MATCHER)
+        copy << domainPackage
+        return copy
     }
 
 }
