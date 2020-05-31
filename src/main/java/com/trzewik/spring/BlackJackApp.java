@@ -5,14 +5,12 @@ import com.trzewik.spring.infrastructure.InfrastructureConfiguration;
 import com.trzewik.spring.interfaces.rest.RestConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @Import({
     DomainConfiguration.class,
     RestConfiguration.class,
-    InfrastructureConfiguration.class,
-    PropertyPlaceholderAutoConfiguration.class
+    InfrastructureConfiguration.class
 })
 @SpringBootConfiguration
 public class BlackJackApp {

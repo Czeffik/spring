@@ -45,8 +45,6 @@ class ArchitectureUT extends Specification {
     JavaClasses allClasses = importer.importPackages(BASE_PACKAGE).as('ALL')
     @Shared
     JavaClasses domainClasses = importer.importPackages(DOMAIN_PACKAGE).as('DOMAIN')
-    @Shared
-    JavaClasses infrastructureClasses = importer.importPackages(INFRASTRUCTURE_PACKAGE).as('INFRASTRUCTURE')
 
     def 'in domain are allowed only classes from: java, common libraries and lombok'() {
         given:
