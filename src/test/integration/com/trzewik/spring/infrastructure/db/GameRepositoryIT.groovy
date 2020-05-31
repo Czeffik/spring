@@ -15,7 +15,7 @@ import com.trzewik.spring.infrastructure.db.player.PlayerTableVerification
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
@@ -52,7 +52,7 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         given:
             def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { player, playerInGame -> savePlayer(player) }
+            game.players.each { player -> savePlayer(player) }
         when:
             repository.save(game)
         then:
@@ -64,9 +64,9 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
             def playersInGames = getAllPlayersInGame()
             playersInGames.size() == 2
         and:
-            validatePlayerInGame(playersInGames, game, game.croupier, game.players)
+            validatePlayerInGame(playersInGames, game, game.croupier)
         and:
-            validatePlayerInGame(playersInGames, game, game.currentPlayer, game.players)
+            validatePlayerInGame(playersInGames, game, game.currentPlayer)
     }
 
     def '''should return empty optional when can not find game with it
@@ -74,11 +74,11 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         given:
             def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { player, playerInGame -> savePlayer(player) }
+            game.players.each { player -> savePlayer(player) }
         and:
             saveGame(game)
         and:
-            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
+            game.players.each { player -> savePlayerInGame(game.id, player) }
         expect:
             !repository.findById('other-id').isPresent()
         when:
@@ -93,11 +93,11 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         given:
             def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { player, playerInGame -> savePlayer(player) }
+            game.players.each { player -> savePlayer(player) }
         and:
             saveGame(game)
         and:
-            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
+            game.players.each { player -> savePlayerInGame(game.id, player) }
         when:
             repository.getById('other-id')
         then:
@@ -114,18 +114,18 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
         given:
             def game = createGame(new GameCreator().startedGame())
         and:
-            game.players.each { player, playerInGame -> savePlayer(player) }
+            game.players.each { player -> savePlayer(player) }
         and:
             saveGame(game)
         and:
-            game.players.each { player, playerInGame -> savePlayerInGame(game.id, player.id, playerInGame) }
+            game.players.each { player -> savePlayerInGame(game.id, player) }
         and:
             def updatedGame = createGame(new GameCreator(
                 game,
                 [
                     status : Game.Status.ENDED,
-                    players: game.players.collectEntries { player, playerInGame ->
-                        [player, createPlayerInGame(new PlayerInGameCreator(playerInGame, [move: Game.Move.STAND]))]
+                    players: game.players.collect { player ->
+                        createPlayerInGame(new PlayerInGameCreator(player, [move: Game.Move.STAND]))
                     }
                 ]
             ))
@@ -140,17 +140,16 @@ class GameRepositoryIT extends DbSpec implements GameCreation, PlayerInGameCreat
             def playersInGames = getAllPlayersInGame()
             playersInGames.size() == 2
         and:
-            validatePlayerInGame(playersInGames, updatedGame, updatedGame.croupier, updatedGame.players)
+            validatePlayerInGame(playersInGames, updatedGame, updatedGame.croupier)
         and:
-            validatePlayerInGame(playersInGames, updatedGame, updatedGame.players.keySet().find { it != updatedGame.croupier }, updatedGame.players)
+            validatePlayerInGame(playersInGames, updatedGame, updatedGame.players.find { it != updatedGame.croupier })
     }
 
     def 'should throw exception when missing record in player table'() {
         when:
             repository.save(createGame(new GameCreator().startedGame()))
         then:
-            JpaObjectRetrievalFailureException ex = thrown()
-            ex.message.matches('Unable to find.* with id.*')
+            thrown(DataIntegrityViolationException)
     }
 
     @Override

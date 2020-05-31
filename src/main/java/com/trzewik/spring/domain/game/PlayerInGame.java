@@ -10,22 +10,52 @@ import java.util.Set;
 @Getter
 @EqualsAndHashCode
 public class PlayerInGame {
+    private final @NonNull String playerId;
+    private final @NonNull String name;
     private final @NonNull Set<Card> hand;
     private final Game.Move move;
 
-    public PlayerInGame(@NonNull final Set<Card> hand, final Game.Move move) {
+    public PlayerInGame(
+        @NonNull final String playerId,
+        @NonNull final String name,
+        @NonNull final Set<Card> hand,
+        final Game.Move move
+    ) {
+        this.playerId = playerId;
+        this.name = name;
         this.hand = ImmutableSet.copyOf(hand);
         this.move = move;
     }
 
-    PlayerInGame() {
-        this.hand = ImmutableSet.<Card>builder().build();
-        this.move = null;
+    public PlayerInGame(
+        @NonNull final String playerId,
+        @NonNull final String name
+    ) {
+        this(
+            playerId,
+            name,
+            ImmutableSet.<Card>builder().build(),
+            null
+        );
+    }
+
+    private PlayerInGame(
+        @NonNull final PlayerInGame playerInGame,
+        @NonNull final Set<Card> hand,
+        final Game.Move move
+    ) {
+        this(
+            playerInGame.getPlayerId(),
+            playerInGame.getName(),
+            hand,
+            move
+        );
     }
 
     @Override
     public String toString() {
-        return String.format("{hand=%s, move=%s}", hand, move);
+        return String.format("{playerId=%s, name=%s, hand=%s, move=%s}",
+            playerId, name, hand, move);
     }
 
     PlayerInGame addCard(@NonNull final Card card) {
@@ -34,11 +64,11 @@ public class PlayerInGame {
             .add(card)
             .build();
 
-        return new PlayerInGame(handWithNewCard, this.move);
+        return new PlayerInGame(this, handWithNewCard, this.move);
     }
 
     PlayerInGame changeMove(@NonNull final Game.Move move) {
-        return new PlayerInGame(this.hand, move);
+        return new PlayerInGame(this, this.hand, move);
     }
 
     public int handValue() {

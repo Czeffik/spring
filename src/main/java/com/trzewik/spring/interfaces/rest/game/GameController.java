@@ -3,8 +3,8 @@ package com.trzewik.spring.interfaces.rest.game;
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.GameRepository;
 import com.trzewik.spring.domain.game.GameService;
+import com.trzewik.spring.domain.game.PlayerServiceClient;
 import com.trzewik.spring.domain.game.Result;
-import com.trzewik.spring.domain.player.PlayerRepository;
 import com.trzewik.spring.interfaces.rest.common.ErrorDto;
 import com.trzewik.spring.interfaces.rest.common.ErrorEntityHelper;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class GameController {
     public GameDto addPlayer(
         @PathVariable(value = "gameId") final String gameId,
         @PathVariable(value = "playerId") final String playerId
-    ) throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
+    ) throws Game.Exception, GameRepository.GameNotFoundException, PlayerServiceClient.PlayerNotFoundException {
         final GameService.AddPlayerToGameCommand command = new GameService.AddPlayerToGameCommand(gameId, playerId);
         return GameDto.from(gameService.addPlayer(command));
     }
@@ -74,7 +74,7 @@ public class GameController {
     }
 
     @ExceptionHandler(value =
-        {PlayerRepository.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class}
+        {PlayerServiceClient.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class}
     )
     public ResponseEntity<ErrorDto> handleNotFound(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);

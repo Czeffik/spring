@@ -1,11 +1,10 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.player.PlayerService
 import spock.lang.Specification
 
 class GameServiceFactoryUT extends Specification {
-    def 'should create game service with given repositories'() {
+    def 'should create game service with given repository and client'() {
         expect:
-            GameServiceFactory.create(Mock(GameRepository), Mock(PlayerService))
+            GameServiceFactory.create(Mock(GameRepository), Mock(PlayerServiceClient))
     }
 }

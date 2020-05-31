@@ -1,35 +1,34 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.player.PlayerCreation
 import spock.lang.Specification
 
-class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInGameCreation, CardCreation, GameCreation {
+class ResultsHelperUT extends Specification implements PlayerInGameCreation, CardCreation, GameCreation {
 
     def '''should create results - players which are closest to 21 are top players
             and should be sorted from highest to lowest hand value,
             players which have greater hand value than 21 should be sorted from lowest to highest '''() {
         given:
-            def player1 = createPlayer(new PlayerCreator(name: 'player1'))
             def player1InGame = createPlayerInGame(
                 new PlayerInGameCreator(
+                    name: 'player1',
                     hand: [
                         createCard(new CardCreator(rank: Card.Rank.ACE)),
                         createCard(new CardCreator(rank: Card.Rank.KING))]
                 ))
 
         and:
-            def player2 = createPlayer(new PlayerCreator(name: 'player2'))
             def player2InGame = createPlayerInGame(
                 new PlayerInGameCreator(
+                    name: 'player2',
                     hand: [
                         createCard(new CardCreator(rank: Card.Rank.QUEEN)),
                         createCard(new CardCreator(rank: Card.Rank.KING))]
                 ))
 
         and:
-            def player3 = createPlayer(new PlayerCreator(name: 'player3'))
             def player3InGame = createPlayerInGame(
                 new PlayerInGameCreator(
+                    name: 'player3',
                     hand: [
                         createCard(new CardCreator(rank: Card.Rank.QUEEN)),
                         createCard(new CardCreator(rank: Card.Rank.KING)),
@@ -38,9 +37,9 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
                 ))
 
         and:
-            def player4 = createPlayer(new PlayerCreator(name: 'player4'))
             def player4InGame = createPlayerInGame(
                 new PlayerInGameCreator(
+                    name: 'player4',
                     hand: [
                         createCard(new CardCreator(rank: Card.Rank.QUEEN)),
                         createCard(new CardCreator(rank: Card.Rank.KING)),
@@ -51,10 +50,10 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
         and:
             def game = createGame(new GameCreator(
                 players: [
-                    (player3): player3InGame,
-                    (player4): player4InGame,
-                    (player1): player1InGame,
-                    (player2): player2InGame
+                    player3InGame,
+                    player4InGame,
+                    player1InGame,
+                    player2InGame
                 ],
                 status: Game.Status.ENDED
             ))
@@ -65,7 +64,7 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
         then:
             with(results.get(0)) {
                 place == 1
-                name == player1.name
+                name == player1InGame.name
                 hand == player1InGame.hand
                 handValue == player1InGame.handValue()
             }
@@ -73,7 +72,7 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
         and:
             with(results.get(1)) {
                 place == 2
-                name == player2.name
+                name == player2InGame.name
                 hand == player2InGame.hand
                 handValue == player2InGame.handValue()
             }
@@ -81,7 +80,7 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
         and:
             with(results.get(2)) {
                 place == 3
-                name == player3.name
+                name == player3InGame.name
                 hand == player3InGame.hand
                 handValue == player3InGame.handValue()
             }
@@ -89,7 +88,7 @@ class ResultsHelperUT extends Specification implements PlayerCreation, PlayerInG
         and:
             with(results.get(3)) {
                 place == 4
-                name == player4.name
+                name == player4InGame.name
                 hand == player4InGame.hand
                 handValue == player4InGame.handValue()
             }

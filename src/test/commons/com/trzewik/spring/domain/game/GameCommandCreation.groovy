@@ -1,7 +1,5 @@
 package com.trzewik.spring.domain.game
 
-import com.trzewik.spring.domain.player.Player
-
 trait GameCommandCreation {
 
     GameService.MakeGameMoveCommand createMakeGameMoveCommand(MakeGameMoveCommandCreator creator = new MakeGameMoveCommandCreator()) {
@@ -42,9 +40,9 @@ trait GameCommandCreation {
 
         MakeGameMoveCommandCreator() {}
 
-        MakeGameMoveCommandCreator(Game game, Player player, Game.Move move) {
+        MakeGameMoveCommandCreator(Game game, PlayerInGame player, Game.Move move) {
             this.gameId = game.id
-            this.playerId = player.id
+            this.playerId = player.playerId
             this.move = move
         }
     }
@@ -55,9 +53,9 @@ trait GameCommandCreation {
 
         AddPlayerToGameCommandCreator() {}
 
-        AddPlayerToGameCommandCreator(Game game, Player player) {
+        AddPlayerToGameCommandCreator(Game game, PlayerInGame player) {
             this.gameId = game.id
-            this.playerId = player.id
+            this.playerId = player.playerId
         }
     }
 

@@ -1,21 +1,63 @@
 package com.trzewik.spring.domain.game
 
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class PlayerInGameUT extends Specification implements CardCreation {
+class PlayerInGameUT extends Specification implements PlayerInGameCreation, CardCreation {
 
-    def 'should create game with move as null and empty hand'() {
+    @Shared
+    def PLAYER_NAME = 'NAME'
+    @Shared
+    def PLAYER_ID = 'ID'
+
+    def 'should create game with move as null and empty hand, and name and id'() {
         given:
-            def playerInGame = new PlayerInGame()
+            def playerInGame = new PlayerInGame(PLAYER_ID, PLAYER_NAME)
         expect:
-            playerInGame.hand.isEmpty()
-            playerInGame.move == null
+            with(playerInGame) {
+                hand.isEmpty()
+                move == null
+                name == PLAYER_NAME
+                playerId == PLAYER_ID
+            }
     }
 
-    def 'should throw exception when creating with null hand'() {
+    def 'should throw exception when creating with null id'() {
         when:
-            new PlayerInGame(null, null)
+            new PlayerInGame(null, '')
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'playerId is marked non-null but is null'
+    }
+
+    def 'should throw exception when creating with null name'() {
+        when:
+            new PlayerInGame('', null)
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'name is marked non-null but is null'
+    }
+
+    def 'should throw exception when creating with null id all args'() {
+        when:
+            new PlayerInGame(null, '', [] as Set, null)
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'playerId is marked non-null but is null'
+    }
+
+    def 'should throw exception when creating with null name all args'() {
+        when:
+            new PlayerInGame('', null, [] as Set, null)
+        then:
+            NullPointerException ex = thrown()
+            ex.message == 'name is marked non-null but is null'
+    }
+
+    def 'should throw exception when creating with null hand all args'() {
+        when:
+            new PlayerInGame('', '', null, null)
         then:
             NullPointerException ex = thrown()
             ex.message == 'hand is marked non-null but is null'
@@ -23,28 +65,32 @@ class PlayerInGameUT extends Specification implements CardCreation {
 
     def 'should create with given hand and move'() {
         given:
-            def hand = [] as Set
-            def move = Game.Move.STAND
+            def givenHand = [] as Set
+            def givenMove = Game.Move.STAND
         when:
-            def playerInGame = new PlayerInGame(hand, move)
+            def playerInGame = new PlayerInGame(PLAYER_ID, PLAYER_NAME, givenHand, givenMove)
         then:
-            playerInGame.hand == hand
-            playerInGame.move == move
+            with(playerInGame) {
+                hand == givenHand
+                move == givenMove
+                name == PLAYER_NAME
+                playerId == PLAYER_ID
+            }
     }
 
     def 'should return string representation of object'() {
         expect:
-            new PlayerInGame().toString() == '{hand=[], move=null}'
+            new PlayerInGame(PLAYER_ID, PLAYER_NAME).toString() == "{playerId=$PLAYER_ID, name=$PLAYER_NAME, hand=[], move=null}".toString()
     }
 
-    def 'players in game with same hand and move should be equls'() {
+    def 'same players in game should be equals'() {
         given:
             def hand = [createCard()] as Set
             def move = Game.Move.HIT
         and:
-            def player1 = new PlayerInGame(hand, move)
+            def player1 = new PlayerInGame(PLAYER_ID, PLAYER_NAME, hand, move)
         and:
-            def player2 = new PlayerInGame(hand, move)
+            def player2 = new PlayerInGame(PLAYER_ID, PLAYER_NAME, hand, move)
         expect:
             player1 == player2
     }
@@ -52,9 +98,9 @@ class PlayerInGameUT extends Specification implements CardCreation {
     @Unroll
     def 'player with hand: #HAND and move: #MOVE should be not equals to player with hand: #HAND2 and move: #MOVE2'() {
         given:
-            def player1 = new PlayerInGame(HAND, MOVE)
+            def player1 = new PlayerInGame(PLAYER_ID, PLAYER_NAME, HAND, MOVE)
         and:
-            def player2 = new PlayerInGame(HAND2, MOVE2)
+            def player2 = new PlayerInGame(PLAYER_ID, PLAYER_NAME, HAND2, MOVE2)
         expect:
             player1 != player2
         where:
@@ -68,7 +114,7 @@ class PlayerInGameUT extends Specification implements CardCreation {
         given:
             def card = createCard()
         and:
-            def player = new PlayerInGame()
+            def player = new PlayerInGame(PLAYER_ID, PLAYER_NAME)
         when:
             def playerWithCard = player.addCard(card)
         then:
@@ -81,7 +127,7 @@ class PlayerInGameUT extends Specification implements CardCreation {
 
     def 'should throw exception when adding card which is null'() {
         given:
-            def player = new PlayerInGame()
+            def player = new PlayerInGame(PLAYER_ID, PLAYER_NAME)
         when:
             player.addCard(null)
         then:
@@ -92,7 +138,7 @@ class PlayerInGameUT extends Specification implements CardCreation {
     @Unroll
     def 'should return is looser: #RESULT when hand is: #HAND'() {
         given:
-            def player = new PlayerInGame(HAND, Game.Move.STAND)
+            def player = new PlayerInGame(PLAYER_ID, PLAYER_NAME, HAND, Game.Move.STAND)
         expect:
             player.isLooser() == RESULT
         where:
@@ -105,7 +151,7 @@ class PlayerInGameUT extends Specification implements CardCreation {
     @Unroll
     def 'for hand: #HAND should return hand value: #EXPECTED_VALUE'() {
         given:
-            def player = new PlayerInGame(HAND, Game.Move.STAND)
+            def player = new PlayerInGame(PLAYER_ID, PLAYER_NAME, HAND, Game.Move.STAND)
         expect:
             player.handValue() == EXPECTED_VALUE
         where:

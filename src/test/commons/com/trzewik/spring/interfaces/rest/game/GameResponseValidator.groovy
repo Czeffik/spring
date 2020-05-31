@@ -4,7 +4,6 @@ import com.trzewik.spring.domain.game.Card
 import com.trzewik.spring.domain.game.Game
 import com.trzewik.spring.domain.game.PlayerInGame
 import com.trzewik.spring.domain.game.Result
-import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.interfaces.rest.ResponseValidator
 import io.restassured.response.Response
 
@@ -13,19 +12,17 @@ trait GameResponseValidator extends ResponseValidator {
         def parsedResponse = parseResponse(response)
         assert parsedResponse.id == game.id
         assert parsedResponse.status == game.status.name()
-        assert validatePlayer(parsedResponse.currentPlayer, game.currentPlayer, game.players)
-        assert validateCroupier(parsedResponse.croupier, game.croupier, game.players)
+        assert validatePlayer(parsedResponse.currentPlayer, game.currentPlayer)
+        assert validateCroupier(parsedResponse.croupier, game.croupier)
 
         return true
     }
 
-    boolean validatePlayer(parsedPlayer, Player player, Map<Player, PlayerInGame> players) {
-        def playerInGame = players.get(player)
-
-        assert parsedPlayer.id == player.id
+    boolean validatePlayer(parsedPlayer, PlayerInGame player) {
+        assert parsedPlayer.id == player.playerId
         assert parsedPlayer.name == player.name
-        assert parsedPlayer.move == playerInGame.move?.name()
-        assert validatePlayerHand(parsedPlayer.hand, playerInGame)
+        assert parsedPlayer.move == player.move?.name()
+        assert validatePlayerHand(parsedPlayer.hand, player)
 
         return true
     }
@@ -51,10 +48,10 @@ trait GameResponseValidator extends ResponseValidator {
         return true
     }
 
-    boolean validateCroupier(parsedCroupier, Player croupier, Map<Player, PlayerInGame> players) {
-        assert parsedCroupier.id == croupier.id
+    boolean validateCroupier(parsedCroupier, PlayerInGame croupier) {
+        assert parsedCroupier.id == croupier.playerId
         assert parsedCroupier.name == croupier.name
-        assert validateCard(parsedCroupier.card, players.get(croupier).hand.first())
+        assert validateCard(parsedCroupier.card, croupier.hand.first())
 
         return true
     }

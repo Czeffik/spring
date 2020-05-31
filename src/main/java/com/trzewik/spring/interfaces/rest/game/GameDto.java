@@ -17,8 +17,8 @@ public class GameDto {
         return new GameDto(
             game.getId(),
             game.getStatus(),
-            PlayerInGameDto.from(game.getCurrentPlayer(), game.getPlayers()),
-            CroupierDto.from(game.getCroupier(), game.getPlayers())
+            PlayerInGameDto.from(game.getCurrentPlayer()),
+            CroupierDto.from(game.getCroupier())
         );
     }
 }

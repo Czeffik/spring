@@ -58,14 +58,16 @@ public class PlayerInGameEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private Game.Move move;
 
-    public PlayerInGameEntity(final String gameId, final String playerId, final PlayerInGame playerInGame) {
-        this.id = new PlayerInGameId(gameId, playerId);
+    public PlayerInGameEntity(final String gameId, final PlayerInGame playerInGame) {
+        this.id = new PlayerInGameId(gameId, playerInGame.getPlayerId());
         this.hand = playerInGame.getHand().stream().map(CardDto::from).collect(Collectors.toSet());
         this.move = playerInGame.getMove();
     }
 
     public PlayerInGame toPlayerInGame() {
         return new PlayerInGame(
+            this.player.getId(),
+            this.player.getName(),
             this.hand.stream().map(CardDto::toCard).collect(Collectors.toSet()),
             this.move
         );

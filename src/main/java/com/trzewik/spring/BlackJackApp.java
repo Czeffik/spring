@@ -1,7 +1,7 @@
 package com.trzewik.spring;
 
 import com.trzewik.spring.infrastructure.DomainConfiguration;
-import com.trzewik.spring.infrastructure.db.DbConfiguration;
+import com.trzewik.spring.infrastructure.InfrastructureConfiguration;
 import com.trzewik.spring.interfaces.rest.RestConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 @Import({
     DomainConfiguration.class,
     RestConfiguration.class,
-    DbConfiguration.class,
+    InfrastructureConfiguration.class,
     PropertyPlaceholderAutoConfiguration.class
 })
 @SpringBootConfiguration

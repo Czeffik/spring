@@ -2,12 +2,10 @@ package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Game;
 import com.trzewik.spring.domain.game.PlayerInGame;
-import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Getter
@@ -18,14 +16,14 @@ public class PlayerInGameDto {
     private final HandDto hand;
     private final Game.Move move;
 
-    public static PlayerInGameDto from(final Player player, final Map<Player, PlayerInGame> players) {
+    public static PlayerInGameDto from(final PlayerInGame player) {
         return Optional.ofNullable(player)
             .map(p ->
                 new PlayerInGameDto(
-                    p.getId(),
+                    p.getPlayerId(),
                     p.getName(),
-                    HandDto.from(players.get(player)),
-                    players.get(player).getMove()))
+                    HandDto.from(player),
+                    player.getMove()))
             .orElse(null);
     }
 }

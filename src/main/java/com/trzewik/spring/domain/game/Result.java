@@ -1,6 +1,5 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.player.Player;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -15,9 +14,9 @@ public class Result {
     private final @NonNull Set<Card> hand;
     private final int handValue;
 
-    Result(final int place, @NonNull final Player player, @NonNull final PlayerInGame playerInGame) {
+    Result(final int place, @NonNull final PlayerInGame playerInGame) {
         this.place = place;
-        this.name = player.getName();
+        this.name = playerInGame.getName();
         this.hand = playerInGame.getHand();
         this.handValue = playerInGame.handValue();
     }

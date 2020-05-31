@@ -10,13 +10,12 @@ import groovy.sql.GroovyRowResult
 trait PlayerInGameTableVerification {
     abstract JsonSlurper getSlurper()
 
-    boolean validatePlayerInGame(List<GroovyRowResult> playersInGamesFromDb, Game game, Player player, Map<Player, PlayerInGame> players) {
-        def playerInGameFromDb = playersInGamesFromDb.find { it.player_id == player.id && it.game_id == game.id }
-        def playerInGame = players.get(player)
+    boolean validatePlayerInGame(List<GroovyRowResult> playersInGamesFromDb, Game game, PlayerInGame player) {
+        def playerInGameFromDb = playersInGamesFromDb.find { it.player_id == player.playerId && it.game_id == game.id }
 
         assert playerInGameFromDb
-        assert playerInGameFromDb.move == playerInGame.move?.name()
-        assert validateHand(slurper.parseText(playerInGameFromDb.hand.value), playerInGame.hand)
+        assert playerInGameFromDb.move == player.move?.name()
+        assert validateHand(slurper.parseText(playerInGameFromDb.hand.value), player.hand)
 
         return true
     }

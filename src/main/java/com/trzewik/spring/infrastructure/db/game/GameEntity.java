@@ -1,7 +1,6 @@
 package com.trzewik.spring.infrastructure.db.game;
 
 import com.trzewik.spring.domain.game.Game;
-import com.trzewik.spring.infrastructure.db.player.PlayerEntity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,12 +16,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.MapKeyJoinColumn;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
@@ -45,34 +45,37 @@ public class GameEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private Game.Status status;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private PlayerEntity croupier;
+    @Column(name = "croupier_id")
+    private String croupierId;
 
-    @MapKeyJoinColumn(name = "player_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumns({
+        @JoinColumn(name = "id", insertable = false, updatable = false),
+        @JoinColumn(name = "croupier_id", insertable = false, updatable = false)
+    })
+    private PlayerInGameEntity croupier;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "game", cascade = CascadeType.ALL)
-    private Map<PlayerEntity, PlayerInGameEntity> players;
+    private List<PlayerInGameEntity> players;
 
     public GameEntity(final Game game) {
         this.id = game.getId();
         this.deck = DeckDto.from(game.getDeck());
         this.status = game.getStatus();
-        this.croupier = new PlayerEntity(game.getCroupier());
-        this.players = game.getPlayers().entrySet().stream()
-            .collect(Collectors.toMap(
-                e -> new PlayerEntity(e.getKey()),
-                e -> new PlayerInGameEntity(id, e.getKey().getId(), e.getValue())
-            ));
+        this.croupierId = game.getCroupierId();
+        this.players = game.getPlayers().stream()
+            .map(p -> new PlayerInGameEntity(game.getId(), p))
+            .collect(Collectors.toList());
     }
 
     public Game toGame() {
         return new Game(
             this.id,
             this.deck.toDeck(),
-            this.players.entrySet().stream().collect(Collectors.toMap(
-                e -> e.getKey().toPlayer(),
-                e -> e.getValue().toPlayerInGame()
-            )),
-            this.croupier.toPlayer(),
+            this.players.stream()
+                .map(PlayerInGameEntity::toPlayerInGame)
+                .collect(Collectors.toList()),
+            this.croupierId,
             this.status
         );
     }

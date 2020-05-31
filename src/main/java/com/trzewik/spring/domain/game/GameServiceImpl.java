@@ -1,8 +1,5 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.player.Player;
-import com.trzewik.spring.domain.player.PlayerRepository;
-import com.trzewik.spring.domain.player.PlayerService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +10,12 @@ import java.util.List;
 @RequiredArgsConstructor
 class GameServiceImpl implements GameService {
     private final @NonNull GameRepository gameRepo;
-    private final @NonNull PlayerService playerService;
+    private final @NonNull PlayerServiceClient playerServiceClient;
 
     @Override
     public Game create(@NonNull final CreateGameCommand createGameCommand) {
         log.info("Received create game command: [{}].", createGameCommand);
-        final PlayerService.GetCroupierCommand command = new PlayerService.GetCroupierCommand();
-        final Player croupier = playerService.getCroupier(command);
+        final PlayerInGame croupier = playerServiceClient.getCroupier();
         log.info("Create game with croupier: [{}].", croupier);
         final Game game = new Game(croupier);
 
@@ -31,12 +27,9 @@ class GameServiceImpl implements GameService {
 
     @Override
     public Game addPlayer(@NonNull final GameService.AddPlayerToGameCommand addPlayerToGameCommand)
-        throws Game.Exception, GameRepository.GameNotFoundException, PlayerRepository.PlayerNotFoundException {
+        throws Game.Exception, GameRepository.GameNotFoundException, PlayerServiceClient.PlayerNotFoundException {
         log.info("Received add player to game command: [{}].", addPlayerToGameCommand);
-
-        final PlayerService.GetPlayerCommand command =
-            new PlayerService.GetPlayerCommand(addPlayerToGameCommand.getPlayerId());
-        final Player player = playerService.get(command);
+        final PlayerInGame player = playerServiceClient.getPlayer(addPlayerToGameCommand.getPlayerId());
         final Game game = gameRepo.getById(addPlayerToGameCommand.getGameId()).addPlayer(player);
 
         log.info("Added player to game: [{}].", game);

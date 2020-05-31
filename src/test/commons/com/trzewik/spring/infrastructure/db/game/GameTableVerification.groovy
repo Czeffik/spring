@@ -14,7 +14,7 @@ trait GameTableVerification {
 
         assert gameInDb
         assert gameInDb.status == game.status.name()
-        assert gameInDb.croupier_id == game.croupier.id
+        assert gameInDb.croupier_id == game.croupierId
         assert validateDeck(slurper.parseText(gameInDb.deck.value), game.deck)
 
         return true

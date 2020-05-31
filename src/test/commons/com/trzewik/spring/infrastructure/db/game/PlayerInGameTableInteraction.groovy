@@ -18,10 +18,10 @@ trait PlayerInGameTableInteraction extends DatabaseTableInteraction {
         deleteAll(gamesPlayersTable)
     }
 
-    List<List<Object>> savePlayerInGame(String gameId, String playerId, PlayerInGame player) {
+    List<List<Object>> savePlayerInGame(String gameId, PlayerInGame player) {
         String query = "INSERT INTO $gamesPlayersTable (game_id, player_id, hand, move) VALUES (?, ?, CAST(? AS JSON), ?)"
         log.info(query)
-        sql.executeInsert(query.toString(), [gameId, playerId, convertCardsToString(player.hand), player.move?.name()])
+        sql.executeInsert(query.toString(), [gameId, player.playerId, convertCardsToString(player.hand), player.move?.name()])
     }
 
     String convertCardsToString(Collection<Card> hand) {

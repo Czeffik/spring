@@ -2,12 +2,10 @@ package com.trzewik.spring.interfaces.rest.game;
 
 import com.trzewik.spring.domain.game.Card;
 import com.trzewik.spring.domain.game.PlayerInGame;
-import com.trzewik.spring.domain.player.Player;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -17,11 +15,11 @@ public class CroupierDto {
     private final String name;
     private final CardDto card;
 
-    public static CroupierDto from(final Player croupier, final Map<Player, PlayerInGame> players) {
+    public static CroupierDto from(final PlayerInGame croupier) {
         return new CroupierDto(
-            croupier.getId(),
+            croupier.getPlayerId(),
             croupier.getName(),
-            getFirstCard(players.get(croupier).getHand())
+            getFirstCard(croupier.getHand())
         );
     }
 

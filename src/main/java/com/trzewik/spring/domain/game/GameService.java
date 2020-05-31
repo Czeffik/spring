@@ -1,6 +1,5 @@
 package com.trzewik.spring.domain.game;
 
-import com.trzewik.spring.domain.player.PlayerRepository;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ public interface GameService {
     Game create(CreateGameCommand createGameCommand);
 
     Game addPlayer(AddPlayerToGameCommand addPlayerToGameCommand)
-        throws GameRepository.GameNotFoundException, Game.Exception, PlayerRepository.PlayerNotFoundException;
+        throws GameRepository.GameNotFoundException, Game.Exception, PlayerServiceClient.PlayerNotFoundException;
 
     Game start(StartGameCommand startGameCommand) throws GameRepository.GameNotFoundException, Game.Exception;
 

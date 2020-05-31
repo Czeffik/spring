@@ -1,5 +1,6 @@
 package com.trzewik.spring.infrastructure.db.player
 
+import com.trzewik.spring.domain.game.PlayerInGame
 import com.trzewik.spring.domain.player.Player
 import com.trzewik.spring.infrastructure.db.DatabaseTableInteraction
 import groovy.sql.GroovyRowResult
@@ -14,6 +15,12 @@ trait PlayerTableInteraction extends DatabaseTableInteraction {
 
     void deleteAllPlayers() {
         deleteAll(playersTable)
+    }
+
+    List<List<Object>> savePlayer(PlayerInGame player) {
+        String query = "INSERT INTO $playersTable (id, name) VALUES (?, ?)"
+        log.info(query)
+        return sql.executeInsert(query.toString(), [player.playerId, player.name])
     }
 
     List<List<Object>> savePlayer(Player player) {
