@@ -307,6 +307,23 @@ class GameControllerIT extends Specification implements GameRequestSender, Resul
             validateErrorResponse(response, exceptionMessage, HttpStatus.BAD_REQUEST)
     }
 
+    def 'should return INTERNAL_SERVER_ERROR with message when Exception is thrown'() {
+        given:
+            String gameId = 'example-game-id'
+        and:
+            String exceptionMessage = 'exception message which should be returned by controller'
+        when:
+            Response response = getResultsRequest(gameId)
+        then:
+            1 * gameService.getResults({ GameService.GetGameResultsCommand command ->
+                assert command.gameId == gameId
+            }) >> { throw new Exception(exceptionMessage) }
+        and:
+            response.statusCode() == 500
+        and:
+            validateErrorResponse(response, 'internal.server.error', HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
     @Override
     JsonSlurper getSlurper() {
         return jsonSlurper

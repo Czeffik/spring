@@ -102,7 +102,7 @@ class PlayerControllerIT extends Specification implements PlayerRequestSender, P
         and:
             response.statusCode() == 500
         and:
-            validateErrorResponse(response, null, HttpStatus.INTERNAL_SERVER_ERROR)
+            validateErrorResponse(response, 'internal.server.error', HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @Override

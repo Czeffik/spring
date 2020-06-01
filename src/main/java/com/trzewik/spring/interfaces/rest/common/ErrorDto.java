@@ -14,4 +14,10 @@ public class ErrorDto {
         this.code = status.value();
         this.reason = status.getReasonPhrase();
     }
+
+    public ErrorDto(final String message, final HttpStatus status) {
+        this.message = message;
+        this.code = status.value();
+        this.reason = status.getReasonPhrase();
+    }
 }

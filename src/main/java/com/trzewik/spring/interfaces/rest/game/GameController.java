@@ -67,16 +67,27 @@ public class GameController {
         return ResultsDto.from(results);
     }
 
-    @ExceptionHandler(value = {Game.Exception.class, Result.Exception.class,
-        IllegalArgumentException.class, NullPointerException.class, MethodArgumentTypeMismatchException.class})
+    @ExceptionHandler(value = {
+        Game.Exception.class,
+        Result.Exception.class,
+        IllegalArgumentException.class,
+        NullPointerException.class,
+        MethodArgumentTypeMismatchException.class
+    })
     public ResponseEntity<ErrorDto> handleBadRequest(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value =
-        {PlayerServiceClient.PlayerNotFoundException.class, GameRepository.GameNotFoundException.class}
-    )
+    @ExceptionHandler(value = {
+        PlayerServiceClient.PlayerNotFoundException.class,
+        GameRepository.GameNotFoundException.class
+    })
     public ResponseEntity<ErrorDto> handleNotFound(Exception ex) {
         return ErrorEntityHelper.create(ex, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = {Exception.class})
+    public ResponseEntity<ErrorDto> handleInternalServerError(Exception ex) {
+        return ErrorEntityHelper.createInternalServerError();
     }
 }

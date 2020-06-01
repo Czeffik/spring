@@ -47,7 +47,7 @@ public class PlayerController {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ErrorDto> handleInternalServerError(Exception ex) {
-        return ErrorEntityHelper.create(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ErrorEntityHelper.createInternalServerError();
     }
 
     @Data
