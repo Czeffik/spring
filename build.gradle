@@ -17,7 +17,7 @@ buildscript {
 
         //plugins
         pitestVersion = '1.4.6'
-        flywayVersion = '6.4.1'
+        flywayVersion = '6.4.3'
         contractPublisherVersion = '1.0.9'
 
         //main class
