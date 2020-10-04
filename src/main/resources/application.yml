@@ -14,3 +14,8 @@ spring:
         default_schema: spring_db
 server:
   port: 8080
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: logs
+    basedir: ./tomcat

@@ -4,6 +4,7 @@ import com.trzewik.spring.domain.game.GameService;
 import com.trzewik.spring.domain.player.PlayerService;
 import com.trzewik.spring.interfaces.rest.game.GameController;
 import com.trzewik.spring.interfaces.rest.player.PlayerController;
+import org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Import({
     SwaggerConfiguration.class,
     DispatcherServletAutoConfiguration.class,
-    ServletWebServerFactoryAutoConfiguration.class
+    ServletWebServerFactoryAutoConfiguration.class,
+    EmbeddedWebServerFactoryCustomizerAutoConfiguration.class
 })
 @Configuration
 @EnableWebMvc

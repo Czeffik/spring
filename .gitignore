@@ -23,4 +23,5 @@
 *.class
 
 # Log file
+tomcat
 *.log
